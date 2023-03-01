@@ -1,0 +1,3 @@
+Credits:
+Trees (15) - gamedev.stackexchange.com/questions/135726/pixel-art-tree-using-3-4-perspective
+Lock image (menu) - https://www.reddit.com/r/PixelArt/comments/irgbub/day_15_of_the_pixel_art_competition_any_feedback/

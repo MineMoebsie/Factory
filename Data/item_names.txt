@@ -1,0 +1,2 @@
+[["Research point","Tomato","Potato","Carrot","Log","Wood","Stick", "Milk", "Egg", "Wool","Hard Rock","Smooth Stone","Stone","Emerald","Gold","Iron","Amethyst","Ruby","Topaz","Diamond","Opal","Sapphire"],
+["Research points","Tomatoes", "Potatoes", "Carrots", "Logs", "Wood", "Sticks", "Milk", "Eggs", "Wool","Hard Rocks","Smooth Stones","Stones","Emeralds","Gold","Iron","Amethysts","Rubies","Topaz","Diamonds","Opals","Sapphire"]]

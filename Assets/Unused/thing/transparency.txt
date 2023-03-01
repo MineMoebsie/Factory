@@ -1,0 +1,3 @@
+border: 70%
+semi-border: 40%
+main thing: 60%

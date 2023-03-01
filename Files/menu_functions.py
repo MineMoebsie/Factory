@@ -1,0 +1,527 @@
+import time as t
+import pygame as pg
+import numpy as np
+import random as r
+import pdb
+import datetime
+import json
+
+from Files.factory_functions import *
+
+with open("Data/ver.txt") as f:
+    version = f.read()
+
+pg.init()
+pg.font.init()
+
+menu_font = pg.font.Font('Fonts/Lato.ttf',30)
+title_font = pg.font.Font('Fonts/Roboto.ttf',70)
+ver_font = pg.font.Font('Fonts/Roboto-Light.ttf',15)
+
+btn_font = pg.font.Font('Fonts/Roboto.ttf',40)
+btn_wide_font = pg.font.Font('Fonts/Roboto.ttf',25)
+
+btn_wide_disabled_font = pg.font.Font('Fonts/Roboto-Italic.ttf',25)
+btn_wide_font_create = pg.font.Font('Fonts/Roboto-Bold.ttf',25)
+
+world_title_font = pg.font.Font('Fonts/Lato.ttf', 52)
+world_btn_font = pg.font.Font('Fonts/Roboto.ttf', 25)
+
+textbox_font = pg.font.Font('Fonts/DMM-Mono.ttf', 30)
+textbox_placeholder_font = pg.font.Font('Fonts/DMM-Mono-Italic.ttf', 30)
+
+btn_w, btn_h = (260,130)
+menu_button = import_foto("menu_button.png", btn_w, btn_h)
+menu_button_hover = import_foto("menu_button_hover.png", btn_w, btn_h)
+
+btn_w_wide, btn_h_wide = (260,65)
+menu_button_wide = import_foto("menu_button_wide.png", btn_w_wide, btn_h_wide)
+menu_button_wide_hover = import_foto("menu_button_wide_hover.png", btn_w_wide, btn_h_wide)
+
+btn_w_widexl, btn_h_widexl = (540,65)
+menu_button_widexl = import_foto("menu_button_widexl.png", btn_w_widexl, btn_h_widexl)
+menu_button_widexl_hover = import_foto("menu_button_widexl_hover.png", btn_w_widexl, btn_h_widexl)
+
+
+btn_world_w, btn_world_h = (1000, 250)
+world_select_button = import_foto("world_select_button.png", btn_world_w, btn_world_h)
+world_select_button_selected = import_foto("world_select_button_selected.png", btn_world_w, btn_world_h)
+
+world_menu_top_w, world_menu_top_h = (2500, 175)
+# world_menu_top = import_foto("world_menu_top.png", world_menu_top_w, world_menu_top_h)
+
+backg_pic_1 = import_foto("10.png", 50, 50, convert=True)
+backg_pic_2 = import_foto("11.png", 50, 50, convert=True)
+
+def debug_point(screen, point):
+    pg.draw.circle(screen, (255,0,0), point, 5)
+
+class Button:
+    def __init__(self, screen, x, y, horizontal_align=False, text="Button", font=btn_font, id=None, disabled=False, color=(255,255,255), btn_type=""):
+        self.horizontal_align = horizontal_align
+        self.text = text
+        self.font = font
+        self.hover = False
+        self.id = id
+        self.type = "button"
+        self.disabled = disabled
+        self.color = color
+    
+        self.btn_type = btn_type
+        if self.btn_type != "":
+            self.btn_type = "_" + self.btn_type
+            self.rect = pg.Rect(x, y, eval(f"btn_w{self.btn_type}"), eval(f"btn_h{self.btn_type}"))
+        else:
+            self.rect = pg.Rect(x, y, btn_w, btn_h)
+
+        self.pic = eval(f"menu_button{self.btn_type}")
+        self.pic_hover = eval(f"menu_button{self.btn_type}_hover")
+
+        if self.horizontal_align:
+            self.rect.x = int((screen.get_width() - self.rect.w) / 2)
+
+        if self.disabled:
+            self.textimg = self.font.render(self.text, True, (255, 0, 0))
+        else:
+            self.textimg = self.font.render(self.text, True, self.color)
+
+    def update_disabled(self, disabled):
+        self.disabled = disabled
+        self.textimg = None # reset textimg
+        if self.disabled:
+            self.textimg = self.font.render(self.text, True, (100, 100, 100))
+        else:
+            self.textimg = self.font.render(self.text, True, self.color)
+
+    def draw(self, screen):
+        if self.hover:
+            screen.blit(self.pic_hover ,(self.rect.x, self.rect.y))
+        else:
+            screen.blit(self.pic ,(self.rect.x, self.rect.y))
+
+        screen.blit(self.textimg, (int(self.rect.x + self.rect.w / 2 - self.textimg.get_width() / 2),
+                                   int(self.rect.y + self.rect.h / 2 - self.textimg.get_height() / 2)))
+
+    def update_hover(self, mx, my):
+        self.hover = True if self.rect.collidepoint(mx, my) else False
+
+    def update_click(self, clicked):
+        self.clicked = True if (self.hover and clicked and not self.disabled) else False
+        return self.clicked
+
+class SettingsBtn(Button):
+    def __init__(self, screen, x, y, horizontal_align=False, text="Button", font=btn_font, id=None, disabled=False, color=(255,255,255), btn_type="", setting="Setting", options=["Option 1", "Option 2", "Option 3"]):
+        super().__init__(screen, x, y, horizontal_align, text, font, id, disabled, color, btn_type)
+        self.setting = setting
+        self.options = options
+        self.current_setting = 0 # index of self.options
+        self.text = f"{self.setting}: {self.options[self.current_setting]}"
+        if self.setting == "Comming soon...":
+            self.text = f"{self.setting}"
+            self.disabled = True
+            self.font = btn_wide_disabled_font
+        self.update_disabled(self.disabled)
+        # self.textimg = self.font.render(self.text, True, self.color)
+
+    def update_click(self, clicked):
+        self.clicked = True if (self.hover and clicked) else False
+        if self.clicked and not self.disabled:
+            self.current_setting = (self.current_setting + 1) % len(self.options)
+            self.text = f"{self.setting}: {self.options[self.current_setting]}"
+            self.update_disabled(self.disabled)
+        return self.clicked
+
+
+
+class WorldSelect:
+    def __init__(self, pos, world_folder):
+        self.pos = pos # pos in 1, 2, 3 ( * world_select_btn_h + some margin val)
+        self.world_folder = world_folder
+        self.selected = False
+        self.margin_world_select = 10
+        self.x, self.y = (-1000,-1000)
+        self.img = None
+        self.data_dict = {}
+        self.update_data_dict()
+        self.update_img()
+
+
+    def update_data_dict(self):
+        with open(f"Data/Saves/{self.world_folder}/player_data.txt") as f:
+            self.data_dict = eval(f.read())
+
+    def update_img(self):
+        self.img = pg.Surface((btn_world_w, btn_world_h), pg.SRCALPHA)
+        if not self.selected:
+            self.img.blit(world_select_button, (0, 0))
+        else:
+            self.img.blit(world_select_button_selected, (0, 0))
+
+        title_color = (255,255,255)
+        details_color = (200,200,200)
+
+        worldimg = world_title_font.render(f"{self.world_folder.replace('_', ' ')}", True, title_color) # f string in case of int/float?
+        self.img.blit(worldimg, (50, 30))
+        title_y = 30 + worldimg.get_height()
+        margin_title_to_text = 5
+        line_height = 40
+
+        lastplayedimg = world_btn_font.render(f"Last played: {self.data_dict['last_played']}", True, details_color)
+        self.img.blit(lastplayedimg, (50, title_y + margin_title_to_text))
+        createdimg = world_btn_font.render(f"Created: {self.data_dict['created']}", True, details_color)
+        self.img.blit(createdimg, (50, title_y + margin_title_to_text + line_height))
+        createdimg = world_btn_font.render(f"Total playtime: {self.data_dict['playtime']}", True, details_color)
+        self.img.blit(createdimg, (50, title_y + margin_title_to_text + line_height * 2))
+
+        w_blit = int(btn_world_w / 2 + 25)
+
+        lastplayedimg = world_btn_font.render(f"World mode: -", True, details_color)
+        self.img.blit(lastplayedimg, (w_blit, title_y + margin_title_to_text))
+        createdimg = world_btn_font.render(f"World type: -", True, details_color)
+        self.img.blit(createdimg, (w_blit, title_y + margin_title_to_text + line_height))
+        createdimg = world_btn_font.render(f"Version: {self.data_dict['version']}", True, details_color)
+        self.img.blit(createdimg, (w_blit, title_y + margin_title_to_text + line_height * 2))
+
+
+
+    def draw(self, screen, world_select_scrolly):
+        self.x = round((screen.get_width() - btn_world_w) / 2)
+        self.y = self.pos * btn_world_h + self.pos * self.margin_world_select - world_select_scrolly
+        # if self.selected:
+        #     screen.blit(world_select_button_selected, (self.x, self.y))
+        # else:
+        #     screen.blit(world_select_button, (self.x, self.y))
+
+        if self.y + self.img.get_height() - 50 > 0 and self.y - 5 < screen.get_height(): 
+            screen.blit(self.img, (self.x, self.y))
+
+    def update_selected(self, mx, my, clicked, selected_world):
+        if pg.Rect((self.x, self.y),(btn_world_w, btn_world_h)).collidepoint(mx,my) and clicked:
+            self.selected = not self.selected
+            self.update_img()
+            return True
+        elif selected_world != self.world_folder:
+            self.selected = False
+            self.update_img()
+        return False
+
+class Inputbox:
+    def __init__(self, screen, x, y, width, maxwidth, height, placeholder="Type here...", center="middle", border_radius=10, border_width=10, max_chars=25):
+        scr_w, scr_h = screen.get_size()
+        self.center = center # can be "", "right", "left"
+        self.width = width
+        self.maxwidth = maxwidth
+        self.minwidth = width # current width as minwidth
+        
+        match self.center:
+            case "middle":
+                self.x = int((scr_w - self.width) / 2)
+            case "left":
+                self.x = int((scr_w / 2 - self.width) / 2)
+            case "right":
+                self.x = int((scr_w / 2 - self.width) / 2 + scr_w / 2)
+            case other:
+                self.x = x
+
+        self.y = y
+        self.height = height
+        self.placeholder = placeholder
+        self.active = False
+        self.text = ""
+        self.border_radius = border_radius
+        self.border_width = border_width
+        self.active_color = (40,140,144)
+        self.inactive_color = (25, 85, 88)
+        self.delete_cooldown = -1
+        self.max_chars = max_chars
+
+        self.render_text(screen)
+
+    def draw(self, screen, keypresses):
+        if self.active and keypresses[pg.K_BACKSPACE] and t.perf_counter() > self.delete_cooldown + 0.1:
+            self.text = self.text[:-1]
+            self.render_text(screen)
+            self.delete_cooldown = t.perf_counter()
+
+        width = min(self.width, self.maxwidth)
+        pg.draw.rect(screen, (100,100,100), ((self.x, self.y), (width, self.height)), border_radius=self.border_radius)
+
+        screen.blit(self.textimg, (self.x + int((self.width - self.textimg.get_width()) / 2), self.y + int((self.height - self.textimg.get_height()) / 2)))
+        # print(self.x + int((self.width - self.textimg.get_width()) / 2), self.y + int((self.height - self.textimg.get_height()) / 2))
+
+        pg.draw.rect(screen, self.active_color if self.active else self.inactive_color, ((self.x, self.y), (width, self.height)), width=5, border_radius=self.border_radius)
+
+    def render_text(self, screen):
+        scr_w, scr_h = screen.get_size()
+
+        if self.text == "":
+            self.textimg = textbox_placeholder_font.render(self.placeholder, True, (200,200,200))
+        else:
+            self.textimg = textbox_font.render(self.text, True, (255,255,255))
+   
+        textimgw = self.textimg.get_width()
+        if self.width < textimgw + 50:
+            self.width = textimgw + 50
+        elif self.width + 50 > textimgw:
+            self.width = textimgw + 50
+        self.width = min(max(self.width, self.minwidth), self.maxwidth)
+
+        match self.center:
+            case "middle":
+                self.x = int((scr_w - self.width) / 2)
+            case "left":
+                self.x = int((scr_w / 2 - self.width) / 2)
+            case "right":
+                self.x = int((scr_w / 2 - self.width) / 2 + scr_w / 2)
+            case other:
+                self.x = x
+
+
+    def handle_events(self, event, screen):
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if pg.Rect((self.x, self.y), (min(self.width, self.maxwidth), self.height)).collidepoint(event.pos):
+                self.active = not self.active
+            else:
+                self.active = False
+        
+        if self.active:
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_RETURN:
+                    print(self.text)
+                    self.text = ''
+                    self.active = False
+                elif event.key == pg.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    if self.max_chars >= len(self.text):
+                        self.text += event.unicode
+                self.render_text(screen)
+
+
+
+def create_backg_surf(screen_w, screen_h, menu_screen="title"):
+    backg_surf = pg.Surface((screen_w, screen_h), pg.SRCALPHA)
+    backg_surf.fill((20,20,20))
+    alpha_set = {"title": 50, "world_select": 130,"create": 200}
+    backg_surf.set_alpha(alpha_set[menu_screen])
+
+    backg_img = pg.Surface((screen_w, screen_h), pg.SRCALPHA)
+    backg_img.blit(import_foto("backg_ui.png", screen_w, screen_h), (0,0))
+    backg_img.set_alpha(alpha_set[menu_screen])
+    return backg_surf, backg_img
+
+def blit_horizontally_centered(screen, img, y):
+    screen.blit(img,(int((screen.get_width() - img.get_width()) / 2), int(y)))
+    return int((screen.get_width() - img.get_width()) / 2), int(y) # returns optional x and y of blit destination
+
+def draw_title_menu(screen, backg_surf, update_btn_list=False):
+    btn_list = []
+    screen.blit(backg_surf,(0,0))
+
+    titleimg = title_font.render('''"Factory"''', True, (255,255,255))
+    title_w, title_h = titleimg.get_size()
+    blit_horizontally_centered(screen, titleimg, 15)
+
+    verimg = ver_font.render(version, True, (255,255,255))
+    screen.blit(verimg, (3, screen.get_height() - verimg.get_height() - 3))
+
+    margin_title_to_btn = 20
+    margin_between_btn = 20
+
+    if update_btn_list: # text is for user only, id is what is actually used in code
+        btn_list.append(Button(screen, 0, title_h + margin_title_to_btn + (btn_h + margin_between_btn) * 0, horizontal_align=True,text="Play",id="world_select"))
+        btn_list.append(Button(screen, 0, title_h + margin_title_to_btn + (btn_h + margin_between_btn) * 1, horizontal_align=True,text="Settings",id="general_settings"))
+        btn_list.append(Button(screen, 0, title_h + margin_title_to_btn + (btn_h + margin_between_btn) * 2, horizontal_align=True,text="Credits",id="credits"))
+        btn_list.append(Button(screen, 0, title_h + margin_title_to_btn + (btn_h + margin_between_btn) * 3, horizontal_align=True,text="Quit",id="quit"))
+
+    return btn_list
+
+def draw_world_select_menu(screen, backg_surf, world_list, world_menu_top, world_menu_bottom, update_btn_list=False):
+    screen_w, screen_h = screen.get_size()
+    btn_list = []
+    # screen.blit(backg_surf,(0,0))
+    screen.blit(world_menu_top, (0,-25))
+    # screen.blit(world_menu_bottom, (0,screen_h - world_menu_bottom.get_height()))
+    # pg.draw.rect(screen, (41,70,71), ((0,0),(screen_w, title_h + 30)))
+
+    # screen.blit(world_menu_top, (0,0))
+    
+    if update_btn_list:
+        margin_title_to_btn = 20
+        margin_between_btn = 10
+        margin_button_vertical = 10
+
+        btn_list.append(Button(screen, 0, screen_h - 3*btn_h_wide - 3*margin_button_vertical,text="Play selected world",btn_type="widexl",font=btn_wide_font,id="play_world", horizontal_align=True))
+        btn_list.append(Button(screen, int(screen_w / 2 - btn_w_wide - margin_between_btn), screen_h - btn_h_wide - margin_button_vertical,text="Back",btn_type="wide",font=btn_wide_font,id="to_title"))
+        btn_list.append(Button(screen, int(screen_w / 2 - btn_w_wide - margin_between_btn), screen_h - 2*btn_h_wide - 2*margin_button_vertical,text="Edit",btn_type="wide",font=btn_wide_font, id="edit_world"))
+        btn_list.append(Button(screen, int(screen_w / 2 + margin_between_btn), screen_h - 2*btn_h_wide - 2*margin_button_vertical,text="Delete",btn_type="wide",font=btn_wide_font, id="delete_world"))
+        btn_list.append(Button(screen, int(screen_w / 2 + margin_between_btn), screen_h - btn_h_wide - margin_button_vertical,text="Create",btn_type="wide",font=btn_wide_font,id="create_world"))
+
+    return btn_list
+    
+def draw_create_menu(screen, backg_img, update_btn_list=False):
+    screen.blit(backg_img, (0,0))
+    titleimg = title_font.render('''Create a new world''', True, (255,255,255))
+    title_w, title_h = titleimg.get_size()
+    blit_horizontally_centered(screen, titleimg, 15)
+    screen_w, screen_h = screen.get_size()
+
+    if update_btn_list:
+        btn_list = []
+        input_box_list = []
+
+        input_box_list.append(Inputbox(screen, 0, 120, 400, 500, 75, "World name..."))
+        input_box_list.append(Inputbox(screen, 0, 220, 400, 500, 75, "World seed..."))
+
+        margin_from_centre = 10
+        half_scr_w = screen_w/2
+
+        btn_list.append(SettingsBtn(screen, half_scr_w - margin_from_centre - btn_w_widexl, 325, False, setting="World mode", font=btn_wide_font, btn_type="widexl", options=["Default", "Sandbox"]))
+
+        btn_list.append(SettingsBtn(screen, half_scr_w + margin_from_centre, 325, False, setting="Comming soon...", font=btn_wide_font, btn_type="widexl", options=["Default", "Sandbox"]))
+
+        btn_list.append(SettingsBtn(screen, half_scr_w - margin_from_centre - btn_w_widexl, 400, False, setting="Comming soon...", font=btn_wide_font, btn_type="widexl", options=["Default", "Sandbox"]))
+
+        btn_list.append(SettingsBtn(screen, half_scr_w + margin_from_centre, 400, False, setting="Comming soon...", font=btn_wide_font, btn_type="widexl", options=["Default", "Sandbox"]))
+
+        btn_list.append(Button(screen, half_scr_w - margin_from_centre - btn_w_wide, screen.get_height() - menu_button_wide.get_height() - 25, False, "Create world", font=btn_wide_font_create, btn_type="wide"))
+
+        btn_list.append(Button(screen, half_scr_w + margin_from_centre, screen.get_height() - menu_button_wide.get_height() - 25, False, "Cancel", id="to_world_select", btn_type="wide", font=btn_wide_font))
+
+        return btn_list, input_box_list
+
+
+def update_pictures(screen):
+    scr_w, scr_h = screen.get_size()
+    world_menu_top = pg.image.load("Assets\world_menu_top.png")
+    world_menu_top = pg.transform.scale(world_menu_top, (scr_w, world_menu_top_h))
+    titleimg = title_font.render('''Select a world''', True, (255,255,255))
+    title_w, title_h = titleimg.get_size()
+    blit_horizontally_centered(world_menu_top, titleimg, 38)
+    
+    world_menu_bottom = pg.image.load("Assets\world_menu_bottom.png")
+    pg.transform.scale(world_menu_bottom, (scr_w, world_menu_bottom.get_height()))
+
+    return world_menu_top, world_menu_bottom
+
+def read_world(world_folder):
+    breedte, hoogte = 500,500
+    unlocked_blocks = [0,1,12,13,14,15,20,23, 24, 25,33,34,35]
+    conveyor_speed = [25.0,25.0,25.0,25.0,12.5,5]
+    
+    move_speed = [1.0,1.0,1.0,1.0,2.0]
+
+    grid = np.loadtxt('Data/Saves/'+world_folder+'/grid.txt').reshape(breedte, hoogte)
+    grid = grid.astype(int)
+    grid_rotation = np.loadtxt('Data/Saves/'+world_folder+'/grid_rotation.txt').reshape(breedte, hoogte)
+    grid_rotation = grid_rotation.astype(int)
+    grid_cables = np.loadtxt('Data/Saves/'+world_folder+'/grid_cables.txt').reshape(breedte, hoogte)
+    grid_cables = grid_cables.astype(int)
+
+    grid_data_load = json.loads(open("Data/Saves/another_world/grid_data.json").read())    
+    grid_data = np.array(grid_data_load["data"]).reshape(grid_data_load["shape"])
+
+    # for y in range(grid_data.shape[0]):
+    #     for x in range(grid_data.shape[1]):
+    #         grid_data[y][x][1] = 3
+
+    f = open('Data/Saves/'+world_folder+'/research_data.txt')
+    research_progress_ = eval(f.read())
+    f.close()
+
+    move_speed = [1.0,1.0,1.0,1.0,2.0,0]
+
+    for i in range(len(research_progress_[0])):
+        if research_progress_[0][i] > -1:
+            if i == 0 and research_progress_[0][i] == 0:
+                continue
+            for j in range(0, research_progress_[0][i] + 1):
+                unlocked_blocks, conveyor_speed, move_speed = research_clicked_item(unlocked_blocks,i,j,research_progress_,conveyor_speed,move_speed)
+
+    f = open('Data/Saves/'+world_folder+'/storage.txt')
+    storage = eval(f.read())
+    f.close()
+    f = open('Data/Saves/'+world_folder+'/keybinds.txt')
+    keybinds = eval(f.read())
+    f.close()
+    locations, crafting_locations, cargo_locations = update_locations(grid_data,grid)
+
+    f = open('Data/Saves/'+world_folder+'/research_data.txt')
+    research_progress = eval(f.read())
+    f.close()
+
+    f = open('Data/Saves/'+world_folder+'/research_grid.txt')
+    research_grid = eval(f.read())
+    f.close()
+
+    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid
+
+def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid):
+    f = open('Data/Saves/'+world_folder+'/grid.txt','w')
+    np.savetxt(f,grid.astype(int), fmt="%i")
+    f.close()
+
+    f = open('Data/Saves/'+world_folder+'/grid_rotation.txt','w')
+    np.savetxt(f,grid_rotation.astype(int), fmt="%i")
+    f.close()
+
+    json_obj = {"shape": grid_data.shape, "data": grid_data.flatten().tolist()}
+    with open('Data/Saves/'+world_folder+'/grid_data.json', "w") as f:
+        json.dump(json_obj, f)
+
+    f = open('Data/Saves/'+world_folder+'/grid_cables.txt','w')
+    np.savetxt(f, grid_cables.reshape((1,-1)), fmt="%s")
+    f.close()
+
+    f = open('Data/Saves/'+world_folder+'/research_data.txt','w')
+    f.write("{}".format(research_progress))
+    f.close()
+
+    f = open('Data/Saves/'+world_folder+'/storage.txt','w')
+    f.write("{}".format(storage))
+    f.close()
+
+    f = open('Data/Saves/'+world_folder+'/keybinds.txt','w')
+    f.write("{}".format(keybinds))
+    f.close()
+
+    f = open('Data/Saves/'+world_folder+'/research_grid.txt','w')
+    f.write("{}".format(research_grid))
+    f.close()
+
+def save_player_data(world_folder, start_play_perf):
+    with open('Data/Saves/'+world_folder+'/player_data.txt','r') as f:
+        player_data_r = eval(f.read())
+
+    with open('Data/Saves/'+world_folder+'/player_data.txt','w') as f:
+        player_data = {}
+
+        in_string = player_data_r['playtime']
+        day_count = ""
+        for char in in_string:
+            try:
+                if int(char) > -1:
+                    day_count += char
+            except ValueError:
+                break
+        day_count = int(day_count)
+
+        time_part = in_string[-8:]
+        x = t.strptime(time_part,'%H:%M:%S')
+        sec = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
+        sec += day_count * 86400
+
+        player_data["playtime"] = str(datetime.timedelta(seconds=int(t.perf_counter() - start_play_perf + sec)))
+        
+        today = datetime.date.today()
+        player_data["last_played"] = today.strftime("%b %d, %Y") # formats into Jan 2, 1918
+
+        player_data["version"] = version
+
+        player_data["created"] = player_data_r['created']
+    
+        f.write(str(player_data))
+
+if __name__ == '__main__':
+    pg.font.quit()
+    pg.quit()
