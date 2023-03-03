@@ -192,6 +192,7 @@ update_r_scroll = False
 research_menu = False
 r_scrollx = [0,530]
 r_scrolly = [0,1060]
+r_max_scroll_x_y = {"x": [250,1100], "y":[100,2000]}
 r_screen_page = 0 #which page r screen is
 r_icons_click_list = [] # click list icons research menu
 
@@ -634,7 +635,6 @@ while playing and __name__ == "__main__":
                 else:
                     mouse_down = False
                     if e.button == 4 and not research_menu:#scroll up
-                        #scrollx += int(scale*50/2)
                         old_scale = scale
                         scale += 0.11
                         scale = int(scale*10)/10
@@ -678,12 +678,15 @@ while playing and __name__ == "__main__":
             if e.type == pg.VIDEORESIZE:
                 screen_info = pg.display.Info()
                 screen_size = pg.display.get_surface().get_size()
+                screen_w, screen_h = screen_size
                 not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui = render_images(screen,True)
                 r_screen_transparent = update_r_screen_func(screen, rect_ui)
 
-
                 if k_scrolly < rect_keybinds.get_height()-screen_size[1]:
                     k_scrolly = 0
+
+                backg_surf, backg_img = create_backg_surf(screen_w, screen_h)
+                world_menu_top, world_menu_bottom = update_pictures(screen)
 
             if e.type == pg.KEYUP:
                 if e.key == pg.K_w or e.key == pg.K_UP:
@@ -721,7 +724,6 @@ while playing and __name__ == "__main__":
                     switch_menu_trigger = True
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 100, 80, "Returning to menu screen...")
-
 
                 if e.key == pg.K_r:
                     mrr = (mrr - 1) % 4
@@ -773,8 +775,8 @@ while playing and __name__ == "__main__":
             if scroll_keys_hold[0] and r_scrolly[r_screen_page] > -5:
                 r_scrolly[r_screen_page] += -scroll_speed * deltaTime
             
-            r_scrolly[r_screen_page] = max(r_scrolly[r_screen_page],0) #prevents scrolling top or left out of screen
-            r_scrollx[r_screen_page] = max(r_scrollx[r_screen_page],0)
+            r_scrolly[r_screen_page] = min(max(r_scrolly[r_screen_page],0), r_max_scroll_x_y["y"][r_screen_page]) #prevents scrolling top or left out of screen
+            r_scrollx[r_screen_page] = min(max(r_scrollx[r_screen_page],0), r_max_scroll_x_y["x"][r_screen_page])
             if max(scroll_keys_hold): #if one of these is true, update scroll
                 update_r_scroll = True
 

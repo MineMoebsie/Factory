@@ -573,12 +573,11 @@ def draw_loading_screen_create_world(screen, clock, loading_surf, percent, prev_
         clock.tick(60)
 
 def create_world(screen, loading_surf, clock, world_name, world_seed, world_options, version):#, world_name, world_seed, world_mode):
-
     height_grid, width_grid = (500,500)
 
     world_path = f'./Data/Saves/{world_name}' 
     if not os.path.exists(world_path) and world_name != "":
-        draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Initializing...")
+        draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Preparing world creation...")
 
         os.makedirs(world_path)
 
@@ -588,6 +587,20 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
             for i in range(length):
                 world_seed += str(r.randint(0, 9))
             world_seed = int(world_seed)
+        elif type(world_seed) is str:
+            new_seed = ""
+            for i in range(len(world_seed)):
+                if world_seed[i].isalpha() and world_seed[i].islower():
+                    num = str(ord(world_seed[i])-96)
+                    new_seed = new_seed + num
+                elif world_seed[i].isalpha() and world_seed[i].isupper():
+                    num = str(ord(world_seed[i])-38)
+                    new_seed = new_seed + num
+                elif world_seed[i]==' ':
+                    new_seed = new_seed
+                else:
+                    new_seed = new_seed + world_seed[i]
+            world_seed = int(new_seed)
 
         draw_loading_screen_create_world(screen, clock, loading_surf, 40, 10, "Generating noise...")
 
@@ -683,7 +696,7 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
 
 
         #player_data
-        player_data = {'playtime': '0:00:00', 'last_played': datetime.date.today().strftime("%b %d, %Y"), 'version': version, 'created': datetime.date.today().strftime("%b %d, %Y")}
+        player_data = {'playtime': '0:00:00', 'last_played': datetime.date.today().strftime("%b %d, %Y"), 'version': version, 'created': datetime.date.today().strftime("%b %d, %Y"), 'seed': world_seed, 'mode': world_options["World mode"]}
 
         with open(world_path+"/player_data.txt", "w") as f:
             f.write(str(player_data))

@@ -1701,9 +1701,6 @@ def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_p
             (icon * button_distance) + int((bar_width - (buttons * button_distance)) / 2),
             height - bar_height - button_distance))
 
-    # print((mx + r_scrollx[1], my + r_scrolly[1]))
-    pg.draw.circle(screen, (255,0,0), (mx, my ), 10)
-
     return [width - 50 - cross_margin, cross_margin], r_icons_click_list
 
 def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_scrollx, r_scrolly, mx, my,research_progress, research_scrollx, research_scrolly, research_button_clicked, r_screen_page, research_grid, r_crafter_grid):
