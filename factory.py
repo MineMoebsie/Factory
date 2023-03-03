@@ -401,12 +401,44 @@ while playing and __name__ == "__main__":
 
                 elif btn.id == "play_world":
                     scroll_keys_hold = [False, False, False, False]
-
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
                     in_menu = False
                     start_play_perf = t.perf_counter() + 1
-                    print("done loading " + str(selected_world))
                     ignore_click = True
+                    print("done loading " + str(selected_world))
+
+                elif btn.id == "confirm_create_world":
+                    backg_surf = pg.Surface(screen.get_size())
+                    grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
+                    loading_surf = setup_loading_screen(screen, backg_img)
+                    
+                    world_options = {}
+                    world_seed = ""
+                    world_name = ""
+                    for btn in btn_list:
+                        if btn.__class__.__name__ == "SettingsBtn":
+                            world_options = btn.get_setting(world_options)
+                    for inputbox in input_box_list:
+                        if inputbox.id == "world_name":
+                            world_name = inputbox.text
+                        elif inputbox.id == "world_seed":
+                            world_seed = inputbox.text
+
+                    create_world(screen, loading_surf, clock, world_name, world_seed, world_options, version)
+                    
+                    world_list.append(world_name)
+                    world_btn_list = [] # regenerate worldbtn list
+                    for i, world in enumerate(world_list):
+                        world_btn_list.append(WorldSelect(i, world))
+
+                    #load world after creation
+                    selected_world = world_name
+                    scroll_keys_hold = [False, False, False, False]
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
+                    in_menu = False
+                    start_play_perf = t.perf_counter() + 1
+                    ignore_click = True
+                    print("done loading " + str(selected_world))
 
             btn.draw(screen)
 
@@ -414,14 +446,19 @@ while playing and __name__ == "__main__":
             for worldbtn in world_btn_list:
                 if worldbtn.update_selected(mx, my, clicked, selected_world):
                     selected_world = worldbtn.world_folder
+                    worldbtn.selected = True
                     break
             else:
                 selected_world = None
                 for worldbtn in world_btn_list:
                     worldbtn.update_selected(-5, -5, False, None)
 
+            for worldbtn in world_btn_list:
+                if worldbtn.world_folder != selected_world:
+                    worldbtn.update_selected(-5, -5, False, None)
+                
         for btn in btn_list:
-            if btn.id in ["play_world","edit_world", "delete_world"]:
+            if btn.id in ["play_world", "edit_world", "delete_world"]:
                 btn.disabled = True if selected_world is None else False
                 btn.update_disabled(btn.disabled)
                 

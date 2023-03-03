@@ -5,6 +5,10 @@ import random as r
 import pdb
 import datetime
 import json
+import easing_functions
+import os
+from perlin_noise import PerlinNoise
+import copy
 
 from Files.factory_functions import *
 
@@ -29,6 +33,9 @@ world_btn_font = pg.font.Font('Fonts/Roboto.ttf', 25)
 
 textbox_font = pg.font.Font('Fonts/DMM-Mono.ttf', 30)
 textbox_placeholder_font = pg.font.Font('Fonts/DMM-Mono-Italic.ttf', 30)
+
+
+load_font = pg.font.Font('Fonts/Roboto-Light.ttf', 25)
 
 btn_w, btn_h = (260,130)
 menu_button = import_foto("menu_button.png", btn_w, btn_h)
@@ -131,6 +138,10 @@ class SettingsBtn(Button):
             self.update_disabled(self.disabled)
         return self.clicked
 
+    def get_setting(self, world_options):
+        if self.setting != "Comming soon...":
+            world_options[self.setting] = self.options[self.current_setting] 
+        return world_options
 
 
 class WorldSelect:
@@ -206,7 +217,7 @@ class WorldSelect:
         return False
 
 class Inputbox:
-    def __init__(self, screen, x, y, width, maxwidth, height, placeholder="Type here...", center="middle", border_radius=10, border_width=10, max_chars=25):
+    def __init__(self, screen, x, y, width, maxwidth, height, placeholder="Type here...", center="middle", border_radius=10, border_width=10, max_chars=25,id_=""):
         scr_w, scr_h = screen.get_size()
         self.center = center # can be "", "right", "left"
         self.width = width
@@ -228,6 +239,7 @@ class Inputbox:
         self.placeholder = placeholder
         self.active = False
         self.text = ""
+        self.id = id_
         self.border_radius = border_radius
         self.border_width = border_width
         self.active_color = (40,140,144)
@@ -370,8 +382,8 @@ def draw_create_menu(screen, backg_img, update_btn_list=False):
         btn_list = []
         input_box_list = []
 
-        input_box_list.append(Inputbox(screen, 0, 120, 400, 500, 75, "World name..."))
-        input_box_list.append(Inputbox(screen, 0, 220, 400, 500, 75, "World seed..."))
+        input_box_list.append(Inputbox(screen, 0, 120, 400, 500, 75, "World name...", id_="world_name"))
+        input_box_list.append(Inputbox(screen, 0, 220, 400, 500, 75, "World seed...", id_="world_seed"))
 
         margin_from_centre = 10
         half_scr_w = screen_w/2
@@ -384,7 +396,7 @@ def draw_create_menu(screen, backg_img, update_btn_list=False):
 
         btn_list.append(SettingsBtn(screen, half_scr_w + margin_from_centre, 400, False, setting="Comming soon...", font=btn_wide_font, btn_type="widexl", options=["Default", "Sandbox"]))
 
-        btn_list.append(Button(screen, half_scr_w - margin_from_centre - btn_w_wide, screen.get_height() - menu_button_wide.get_height() - 25, False, "Create world", font=btn_wide_font_create, btn_type="wide"))
+        btn_list.append(Button(screen, half_scr_w - margin_from_centre - btn_w_wide, screen.get_height() - menu_button_wide.get_height() - 25, False, "Create world", font=btn_wide_font_create, btn_type="wide", id="confirm_create_world"))
 
         btn_list.append(Button(screen, half_scr_w + margin_from_centre, screen.get_height() - menu_button_wide.get_height() - 25, False, "Cancel", id="to_world_select", btn_type="wide", font=btn_wide_font))
 
@@ -521,6 +533,165 @@ def save_player_data(world_folder, start_play_perf):
         player_data["created"] = player_data_r['created']
     
         f.write(str(player_data))
+
+def setup_loading_screen(screen, backg_img):
+    loading_screen = pg.Surface(screen.get_size())
+    loading_screen.blit(screen, (0,0))
+    loading_screen.blit(backg_img, (0,0))
+    return loading_screen
+
+def draw_loading_screen_create_world(screen, clock, loading_surf, percent, prev_percent, process):
+    screen.blit(loading_surf, (0,0))
+    screen_w, screen_h = screen.get_size()
+
+    bar_w = int(screen_w/2)
+    bar_h = int(screen_w/10)
+
+    x_bar = int((screen_w - bar_w) / 2)
+    y_bar = int((screen_h - bar_h) / 2)
+
+    text_blit = load_font.render(str(process),True,(255,255,255))
+    text_w,text_h = text_blit.get_size()
+
+    loop_amount = 25
+    ease_f = easing_functions.CubicEaseInOut(prev_percent, percent, loop_amount)
+    for x in range(loop_amount):
+        screen.blit(loading_surf, (0,0))
+
+        percent = ease_f.ease(x)
+
+
+        screen.blit(text_blit,((screen_w-text_w)/2,y_bar+bar_h+text_h/5))
+        
+        # pg.draw.rect(screen,(0,0,0),((x_bar,y_bar),((bar_w*(percent/100)),bar_h)))
+        
+        pg.draw.rect(screen,(255,255,255),((x_bar,y_bar),(bar_w,bar_h)),width=5,border_radius=15)
+        if percent > 5:
+            pg.draw.rect(screen,(255,255,255),((x_bar,y_bar),((bar_w*(percent/100)),bar_h)),border_radius=15)
+        pg.event.pump()
+        pg.display.flip()
+        clock.tick(60)
+
+
+def create_world(screen, loading_surf, clock, world_name, world_seed, world_options, version):#, world_name, world_seed, world_mode):
+
+    height_grid, width_grid = (500,500)
+
+    world_path = f'./Data/Saves/{world_name}' 
+    if not os.path.exists(world_path) and world_name != "":
+        draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Initializing...")
+
+        os.makedirs(world_path)
+
+        #grid & rotation
+        if world_seed == "": # generate random seed
+            length = r.randint(5,50)
+            for i in range(length):
+                world_seed += str(r.randint(0, 9))
+            world_seed = int(world_seed)
+
+        draw_loading_screen_create_world(screen, clock, loading_surf, 40, 10, "Generating noise...")
+
+        noise = PerlinNoise(octaves=15, seed=world_seed)
+                
+        grid = np.zeros((height_grid,width_grid),dtype='int')
+        grid_rotation = np.zeros((height_grid,width_grid),dtype='int') # 0 up, 1 right, 2 down, 3 left
+
+        pic = [[noise([i/width_grid, j/height_grid]) for j in range(width_grid)] for i in range(height_grid)]
+            
+        draw_loading_screen_create_world(screen, clock, loading_surf, 50, 40, "Creating grid...")
+
+        grid_generation = pic
+        for x in range(width_grid):
+            for y in range(height_grid):
+                grid_rotation[y, x] = r.randint(0,3)
+                
+                if pic[y][x] > -0.075:
+                    grid[y, x] = r.choice([10,11])
+                elif pic[y][x] > -0.15:
+                    grid[y, x] = r.choice([23,24])
+                else:
+                    grid[y,x] = r.choice([21,22])
+
+        with open(world_path+"/grid.txt","w") as f:
+            np.savetxt(f, grid, fmt="%i")
+
+        with open(world_path+"/grid_rotation.txt","w") as f:
+            np.savetxt(f, grid_rotation, fmt="%i")    
+
+        draw_loading_screen_create_world(screen, clock, loading_surf, 65, 50, "Creating grid data...")
+
+        #grid_data
+        array_side = []
+        for i in range(width_grid):
+            array_side.append({}) 
+
+        grid_data = []
+        for i in range(height_grid):
+            grid_data.append(copy.deepcopy(array_side))
+        grid_data = np.array(grid_data)
+
+        json_obj = {"shape": grid_data.shape, "data": grid_data.flatten().tolist()}
+
+        with open(world_path+"/grid_data.json", "w") as f:
+            json.dump(json_obj, f)
+
+        draw_loading_screen_create_world(screen, clock, loading_surf, 70, 65, "Creating cables...")
+
+        #grid_cables
+        grid_cables = np.zeros((height_grid, width_grid), dtype="int")
+
+        with open(world_path+"/grid_cables.txt", "w") as f:
+            np.savetxt(f, grid_cables.reshape((1,-1)), fmt="%s")
+
+        draw_loading_screen_create_world(screen, clock, loading_surf, 75, 70, "Making player keybinds...")
+
+        #keybinds
+        keybinds = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0}
+
+        with open(world_path+"/keybinds.txt", "w") as f:
+            f.write(str(keybinds))
+
+        draw_loading_screen_create_world(screen, clock, loading_surf, 80, 75, "Creating research data...")
+
+        #research_data
+        research_data = [[0, -1, -1, -1, -1, -1]]
+        with open(world_path+"/research_data.txt", "w") as f:
+            f.write(str(research_data))
+
+        #research_grid
+        research_grid = []
+        for row in range(grid_size):
+            row_line = []
+            for index in range(grid_size):
+                if row == int(grid_size / 2) and index == int(grid_size / 2):
+                    row_line.append(True)
+                else:
+                    row_line.append(False)
+                    
+            research_grid.append(row_line[:])
+        with open(world_path+"/research_grid.txt", "w") as f:
+            f.write(str(research_grid))
+
+        draw_loading_screen_create_world(screen, clock, loading_surf, 90, 80, "Clearing storage...")
+
+        #storage
+        storage = [0,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        with open(world_path+"/storage.txt", "w") as f:
+            f.write(str(storage))
+
+        draw_loading_screen_create_world(screen, clock, loading_surf, 95, 90, "Storing player data...")
+
+
+        #player_data
+        player_data = {'playtime': '0:00:00', 'last_played': datetime.date.today().strftime("%b %d, %Y"), 'version': version, 'created': datetime.date.today().strftime("%b %d, %Y")}
+
+        with open(world_path+"/player_data.txt", "w") as f:
+            f.write(str(player_data))
+
+        draw_loading_screen_create_world(screen, clock, loading_surf, 100, 95, "Loading world...")
+
+
 
 if __name__ == '__main__':
     pg.font.quit()
