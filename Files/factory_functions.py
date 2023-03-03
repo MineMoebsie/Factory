@@ -740,7 +740,6 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
             # grid_data[ry, rx] = [brush, t.perf_counter(), 0, 2, 0, crafter]
             grid_data[ry, rx] = {"spawn_item": brush, "spawn_perf": t.perf_counter()}
 
-        print(grid_data[ry, rx])
         if not free:
             for item in b_prices[brush].keys():
                 storage[item_names[0].index(item)] -= b_prices[brush][item]

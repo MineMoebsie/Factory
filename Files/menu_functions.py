@@ -572,7 +572,6 @@ def draw_loading_screen_create_world(screen, clock, loading_surf, percent, prev_
         pg.display.flip()
         clock.tick(60)
 
-
 def create_world(screen, loading_surf, clock, world_name, world_seed, world_options, version):#, world_name, world_seed, world_mode):
 
     height_grid, width_grid = (500,500)

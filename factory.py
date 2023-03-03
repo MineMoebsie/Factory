@@ -400,18 +400,24 @@ while playing and __name__ == "__main__":
                     switch_menu_trigger = True
 
                 elif btn.id == "play_world":
-                    scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
-                    in_menu = False
-                    start_play_perf = t.perf_counter() + 1
-                    ignore_click = True
-                    print("done loading " + str(selected_world))
-
-                elif btn.id == "confirm_create_world":
                     backg_surf = pg.Surface(screen.get_size())
                     grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
                     loading_surf = setup_loading_screen(screen, backg_img)
-                    
+
+                    draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world...")
+
+                    scroll_keys_hold = [False, False, False, False]
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
+
+                    draw_loading_screen_create_world(screen, clock, loading_surf, 90, 10, "Setting variables...")
+
+                    in_menu = False
+                    start_play_perf = t.perf_counter() + 1
+                    ignore_click = True
+
+                    draw_loading_screen_create_world(screen, clock, loading_surf, 100, 90, "Rendering...")
+
+                elif btn.id == "confirm_create_world":
                     world_options = {}
                     world_seed = ""
                     world_name = ""
@@ -424,6 +430,13 @@ while playing and __name__ == "__main__":
                         elif inputbox.id == "world_seed":
                             world_seed = inputbox.text
 
+                    if world_name == "":
+                        continue
+
+                    backg_surf = pg.Surface(screen.get_size())
+                    grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
+                    loading_surf = setup_loading_screen(screen, backg_img)
+                    
                     create_world(screen, loading_surf, clock, world_name, world_seed, world_options, version)
                     
                     world_list.append(world_name)
@@ -432,9 +445,18 @@ while playing and __name__ == "__main__":
                         world_btn_list.append(WorldSelect(i, world))
 
                     #load world after creation
+                    backg_surf = pg.Surface(screen.get_size())
+                    grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
+                    loading_surf = setup_loading_screen(screen, backg_img)
+
+                    draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world files...")
+                    
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
+
+                    draw_loading_screen_create_world(screen, clock, loading_surf, 100, 10, "Finishing up...")
+
                     in_menu = False
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
@@ -684,13 +706,22 @@ while playing and __name__ == "__main__":
                     scroll_keys_hold[3] = True
 
                 if e.key == pg.K_ESCAPE:
-                    loading_screen(screen,percent_vals,0,load_font,"Saving world...",only_show_text=True)
-                    pg.display.flip()
+                    backg_surf = pg.Surface(screen.get_size())
+                    grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
+                    loading_surf = setup_loading_screen(screen, backg_img)
+
+                    draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Saving world...")
+
                     save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid)
+
+                    draw_loading_screen_create_world(screen, clock, loading_surf, 80, 10, "Saving player data...")
+
                     save_player_data(selected_world, start_play_perf)
                     in_menu = True
                     switch_menu_trigger = True
-                    print("saved world ",selected_world)
+
+                    draw_loading_screen_create_world(screen, clock, loading_surf, 100, 80, "Returning to menu screen...")
+
 
                 if e.key == pg.K_r:
                     mrr = (mrr - 1) % 4
