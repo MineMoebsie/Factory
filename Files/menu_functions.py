@@ -38,27 +38,27 @@ textbox_placeholder_font = pg.font.Font('Fonts/DMM-Mono-Italic.ttf', 30)
 load_font = pg.font.Font('Fonts/Roboto-Light.ttf', 25)
 
 btn_w, btn_h = (260,130)
-menu_button = import_foto("menu_button.png", btn_w, btn_h)
-menu_button_hover = import_foto("menu_button_hover.png", btn_w, btn_h)
+menu_button = import_foto("UI/menu_button.png", btn_w, btn_h)
+menu_button_hover = import_foto("UI/menu_button_hover.png", btn_w, btn_h)
 
 btn_w_wide, btn_h_wide = (260,65)
-menu_button_wide = import_foto("menu_button_wide.png", btn_w_wide, btn_h_wide)
-menu_button_wide_hover = import_foto("menu_button_wide_hover.png", btn_w_wide, btn_h_wide)
+menu_button_wide = import_foto("UI/menu_button_wide.png", btn_w_wide, btn_h_wide)
+menu_button_wide_hover = import_foto("UI/menu_button_wide_hover.png", btn_w_wide, btn_h_wide)
 
 btn_w_widexl, btn_h_widexl = (540,65)
-menu_button_widexl = import_foto("menu_button_widexl.png", btn_w_widexl, btn_h_widexl)
-menu_button_widexl_hover = import_foto("menu_button_widexl_hover.png", btn_w_widexl, btn_h_widexl)
+menu_button_widexl = import_foto("UI/menu_button_widexl.png", btn_w_widexl, btn_h_widexl)
+menu_button_widexl_hover = import_foto("UI/menu_button_widexl_hover.png", btn_w_widexl, btn_h_widexl)
 
 
 btn_world_w, btn_world_h = (1000, 250)
-world_select_button = import_foto("world_select_button.png", btn_world_w, btn_world_h)
-world_select_button_selected = import_foto("world_select_button_selected.png", btn_world_w, btn_world_h)
+world_select_button = import_foto("UI/world_select_button.png", btn_world_w, btn_world_h)
+world_select_button_selected = import_foto("UI/world_select_button_selected.png", btn_world_w, btn_world_h)
 
 world_menu_top_w, world_menu_top_h = (2500, 175)
 # world_menu_top = import_foto("world_menu_top.png", world_menu_top_w, world_menu_top_h)
 
-backg_pic_1 = import_foto("10.png", 50, 50, convert=True)
-backg_pic_2 = import_foto("11.png", 50, 50, convert=True)
+backg_pic_1 = import_foto("Blocks/10.png", 50, 50, convert=True)
+backg_pic_2 = import_foto("Blocks/11.png", 50, 50, convert=True)
 
 def debug_point(screen, point):
     pg.draw.circle(screen, (255,0,0), point, 5)
@@ -318,7 +318,7 @@ def create_backg_surf(screen_w, screen_h, menu_screen="title"):
     backg_surf.set_alpha(alpha_set[menu_screen])
 
     backg_img = pg.Surface((screen_w, screen_h), pg.SRCALPHA)
-    backg_img.blit(import_foto("backg_ui.png", screen_w, screen_h), (0,0))
+    backg_img.blit(import_foto("UI/backg_ui.png", screen_w, screen_h), (0,0))
     backg_img.set_alpha(alpha_set[menu_screen])
     return backg_surf, backg_img
 
@@ -405,13 +405,13 @@ def draw_create_menu(screen, backg_img, update_btn_list=False):
 
 def update_pictures(screen):
     scr_w, scr_h = screen.get_size()
-    world_menu_top = pg.image.load("Assets\world_menu_top.png")
+    world_menu_top = pg.image.load("Assets/UI/world_menu_top.png")
     world_menu_top = pg.transform.scale(world_menu_top, (scr_w, world_menu_top_h))
     titleimg = title_font.render('''Select a world''', True, (255,255,255))
     title_w, title_h = titleimg.get_size()
     blit_horizontally_centered(world_menu_top, titleimg, 38)
     
-    world_menu_bottom = pg.image.load("Assets\world_menu_bottom.png")
+    world_menu_bottom = pg.image.load("Assets/UI/world_menu_bottom.png")
     pg.transform.scale(world_menu_bottom, (scr_w, world_menu_bottom.get_height()))
 
     return world_menu_top, world_menu_bottom

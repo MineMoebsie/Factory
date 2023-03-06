@@ -39,110 +39,110 @@ i_title_font = pg.font.Font('Fonts/Roboto-Bold.ttf', 25)
 i_text_font = pg.font.Font('Fonts/Roboto.ttf', 16)
 i_des_font = pg.font.Font('Fonts/Roboto-Light.ttf', 17)
 
-picture_arrow = import_foto('arrow-single.png', grid_size, grid_size)
-picture_arrow_cross = import_foto('arrow-cross.png', grid_size, grid_size)
-picture_arrow_split_r = import_foto('arrow-split-right.png', grid_size, grid_size)
-picture_arrow_split_l = import_foto('arrow-split-left.png', grid_size, grid_size)
-picture_arrow_sort_r = import_foto('arrow-sorting-right.png', grid_size, grid_size)
-picture_arrow_sort_l = import_foto('arrow-sorting-left.png', grid_size, grid_size)
-picture_arrow_highway = import_foto('arrow-highway.png', grid_size, grid_size)
+picture_arrow = import_foto('Blocks/arrow-single.png', grid_size, grid_size)
+picture_arrow_cross = import_foto('Blocks/arrow-cross.png', grid_size, grid_size)
+picture_arrow_split_r = import_foto('Blocks/arrow-split-right.png', grid_size, grid_size)
+picture_arrow_split_l = import_foto('Blocks/arrow-split-left.png', grid_size, grid_size)
+picture_arrow_sort_r = import_foto('Blocks/arrow-sorting-right.png', grid_size, grid_size)
+picture_arrow_sort_l = import_foto('Blocks/arrow-sorting-left.png', grid_size, grid_size)
+picture_arrow_highway = import_foto('Blocks/arrow-highway.png', grid_size, grid_size)
 
-picture_arrow_cable = import_foto('arrow-cable.png', grid_size, grid_size)
+picture_arrow_cable = import_foto('Blocks/arrow-cable.png', grid_size, grid_size)
 
-r_particle_picture = import_foto('itemr.png', item_size * 3, item_size * 3)
-r_icon_picture = import_foto('itemr.png', 29, 29)
-r_display_picture = import_foto('itemr.png', 44, 44)
+r_particle_picture = import_foto('Items/itemr.png', item_size * 3, item_size * 3)
+r_icon_picture = import_foto('Items/itemr.png', 29, 29)
+r_display_picture = import_foto('Items/itemr.png', 44, 44)
 
 # menu stuff
-menu_bar_picture = import_foto('menu_bar.png', 1000, 200)
-icon_clicked_picture = import_foto('menu_icon_clicked.png', 50, 50)
-icon_unclicked_picture = import_foto('menu_icon_unclicked.png', 50, 50)
+menu_bar_picture = import_foto('UI/menu_bar.png', 1000, 200)
+icon_clicked_picture = import_foto('UI/menu_icon_clicked.png', 50, 50)
+icon_unclicked_picture = import_foto('UI/menu_icon_unclicked.png', 50, 50)
 
-button_clicked_picture = import_foto('menu_button_clicked.png', 125, 125)
-button_unclicked_picture = import_foto('menu_button_unclicked.png', 125, 125)
+button_clicked_picture = import_foto('UI/menu_button_clicked.png', 125, 125)
+button_unclicked_picture = import_foto('UI/menu_button_unclicked.png', 125, 125)
 
-research_button_clicked = import_foto('research_button_clicked.png', 1000, 500)
-research_button_unclicked = import_foto('research_button.png', 1000, 500)
-research_display = import_foto('research_display.png', 1000, 500)
+research_button_clicked = import_foto('UI/research_button_clicked.png', 1000, 500)
+research_button_unclicked = import_foto('UI/research_button.png', 1000, 500)
+research_display = import_foto('UI/research_display.png', 1000, 500)
 
-info_ui = import_foto('info_ui.png',600,400)
+info_ui = import_foto('UI/info_ui.png',600,400)
 
-lock_picture = import_foto('lock.png', 50, 50)
+lock_picture = import_foto('UI/lock.png', 50, 50)
 
-rect_ui = import_foto('rect_ui.png', 2500, 2500, True)
-rect_info = import_foto('info_rect.png', 750, 1000)
-rect_keybinds = import_foto('keybind_rect.png', 750, 2000)
+rect_ui = import_foto('UI/rect_ui.png', 2500, 2500, True)
+rect_info = import_foto('UI/info_rect.png', 750, 1000)
+rect_keybinds = import_foto('UI/keybind_rect.png', 750, 2000)
 
-data_display = import_foto('data_display.png', 250, 165)
-data_arrow = import_foto('data_arrow.png', 250, 215)
+data_display = import_foto('UI/data_display.png', 250, 165)
+data_arrow = import_foto('UI/data_arrow.png', 250, 215)
 
-research_crafter_btn_clicked = import_foto("research_crafter_clicked.png",175,175)
-research_crafter_btn = import_foto("research_crafter.png",175,175)
-research_crafter_btn_start = import_foto("research_crafter_start.png",175,175)
+research_crafter_btn_clicked = import_foto("UI/research_crafter_clicked.png",175,175)
+research_crafter_btn = import_foto("UI/research_crafter.png",175,175)
+research_crafter_btn_start = import_foto("UI/research_crafter_start.png",175,175)
 
-not_enough_picture = import_foto('not_enough.png', 2000, 500)
+not_enough_picture = import_foto('UI/not_enough.png', 2000, 500)
 
-icon_1 = import_foto('menu_icon_1.png', 50, 50)
-icon_2 = import_foto('menu_icon_2.png', 50, 50)
-icon_3 = import_foto('menu_icon_3.png', 50, 50)
-icon_4 = import_foto('menu_icon_4.png', 50, 50)
-icon_5 = import_foto('menu_icon_5.png', 50, 50)
-icon_6 = import_foto('menu_icon_6.png', 50, 50)
-icon_cross = import_foto('menu_icon_cross.png', 50, 50)
+icon_1 = import_foto('UI/menu_icon_1.png', 50, 50)
+icon_2 = import_foto('UI/menu_icon_2.png', 50, 50)
+icon_3 = import_foto('UI/menu_icon_3.png', 50, 50)
+icon_4 = import_foto('UI/menu_icon_4.png', 50, 50)
+icon_5 = import_foto('UI/menu_icon_5.png', 50, 50)
+icon_6 = import_foto('UI/menu_icon_6.png', 50, 50)
+icon_cross = import_foto('UI/menu_icon_cross.png', 50, 50)
 
-icon_r_1 = import_foto('menu_icon_1.png', 50, 50)
-icon_r_2 = import_foto('menu_icon_5.png', 50, 50)
+icon_r_1 = import_foto('UI/menu_icon_1.png', 50, 50)
+icon_r_2 = import_foto('UI/menu_icon_5.png', 50, 50)
 
 # blocks
-picture_0 = import_foto('0.png', grid_size, grid_size)
-picture_1 = import_foto('01.png', grid_size, grid_size, True)  # conveyor
-picture_2 = import_foto('01.png', grid_size, grid_size, True)  # cross-conveyor
-picture_3 = import_foto('01.png', grid_size, grid_size, True)  # split-conveyor-r
-picture_4 = import_foto('01.png', grid_size, grid_size, True)  # split-conveyor-l
-picture_5 = import_foto('01.png', grid_size, grid_size, True)  # sort-conveyor-r
-picture_6 = import_foto('01.png', grid_size, grid_size, True)  # sort-conveyor-l
-picture_7 = import_foto('01.png', grid_size, grid_size, True)  # highway-conveyor
+picture_0 = import_foto('Blocks/0.png', grid_size, grid_size)
+picture_1 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # conveyor
+picture_2 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # cross-conveyor
+picture_3 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # split-conveyor-r
+picture_4 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # split-conveyor-l
+picture_5 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # sort-conveyor-r
+picture_6 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # sort-conveyor-l
+picture_7 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # highway-conveyor
 
-picture_8 = import_foto('8.png', grid_size, grid_size)
-picture_9 = import_foto('9.png', grid_size, grid_size)
+picture_8 = import_foto('Blocks/8.png', grid_size, grid_size)
+picture_9 = import_foto('Blocks/9.png', grid_size, grid_size)
 
-picture_10 = import_foto('10.png', grid_size, grid_size, True)
-picture_11 = import_foto('11.png', grid_size, grid_size, True)
-picture_12 = import_foto('12.png', grid_size * 3, grid_size * 3)
-picture_13 = import_foto('13.png', grid_size * 4, grid_size * 4)
-picture_14 = import_foto('14.png', grid_size * 5, grid_size * 5)
-picture_15 = import_foto('15.png', grid_size * 3, grid_size * 3, True)
-picture_16 = import_foto('16.png', grid_size * 3, grid_size * 3, True)
-picture_17 = import_foto('17.png', grid_size * 3, grid_size * 3, True)
-picture_18 = import_foto('18.png', grid_size, grid_size)
+picture_10 = import_foto('Blocks/10.png', grid_size, grid_size, True)
+picture_11 = import_foto('Blocks/11.png', grid_size, grid_size, True)
+picture_12 = import_foto('Blocks/12.png', grid_size * 3, grid_size * 3)
+picture_13 = import_foto('Blocks/13.png', grid_size * 4, grid_size * 4)
+picture_14 = import_foto('Blocks/14.png', grid_size * 5, grid_size * 5)
+picture_15 = import_foto('Blocks/15.png', grid_size * 3, grid_size * 3, True)
+picture_16 = import_foto('Blocks/16.png', grid_size * 3, grid_size * 3, True)
+picture_17 = import_foto('Blocks/17.png', grid_size * 3, grid_size * 3, True)
+picture_18 = import_foto('Blocks/18.png', grid_size, grid_size)
 #picture_19 = import_foto('19.png', grid_size, grid_size, True)
-picture_20 = import_foto('20.png', grid_size * 3, grid_size * 3, True)# storage temp
+picture_20 = import_foto('Blocks/20.png', grid_size * 3, grid_size * 3, True)# storage temp
 
-picture_21 = import_foto('21.png', grid_size, grid_size, True)
-picture_22 = import_foto('22.png', grid_size, grid_size, True)
+picture_21 = import_foto('Blocks/21.png', grid_size, grid_size, True)
+picture_22 = import_foto('Blocks/22.png', grid_size, grid_size, True)
 
-picture_23 = import_foto('23.png', grid_size, grid_size, True)
-picture_24 = import_foto('24.png', grid_size, grid_size, True)
+picture_23 = import_foto('Blocks/23.png', grid_size, grid_size, True)
+picture_24 = import_foto('Blocks/24.png', grid_size, grid_size, True)
 
-picture_25 = import_foto('25_base.png', grid_size, grid_size, True)
-picture_26 = import_foto('25_arm.png', grid_size * 3, grid_size * 3)
+picture_25 = import_foto('Blocks/25_base.png', grid_size, grid_size, True)
+picture_26 = import_foto('Blocks/25_arm.png', grid_size * 3, grid_size * 3)
 
-picture_33 = import_foto('33.png', grid_size * 3, grid_size * 3, True)
-picture_34 = import_foto('34.png', grid_size * 4, grid_size * 4, True)
-picture_35 = import_foto('35.png', grid_size * 5, grid_size * 5, True)
+picture_33 = import_foto('Blocks/33.png', grid_size * 3, grid_size * 3, True)
+picture_34 = import_foto('Blocks/34.png', grid_size * 4, grid_size * 4, True)
+picture_35 = import_foto('Blocks/35.png', grid_size * 5, grid_size * 5, True)
 picture_list = [0, 1, 2, 3, 4, 5, 6, 7, 8,9,10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 33, 34, 35]
 
 # items
 lst = []
 
 for x in range(22):
-    lst.append(import_foto('item{}.png'.format(x if x != 0 else 'r'), item_size, item_size))
+    lst.append(import_foto('Items/item{}.png'.format(x if x != 0 else 'r'), item_size, item_size))
 item_0_picture, item_1_picture, item_2_picture, item_3_picture, item_4_picture, item_5_picture, item_6_picture, \
 item_7_picture, item_8_picture, item_9_picture, item_10_picture, item_11_picture, item_12_picture, item_13_picture, \
 item_14_picture, item_15_picture, item_16_picture, item_17_picture, item_18_picture, item_19_picture, item_20_picture, \
 item_21_picture = lst
 
-item_c_picture = import_foto('itemc.png', item_size, item_size) 
+item_c_picture = import_foto('Items/itemc.png', item_size, item_size) 
 
 items_pictures = list(range(0, 22))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
@@ -181,8 +181,8 @@ pictures_scales['picture_arrow_cable'] = [1 for angle in range(0, 360, 90)]
 # conveyor frames
 conveyor_frames = {}
 for i in range(25):
-    conveyor_frames['picture_1_' + str(i + 1)] = [import_foto("01-" + str(i + 1) + ".png", grid_size, grid_size) for angle in range(0, 360, 90)]
-    scaled_pictures['picture_1_' + str(i + 1)] = [pg.transform.rotate(import_foto("01-" + str(i + 1) + ".png", grid_size, grid_size), -angle) for angle in range(0, 360, 90)]
+    conveyor_frames['picture_1_' + str(i + 1)] = [import_foto("Blocks/01-" + str(i + 1) + ".png", grid_size, grid_size) for angle in range(0, 360, 90)]
+    scaled_pictures['picture_1_' + str(i + 1)] = [pg.transform.rotate(import_foto("Blocks/01-" + str(i + 1) + ".png", grid_size, grid_size), -angle) for angle in range(0, 360, 90)]
     pictures_scales['picture_1_' + str(i + 1)] = [1 for angle in range(0, 360, 90)]
 
 # research frames (25)
@@ -200,7 +200,7 @@ picture_random = generate_random_background(10,11,3)
 for i in range(0,25):
     picture = pg.Surface((grid_size * 3, grid_size * 3))
     picture.blit(picture_random,(0,0))
-    picture.blit(import_foto("15-" + str(i + 1) + ".png", grid_size * 3, grid_size * 3),(0,0))
+    picture.blit(import_foto("Blocks/15-" + str(i + 1) + ".png", grid_size * 3, grid_size * 3),(0,0))
     picture = pg.transform.rotate(picture, 180) #image is upside down
     research_frames['picture_15_' + str(i + 1)] = [picture for angle in range(0, 360, 90)]
     scaled_pictures['picture_15_' + str(i + 1)] = [pg.transform.rotate(picture, -angle) for angle in range(0, 360, 90)]
@@ -224,7 +224,7 @@ crafter_frames = {}
 crafter_colors = ["black","dark_blue","dark_green","dark_red","gray","light_blue","light_green","orange","pink","purple","red","yellow"]
 crafter_picture_colors = {}
 for i in crafter_colors:
-    crafter_picture_colors[i] = [pg.transform.rotate(import_foto("base_research_"+str(i)+".png",150,150), -angle) for angle in range(0, 360, 90)]
+    crafter_picture_colors[i] = [pg.transform.rotate(import_foto("Blocks/base_research_"+str(i)+".png",150,150), -angle) for angle in range(0, 360, 90)]
 
 crafter_craftables = {'r':"dark_blue", 21: "light_green"}
 
@@ -254,7 +254,7 @@ for craftable in crafter_craftables.keys():
         final_picture.blit(crafter_picture_colors[color][0],(0,0))
 
         item_blit_size = 50
-        item_blit_picture = import_foto("item"+str(craftable)+".png")
+        item_blit_picture = import_foto("Items/item"+str(craftable)+".png")
         item_blit_picture = pg.transform.scale(item_blit_picture,(item_blit_size,item_blit_size))
 
         final_picture.blit(item_blit_picture,(int((150-item_blit_size)/2),int((150-item_blit_size)/2)))
