@@ -275,7 +275,8 @@ for file in os.listdir(rootdir):
 
 world_btn_list = [] # world btns
 for i, world in enumerate(world_list):
-    world_btn_list.append(WorldSelect(i, world))
+    if world != "~menu_world":
+        world_btn_list.append(WorldSelect(i, world))
 
 
 btn_list = []
@@ -291,16 +292,27 @@ ignore_click = False
 world_menu_top, world_menu_bottom = update_pictures(screen)
 world_select_scrolly = -world_menu_top.get_height() + 45
 
-grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world('another_world') # load background for title screen
+grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world('~menu_world') # load background for title screen
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
+
+autoload = True
+autoload_world = "testing world"
+
+if autoload:
+    scroll_keys_hold = [False, False, False, False]
+    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(autoload_world)
+
+    in_menu = False
+    start_play_perf = t.perf_counter() + 1
+    ignore_click = True
 
 ###########
 #Game loop#
 ###########
 
 while playing and __name__ == "__main__":
-    if  in_menu:
+    if in_menu:
         keypresses = pg.key.get_pressed()
         events = pg.event.get()
         mx,my = pg.mouse.get_pos()
@@ -443,7 +455,8 @@ while playing and __name__ == "__main__":
                     world_list.append(world_name)
                     world_btn_list = [] # regenerate worldbtn list
                     for i, world in enumerate(world_list):
-                        world_btn_list.append(WorldSelect(i, world))
+                        if world != "~menu_world":
+                            world_btn_list.append(WorldSelect(i, world))
 
                     #load world after creation
                     backg_surf = pg.Surface(screen.get_size())
@@ -824,7 +837,6 @@ while playing and __name__ == "__main__":
 
         t_items = t.perf_counter()
 
-        #TRAAG (hopelijk niet meer :D)
         craft_data, items_list = spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list)
 
         t_research = t.perf_counter()

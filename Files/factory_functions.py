@@ -1503,13 +1503,14 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
             if do_continue:
                 continue
 
-            screen.blit(pg.transform.scale(scaled_pictures[scaled_picture][0], (
+            screen.blit(pg.transform.scale(eval(scaled_picture), (
                 int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
                             button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
                             height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
+            
             if clicked_icon == 0:
                 if scaled_picture in conveyor_arrow_dict:
-                    screen.blit(pg.transform.scale(scaled_pictures[conveyor_arrow_dict[scaled_picture]][0], (
+                    screen.blit(pg.transform.scale(eval(conveyor_arrow_dict[scaled_picture]), (
                     int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
                                 button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
                                 height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
