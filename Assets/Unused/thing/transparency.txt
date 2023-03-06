@@ -1,3 +1,10 @@
 border: 70%
 semi-border: 40%
 main thing: 60%
+
+
+
+
+sea thing:
+RGB : 12 109 149
+transparency: 75%
