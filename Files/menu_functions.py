@@ -582,6 +582,8 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
         os.makedirs(world_path)
 
         #grid & rotation
+        grid = np.zeros((height_grid,width_grid),dtype='int')
+        grid_rotation = np.zeros((height_grid,width_grid),dtype='int') # 0 up, 1 right, 2 down, 3 left
         if world_seed == "": # generate random seed
             length = r.randint(5,50)
             for i in range(length):
@@ -602,28 +604,60 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
                     new_seed = new_seed + world_seed[i]
             world_seed = int(new_seed)
 
-        draw_loading_screen_create_world(screen, clock, loading_surf, 40, 10, "Generating noise...")
+        draw_loading_screen_create_world(screen, clock, loading_surf, 30, 10, "Generating noise...")
 
-        noise = PerlinNoise(octaves=15, seed=world_seed)
-                
-        grid = np.zeros((height_grid,width_grid),dtype='int')
-        grid_rotation = np.zeros((height_grid,width_grid),dtype='int') # 0 up, 1 right, 2 down, 3 left
+        grid_noise = PerlinNoise(octaves=15, seed=world_seed)
+        grid_features_noise = PerlinNoise(octaves=15, seed=world_seed+100)
+        
+        draw_loading_screen_create_world(screen, clock, loading_surf, 40, 30, "Reading noise...")
 
-        pic = [[noise([i/width_grid, j/height_grid]) for j in range(width_grid)] for i in range(height_grid)]
-            
+
+        grid_generation = [[grid_noise([i/width_grid, j/height_grid]) for j in range(width_grid)] for i in range(height_grid)]
+        pg.event.pump() # takes long time so update events
+        grid_generation_features = [[grid_features_noise([i/width_grid, j/height_grid]) for j in range(width_grid)] for i in range(height_grid)]
+
         draw_loading_screen_create_world(screen, clock, loading_surf, 50, 40, "Creating grid...")
 
-        grid_generation = pic
         for x in range(width_grid):
             for y in range(height_grid):
-                grid_rotation[y, x] = r.randint(0,3)
+                grid_rotation[y, x] = int(grid_generation[y][x] * 1000) % 4
                 
-                if pic[y][x] > -0.075:
+                if grid_generation[y][x] > -0.075:
                     grid[y, x] = r.choice([10,11])
-                elif pic[y][x] > -0.15:
+                elif grid_generation[y][x] > -0.15:
                     grid[y, x] = r.choice([23,24])
-                else:
+                elif grid_generation[y][x] > -0.425:
                     grid[y,x] = r.choice([21,22])
+                else:
+                    grid[y,x] = r.choice([25, 26])
+
+                if grid_generation_features[y][x] < -0.3:
+                    if grid_generation[y][x] < -0.125:
+                        if grid_generation[y][x] > -0.15:
+                            grid[y,x] = r.choice([27, 28])
+                        else:
+                            grid[y,x] = r.choice([29, 30])
+        # TEMP 
+        import matplotlib.pyplot as plt
+        # plt.imshow(grid_generation_features)
+        # plt.imshow(grid)
+        # plt.imshow(grid_generation)
+
+        plt.figure(1)
+        plt.pcolormesh(grid)
+        plt.colorbar()
+
+        # plt.figure(2)
+        # plt.pcolormesh(grid_generation_features)
+        # plt.colorbar()
+
+        # plt.figure(3)
+        # plt.pcolormesh(grid_generation)
+        # plt.colorbar()
+
+        plt.show()
+
+        # TEMP
 
         with open(world_path+"/grid.txt","w") as f:
             np.savetxt(f, grid, fmt="%i")

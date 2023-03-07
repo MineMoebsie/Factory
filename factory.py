@@ -300,6 +300,7 @@ autoload = True
 autoload_world = "testing world"
 
 if autoload:
+    selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(autoload_world)
 

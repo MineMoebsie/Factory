@@ -23,6 +23,8 @@
 22: "Water",
 23: "Sand",
 24: "Sand",
+25: "",
+26: "",
 33: "Small mine (3x3)",
 34: "Big mine (4x4)",
 35: "Mineral mine (5x5)"}

@@ -124,13 +124,21 @@ picture_22 = import_foto('Blocks/22.png', grid_size, grid_size, True)
 picture_23 = import_foto('Blocks/23.png', grid_size, grid_size, True)
 picture_24 = import_foto('Blocks/24.png', grid_size, grid_size, True)
 
-picture_25 = import_foto('Blocks/25_base.png', grid_size, grid_size, True)
-picture_26 = import_foto('Blocks/25_arm.png', grid_size * 3, grid_size * 3)
+picture_25 = import_foto('Blocks/25.png', grid_size, grid_size, True)
+picture_26 = import_foto('Blocks/26.png', grid_size, grid_size, True)
+picture_27 = import_foto('Blocks/27.png', grid_size, grid_size, True)
+picture_28 = import_foto('Blocks/28.png', grid_size, grid_size, True)
+picture_29 = import_foto('Blocks/29.png', grid_size, grid_size, True)
+picture_30 = import_foto('Blocks/30.png', grid_size, grid_size, True)
+
+
+# picture_25 = import_foto('Blocks/25_base.png', grid_size, grid_size, True)
+# picture_26 = import_foto('Blocks/25_arm.png', grid_size * 3, grid_size * 3)
 
 picture_33 = import_foto('Blocks/33.png', grid_size * 3, grid_size * 3, True)
 picture_34 = import_foto('Blocks/34.png', grid_size * 4, grid_size * 4, True)
 picture_35 = import_foto('Blocks/35.png', grid_size * 5, grid_size * 5, True)
-picture_list = [0, 1, 2, 3, 4, 5, 6, 7, 8,9,10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 33, 34, 35]
+picture_list = [0, 1, 2, 3, 4, 5, 6, 7, 8,9,10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25,26,27, 28,29,30,33, 34, 35]
 
 # items
 lst = []
@@ -310,7 +318,7 @@ def teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move, scroll
 
             
 
-            if built in [10, 11, 21, 22]:  # ground
+            if built in [10, 11, 21, 22, 23, 24, 25, 26]:  # ground
                 screen.blit(scaled_pictures["picture_" + str(built)][orientation],
                                  (x_grid_scale, y_grid_scale))
 
@@ -397,9 +405,10 @@ def teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move, scroll
                     (round((x * grid_size + grid_size - side_size) * scale)+ scrollx, y_grid_scale),
                     (side_scale, round(grid_size * scale))))
 
-            elif built == 25:
-                screen.blit(scaled_pictures["picture_25"][orientation], (x_grid_scale, y_grid_scale))
-                draw_last_list.append([orientation, (round((x - 1) * grid_size * scale) + scrollx, round((y - 1) * grid_size * scale) + scrolly)])
+            # elif built == 25:
+            #     screen.blit(scaled_pictures["picture_25"][orientation], (x_grid_scale, y_grid_scale))
+            #     draw_last_list.append([orientation, (round((x - 1) * grid_size * scale) + scrollx, round((y - 1) * grid_size * scale) + scrolly)])
+
             else:
                 screen, drawn_xy, grid_cables = render_building(built,x,y,orientation,drawn_xy,screen,scale,grid,grid_rotation,grid_cables,blocks_index,scaled_pictures,scrollx,scrolly,move,grid_data)
 
@@ -2095,4 +2104,4 @@ if __name__ == '__main__':
     pg.font.quit()
     pg.quit()
 
-#2019 lines of code!
+#2098 lines of code!
