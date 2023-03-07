@@ -184,16 +184,15 @@ conveyor_research_progress_dict = {1:0,2:1,3:2,4:2,5:3,6:3,7:4,8:5,9:5,10:5}
 
 #research menu
 r_screen_transparent = update_r_screen_func(screen, rect_ui) #screen for the transparent background
-r_width = 3000
-r_height = 3000
-r_screen = pg.Surface((r_width, r_height), pg.SRCALPHA) #entire research screen: uses scrolling (not re-rendering)
+r_width = [1500, 2500]
+r_height = [800, 2750]
+r_screen_page = 0 #which page r screen is
+r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]), pg.SRCALPHA) #entire research screen: uses scrolling (not re-rendering)
 update_r_screen = True #True when screen needs to update: only for 1 frame
 update_r_scroll = False
 research_menu = False
 r_scrollx = [0,530]
 r_scrolly = [0,1060]
-r_max_scroll_x_y = {"x": [250,1100], "y":[100,2000]}
-r_screen_page = 0 #which page r screen is
 r_icons_click_list = [] # click list icons research menu
 
 research_text = [["Unlock:","Savings:","Efficiency:","Savings:","Efficiency:","Savings:"]]
@@ -297,7 +296,7 @@ grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_spe
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
 autoload = True
-autoload_world = "testing world"
+autoload_world = "another_world"
 
 if autoload:
     selected_world = autoload_world
@@ -789,8 +788,14 @@ while playing and __name__ == "__main__":
             if scroll_keys_hold[0] and r_scrolly[r_screen_page] > -5:
                 r_scrolly[r_screen_page] += -scroll_speed * deltaTime
             
-            r_scrolly[r_screen_page] = min(max(r_scrolly[r_screen_page],0), r_max_scroll_x_y["y"][r_screen_page]) #prevents scrolling top or left out of screen
-            r_scrollx[r_screen_page] = min(max(r_scrollx[r_screen_page],0), r_max_scroll_x_y["x"][r_screen_page])
+
+            if r_scrollx[r_screen_page] + screen_w > r_width[r_screen_page]:
+                r_scrollx[r_screen_page] = r_width[r_screen_page] - screen_w
+            if r_scrolly[r_screen_page] + screen_h > r_height[r_screen_page]:
+                r_scrolly[r_screen_page] = r_height[r_screen_page] - screen_h
+
+            # r_scrolly[r_screen_page] = min(max(r_scrolly[r_screen_page],0), r_max_scroll_x_y["y"][r_screen_page]) #prevents scrolling top or left out of screen
+            # r_scrollx[r_screen_page] = min(max(r_scrollx[r_screen_page],0), r_max_scroll_x_y["x"][r_screen_page])
             if max(scroll_keys_hold): #if one of these is true, update scroll
                 update_r_scroll = True
 
@@ -867,7 +872,7 @@ while playing and __name__ == "__main__":
             selected_y = -1
         
         if research_menu and update_r_screen:
-            r_screen = pg.Surface((r_width, r_height),pg.SRCALPHA)
+            r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]),pg.SRCALPHA)
             r_screen = draw_research(screen,storage[0],r_screen,rect_ui,0,0,research_display,research_button_clicked,research_button_unclicked,research_progress,research_text,r_tile_text,research_subtext,r_prices,r_screen_page, research_grid)
             update_r_screen = False
 
