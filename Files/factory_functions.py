@@ -418,10 +418,10 @@ def teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move, scroll
                     screen.blit(scaled_pictures["picture_arrow_cable"][grid_cables[y,x]-1],
                                      (x_grid_scale, y_grid_scale))
 
-    for i in draw_last_list:
-        rotated_scaled = pg.transform.rotate(scaled_pictures["picture_26"][i[0]], angle)
-        new_rect = rotated_scaled.get_rect(center = scaled_pictures["picture_26"][i[0]].get_rect(topleft =  i[1]).center)
-        screen.blit(rotated_scaled, new_rect.topleft)
+    # for i in draw_last_list:
+    #     rotated_scaled = pg.transform.rotate(scaled_pictures["picture_26"][i[0]], angle)
+    #     new_rect = rotated_scaled.get_rect(center = scaled_pictures["picture_26"][i[0]].get_rect(topleft =  i[1]).center)
+    #     screen.blit(rotated_scaled, new_rect.topleft)
 
     pg.draw.rect(screen, (0, 0, 255), (
     (round(selected_x * grid_size * scale) + scrollx, round(selected_y * grid_size * scale) +scrolly),
@@ -745,8 +745,6 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
             elif brush in [5, 6]:
                 grid_data[ry, rx]["sort_item"] = 0
         else:
-            print("spawn", spawn)
-            # grid_data[ry, rx] = [brush, t.perf_counter(), 0, 2, 0, crafter]
             grid_data[ry, rx] = {"spawn_item": brush, "spawn_perf": t.perf_counter()}
 
         if not free:
@@ -807,11 +805,10 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                     if not grid[y, x] in [10, 11, 21, 22]:
                         build_spot = False
 
-            #if brush in [18,19] and grid[ry,rx] in [18,19]:
-            #    build_spot = True
-
-        
             if build_spot:
+                crafter = 0
+                if brush == 15:
+                    crafter = -1
                 if check_build_prices(b_prices, brush, storage, item_names) or True:
                     free_build = False
                     for x in range(rx, rx + size):
@@ -819,11 +816,11 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                             grid, grid_rotation, grid_data, storage = build(x, y, rr, grid, grid_rotation, grid_data,
                                                                             brush, size,
                                                                             b_prices, storage, item_names,
-                                                                            draw_brush=-brush, free=True)
+                                                                            draw_brush=-brush, free=True, crafter=crafter)
                             
                     grid, grid_rotation, grid_data, storage = build(rx, ry, rr, grid, grid_rotation, grid_data, brush,
                                                                     size,
-                                                                    b_prices, storage, item_names, draw_brush=brush, free=free_build)
+                                                                    b_prices, storage, item_names, draw_brush=brush, free=free_build, crafter=crafter)
 
                     if brush == 16: #spawn cargo items
                         grid_data[ry, rx] = {"spawn_item": brush, "spawn_perf": t.perf_counter()}

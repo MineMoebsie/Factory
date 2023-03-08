@@ -1,0 +1,167 @@
+{
+    "0": {
+        "name": "Void",
+        "description": "How did you even get this?",
+        "size": 1
+    },
+    "1": {
+        "name": "Conveyor",
+        "description": "Conveyor that is used for basic item transport.",
+        "size": 1
+    },
+    "2": {
+        "name": "Crossing Conveyor",
+        "description": "Conveyor that can be used as a crossing for two other conveyors.",
+        "size": 1
+    },
+    "3": {
+        "name": "Splitting Conveyor (to right)",
+        "description": "Conveyor that is used to split items. Outputs items to the front and right.",
+        "size": 1
+    },
+    "4": {
+        "name": "Splitting Conveyor (to left)",
+        "description": "Conveyor that is used to split items. Outputs items to the front and left.",
+        "size": 1
+    },
+    "5": {
+        "name": "Sorting Conveyor (to right)",
+        "description": "Conveyor that is used to sort items. Outputs the selected item to the right.",
+        "size": 1
+    },
+    "6": {
+        "name": "Sorting Conveyor (to left)",
+        "description": "Conveyor that is used to sort items. Outputs the selected item to the right.",
+        "size": 1
+    },
+    "7": {
+        "name": "Highway Conveyor",
+        "description": "Conveyor that is used to transport items quickly. Faster than a normal coneyor.",
+        "size": 1
+    },
+    "8": {
+        "name": "Cable Bending",
+        "description": "Transports packages containing items efficiently. Cable track starts at cable sender and ends at the reciever.",
+        "size": 1
+    },
+    "9": {
+        "name": "Cable Bending",
+        "description": "Transports packages containing items efficiently. Cable track starts at cable sender and ends at the reciever.",
+        "size": 1
+    },
+    "10": {
+        "name": "Grass",
+        "description": "That's some nice green grass.",
+        "size": 1
+    },
+    "11": {
+        "name": "Grass",
+        "description": "That's some nice green grass.",
+        "size": 1
+    },
+    "12": {
+        "name": "Farm",
+        "description": "A basic farm which produces tomatoes, carrots and potatoes.",
+        "size": 3
+    },
+    "13": {
+        "name": "Forest",
+        "description": "A forest which produces sticks, logs with leaves and logs without leaves.",
+        "size": 4
+    },
+    "14": {
+        "name": "Barn",
+        "description": "A farm which produces eggs, wool and milk.",
+        "size": 5
+    },
+    "15": {
+        "name": "Crafter",
+        "description": "Can be used to craft things. Unlock (more) recipies to craft in the research menu.",
+        "size": 3
+    },
+    "16": {
+        "name": "Cable Sender",
+        "description": "Sends out packages every few seconds. Start of the cable line.",
+        "size": 3
+    },
+    "17": {
+        "name": "Cable Reciever",
+        "description": "End of cable line. Unpacks cargo items and outputs the items in four directions (not all have to be used) which have to be conveyors.",
+        "size": 3
+    },
+    "18": {
+        "name": "Cable",
+        "description": "Transports packages containing items efficiently. Cable track starts at cable sender and ends at the reciever.",
+        "size": 1
+    },
+    "20": {
+        "name": "Storage",
+        "description": "Stores items.",
+        "size": 3
+    },
+    "21": {
+        "name": "Water",
+        "description": "* splash *",
+        "size": 1
+    },
+    "22": {
+        "name": "Water",
+        "description": "* splash *",
+        "size": 1
+    },
+    "23": {
+        "name": "Sand",
+        "description": "These are basically very very very tiny stones...",
+        "size": 1
+    },
+    "24": {
+        "name": "Sand",
+        "description": "These are basically very very very tiny stones...",
+        "size": 1
+    },
+    "25": {
+        "name": "Clay",
+        "description": "Seems nice.",
+        "size": 1
+    },
+    "26": {
+        "name": "Clay",
+        "description": "Seems nice.",
+        "size": 1
+    },
+    "27": {
+        "name": "Limestone",
+        "description": "Mining this stuff will probably be worth it?",
+        "size": 1
+    },
+    "28": {
+        "name": "Limestone",
+        "description": "Mining this stuff will probably be worth it?",
+        "size": 1
+    },
+    "29": {
+        "name": "Limestone",
+        "description": "Mining this stuff will probably be worth it?",
+        "size": 1
+    },
+    "30": {
+        "name": "Limestone",
+        "description": "Mining this stuff will probably be worth it?",
+        "size": 1
+    },
+    "33": {
+        "name": "Small Mine",
+        "description": "A mine which produces hard rocks, smooth stones and normal stones.",
+        "size": 3
+    },
+    "34": {
+        "name": "Mine",
+        "description": "A mine which produces emeralds, gold and iron.",
+        "size": 4
+    },
+    "35": {
+        "name": "Mineral Mine",
+        "description": "A large mineral mine which produces amethyst, rubies, topaz, diamonds, opals and sapphire.",
+        "size": 5
+    }
+}

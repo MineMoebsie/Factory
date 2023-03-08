@@ -49,6 +49,7 @@ percent_vals = loading_screen(screen,percent_vals,30,load_font,"Loading function
 #load files path
 from Files.factory_functions import *
 from Files.menu_functions import *
+from Files.loading_functions import *
 
 percent_vals = loading_screen(screen,percent_vals,70,load_font,"Reading save files")
 
@@ -68,11 +69,9 @@ r_prices = open('Data/research_prices.txt','r')
 r_prices = eval(r_prices.read())
 r_prices = np.array(r_prices)
 
-tile_names = open('Data/tile_names.txt','r')
-tile_names = eval(tile_names.read())
-
-tile_des = open('Data/tile_descriptions.txt','r')
-tile_des = eval(tile_des.read())
+with open("Data/tile_info.json") as f:
+    tile_info = json.load(f)
+    tile_names, tile_des = convert_json(tile_info)
 
 item_names = open('Data/item_names.txt','r')
 item_names = eval(item_names.read())
@@ -296,7 +295,7 @@ grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_spe
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
 autoload = True
-autoload_world = "another_world"
+autoload_world = "testing world"
 
 if autoload:
     selected_world = autoload_world
