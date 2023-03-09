@@ -2,6 +2,3 @@ perlin-noise
 pygame
 numpy
 easing-functions
-json
-time
-random
