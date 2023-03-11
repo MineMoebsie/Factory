@@ -186,9 +186,9 @@
     },
     "37": {
         "name": "Water Miner",
-        "description": "Mines clay or limestone that is underwater.",
+        "description": "Mines sand, clay or limestone that is underwater.",
         "size": 2,
-        "placed_on_only": [23, 24, 25, 26, 27, 28]
+        "placed_on_only": [21, 22, 25, 26, 29, 30]
     },
 
     "ground_blocks": [10, 11, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]

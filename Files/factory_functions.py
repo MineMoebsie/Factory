@@ -4,6 +4,7 @@ import numpy as np
 import pygame as pg
 import pdb
 import matplotlib.pyplot as plt
+import json
 from perlin_noise import PerlinNoise
 
 pg.init()
@@ -139,8 +140,15 @@ picture_33 = import_foto('Blocks/33.png', grid_size * 3, grid_size * 3, True)
 picture_34 = import_foto('Blocks/34.png', grid_size * 4, grid_size * 4, True)
 picture_35 = import_foto('Blocks/35.png', grid_size * 5, grid_size * 5, True)
 picture_36 = import_foto('Blocks/36.png', grid_size * 2, grid_size * 2, False)
+picture_37 = import_foto('Blocks/37.png', grid_size * 2, grid_size * 2, False)
 
-picture_list = [0, 1, 2, 3, 4, 5, 6, 7, 8,9,10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 33, 34, 35, 36]
+picture_list = []
+with open("Data/tile_info.json") as f:
+    tile_info = json.load(f)
+    for block in tile_info.keys():
+        if block != "ground_blocks":
+            picture_list.append(int(block))
+
 
 # items
 lst = []
@@ -658,7 +666,7 @@ def outside_screen_render(x, y, grid, grid_rotation, blocks_index, blocks_type):
             dx = 0
             dy = y - blocks_index[blocks_type] + 1
         elif (x >= blocks_index[blocks_type]) and not y >= blocks_index[blocks_type]:
-            cut = grid[0:y + 1, x - blocks_index[blocks_type][0] + 1:x + 1]
+            cut = grid[0:y + 1, x - blocks_index[blocks_type] + 1:x + 1]
             dx = x - blocks_index[blocks_type] + 1
             dy = 0
         else:  # cornered
@@ -812,7 +820,9 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
             build_spot = True
             for x in range(rx, rx + size):
                 for y in range(ry, ry + size):
-                    if grid[y, x] in cannot_place_on[brush] or (not grid[y, x] in placed_on_only[brush] and placed_on_only != []):
+                    if grid[y, x] in cannot_place_on[brush]:                            
+                        build_spot = False
+                    elif placed_on_only != [] and not grid[y, x] in placed_on_only[brush]:
                         build_spot = False
 
             if build_spot:
