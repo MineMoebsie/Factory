@@ -757,21 +757,29 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
     return grid, grid_rotation, grid_data, storage
 
 
-def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,
-                extra_conveyor_list=extra_conveyor_list):
+def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,placed_on_only,cannot_place_on,ground_blocks,extra_conveyor_list=extra_conveyor_list):
     cable_delete = False #default value
     grid_h, grid_w = grid.shape
     grid_h -= 1
     grid_w -= 1
     if brush != 0 and not (grid[ry, rx] == brush and grid_rotation[ry, rx] == rr):
         if size == 1:  # brush = [1 2 3 4 5 6 7]
-            if brush in [1, 2, 3, 4, 5, 6, 7]:
-                check_list = [10, 11, 21, 22, 1, 2, 3, 4, 5, 6, 7]
-            else:
-                check_list = [10, 11, 21, 22, brush]
-            if grid[ry, rx] not in check_list:
-                print("Cannot build!")
-            elif not (grid[ry, rx] in [10, 11, 21, 22] and grid[ry, rx] == brush):
+            # if brush in [1, 2, 3, 4, 5, 6, 7]:
+            #     check_list = [10, 11, 21, 22, 1, 2, 3, 4, 5, 6, 7]
+            # else:
+            #     check_list = [10, 11, 21, 22, brush]
+            # if grid[ry, rx] not in check_list:
+            #     print("Cannot build!")
+            placeable = False # if it is placeable or not
+            if placed_on_only[brush] == [] and cannot_place_on[brush] == []: # specific tile placement required: defaults to ground blocks
+                if grid[ry, rx] in ground_blocks:
+                    placeable = True
+            elif placed_on_only[brush] != [] and grid[ry, rx] in placed_on_only[brush]:
+                placeable = True
+            elif (cannot_place_on[brush] != []) and (not grid[ry, rx] in cannot_place_on[brush]):
+                placeable = True
+
+            if placeable:
                 if brush == 1:
                     if True:  # grid[ry,rx] == 1:
                         cross = False
@@ -804,7 +812,7 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
             build_spot = True
             for x in range(rx, rx + size):
                 for y in range(ry, ry + size):
-                    if not grid[y, x] in [10, 11, 21, 22]:
+                    if grid[y, x] in cannot_place_on[brush] or (not grid[y, x] in placed_on_only[brush] and placed_on_only != []):
                         build_spot = False
 
             if build_spot:
@@ -894,12 +902,7 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                 grid_data[ry, rx] = {}
 
     if cable_delete:
-                #for i in range(len(cable_index[0])):
-                #    if not (abs(grid[cable_index[0][i],cable_index[1][i]]) in [16, 17, 18, 19]):
-                #        grid_cables[cable_index[0][i],cable_index[1][i]] = 0
-                
-        cable_locations = np.where(grid_cables > 0) #delete 'floating' cables
-
+        cable_locations = np.where(grid_cables > 0) #delete 'floating' cable directions things
         for x in cable_locations[1]:
             for y in cable_locations[0]:
                 if not abs(grid[y,x]) in [16,17,18,19]: # not on cable blocks

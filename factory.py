@@ -71,13 +71,12 @@ r_prices = np.array(r_prices)
 
 with open("Data/tile_info.json") as f:
     tile_info = json.load(f)
-    tile_names, tile_des, blocks_index, b_prices, big_tiles = convert_json(tile_info)
+    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks = convert_json(tile_info)
 
 item_names = open('Data/item_names.txt','r')
 item_names = eval(item_names.read())
 
 percent_vals = loading_screen(screen,percent_vals,80,load_font,"Creating arrays")
-
 
 ###################################
 #Create grid, craft and cargo data#
@@ -805,7 +804,7 @@ while playing and __name__ == "__main__":
         #add to grid
         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
         if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
-            grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles)
+            grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks)
             locations, crafting_locations, cargo_locations = update_locations(grid_data,grid)
             craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
             mouse_down = False
