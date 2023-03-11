@@ -163,5 +163,10 @@
         "name": "Mineral Mine",
         "description": "A large mineral mine which produces amethyst, rubies, topaz, diamonds, opals and sapphire.",
         "size": 5
+    },
+    "36": {
+        "name": "Miner",
+        "description": "Can be placed on sand, clay or limestone.",
+        "size": 2
     }
 }

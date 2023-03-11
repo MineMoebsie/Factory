@@ -71,15 +71,13 @@ r_prices = np.array(r_prices)
 
 with open("Data/tile_info.json") as f:
     tile_info = json.load(f)
-    tile_names, tile_des = convert_json(tile_info)
+    tile_names, tile_des, blocks_index, b_prices, big_tiles = convert_json(tile_info)
 
 item_names = open('Data/item_names.txt','r')
 item_names = eval(item_names.read())
 
 percent_vals = loading_screen(screen,percent_vals,80,load_font,"Creating arrays")
 
-b_prices = open('Data/b_prices.txt','r')
-b_prices = eval(b_prices.read())
 
 ###################################
 #Create grid, craft and cargo data#
@@ -232,7 +230,6 @@ item_perf_time = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,'cargo':0} #t.perf_counters for ea
 cargo_spawn_list = [] #only one spawn time
 spawn_cooldown = 1 # cargo cooldown spawn time, when not a lot of items
 
-blocks_index = {0:[1],1:[1],2:[1],3:[1],4:[1],5:[1],6:[1],7:[1],8:[1],9:[1],10:[1],11:[1],12:[3],13:[4],14:[5],15:[3],16:[3],17:[3],18:[1],19:[1],20:[3],21:[1],22:[1],23:[1],24:[1],25:[1],33:[3], 34:[4],35:[5]}
 item_spawn_time = {'12':1,'13':2,'14':3,'16':5,'33':1,'34':2,'35':3}
 
 locations = [[],[]] #list of locations (x,y) of spawnable blocks
@@ -808,7 +805,7 @@ while playing and __name__ == "__main__":
         #add to grid
         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
         if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
-            grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush][0],blocks_index,storage,item_names,b_prices, grid_cables)
+            grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles)
             locations, crafting_locations, cargo_locations = update_locations(grid_data,grid)
             craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
             mouse_down = False
@@ -833,7 +830,7 @@ while playing and __name__ == "__main__":
         grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y,move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
 
         if not research_menu:
-            draw_preview_box(screen,selecting_tile,mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush][0])
+            draw_preview_box(screen,selecting_tile,mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush])
 
         t_items_cargo = t.perf_counter()
 
@@ -900,7 +897,7 @@ while playing and __name__ == "__main__":
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
-        deltaTime = clock.tick(10000)
+        deltaTime = clock.tick(500)
         angle += 1
 
         t_final = t.perf_counter()

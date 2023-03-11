@@ -3,4 +3,7 @@
 /.vs/
 /.vscode/
 /Files/__pycache__/
-/Data/Saves/
+/Data/Saves/*
+!/Data/Saves/~menu_world
+!/Data/Saves/testing world
+/Testing/

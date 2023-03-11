@@ -418,7 +418,7 @@ def update_pictures(screen):
 
 def read_world(world_folder):
     breedte, hoogte = 500,500
-    unlocked_blocks = [0,1,12,13,14,15,20,23, 24, 25,33,34,35]
+    unlocked_blocks = [0,1,12,13,14,15,20,23, 24, 25,33,34,35,36]
     conveyor_speed = [25.0,25.0,25.0,25.0,12.5,5]
     
     move_speed = [1.0,1.0,1.0,1.0,2.0]
@@ -639,21 +639,21 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
                             grid[y,x] = r.choice([29, 30])
         # TEMP 
         import matplotlib.pyplot as plt
-        # plt.imshow(grid_generation_features)
-        # plt.imshow(grid)
-        # plt.imshow(grid_generation)
+        plt.imshow(grid_generation_features)
+        plt.imshow(grid)
+        plt.imshow(grid_generation)
 
         plt.figure(1)
         plt.pcolormesh(grid)
         plt.colorbar()
 
-        # plt.figure(2)
-        # plt.pcolormesh(grid_generation_features)
-        # plt.colorbar()
+        plt.figure(2)
+        plt.pcolormesh(grid_generation_features)
+        plt.colorbar()
 
-        # plt.figure(3)
-        # plt.pcolormesh(grid_generation)
-        # plt.colorbar()
+        plt.figure(3)
+        plt.pcolormesh(grid_generation)
+        plt.colorbar()
 
         plt.show()
 

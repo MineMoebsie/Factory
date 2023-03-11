@@ -138,7 +138,9 @@ picture_30 = import_foto('Blocks/30.png', grid_size, grid_size, True)
 picture_33 = import_foto('Blocks/33.png', grid_size * 3, grid_size * 3, True)
 picture_34 = import_foto('Blocks/34.png', grid_size * 4, grid_size * 4, True)
 picture_35 = import_foto('Blocks/35.png', grid_size * 5, grid_size * 5, True)
-picture_list = [0, 1, 2, 3, 4, 5, 6, 7, 8,9,10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25,26,27, 28,29,30,33, 34, 35]
+picture_36 = import_foto('Blocks/36.png', grid_size * 2, grid_size * 2, False)
+
+picture_list = [0, 1, 2, 3, 4, 5, 6, 7, 8,9,10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 33, 34, 35, 36]
 
 # items
 lst = []
@@ -642,22 +644,22 @@ def draw_cables(x_in, y_in, main_screen, built, orientation, grid, grid_rotation
     
 
 def outside_screen_render(x, y, grid, grid_rotation, blocks_index, blocks_type):
-    if x > blocks_index[blocks_type][0] and y > blocks_index[blocks_type][0]:
-        cut = grid[y - blocks_index[blocks_type][0] + 1:y + 1, x - blocks_index[blocks_type][0] + 1:x + 1]
-        dx = x - blocks_index[blocks_type][0] + 1
-        dy = y - blocks_index[blocks_type][0] + 1
-    elif x >= blocks_index[blocks_type][0] and y >= blocks_index[blocks_type][0]:
-        cut = grid[y - blocks_index[blocks_type][0] + 1:y + 1, x - blocks_index[blocks_type][0] + 1:x + 1]
-        dx = x - blocks_index[blocks_type][0] + 1
-        dy = y - blocks_index[blocks_type][0] + 1
+    if x > blocks_index[blocks_type] and y > blocks_index[blocks_type]:
+        cut = grid[y - blocks_index[blocks_type] + 1:y + 1, x - blocks_index[blocks_type] + 1:x + 1]
+        dx = x - blocks_index[blocks_type] + 1
+        dy = y - blocks_index[blocks_type] + 1
+    elif x >= blocks_index[blocks_type] and y >= blocks_index[blocks_type]:
+        cut = grid[y - blocks_index[blocks_type] + 1:y + 1, x - blocks_index[blocks_type] + 1:x + 1]
+        dx = x - blocks_index[blocks_type] + 1
+        dy = y - blocks_index[blocks_type] + 1
     else:  # on edge of grid
-        if not x >= blocks_index[blocks_type][0] and (y >= blocks_index[blocks_type][0]):
-            cut = grid[y - blocks_index[blocks_type][0] + 1:y + 1, 0:x + 1]
+        if not x >= blocks_index[blocks_type] and (y >= blocks_index[blocks_type]):
+            cut = grid[y - blocks_index[blocks_type] + 1:y + 1, 0:x + 1]
             dx = 0
-            dy = y - blocks_index[blocks_type][0] + 1
-        elif (x >= blocks_index[blocks_type][0]) and not y >= blocks_index[blocks_type][0]:
+            dy = y - blocks_index[blocks_type] + 1
+        elif (x >= blocks_index[blocks_type]) and not y >= blocks_index[blocks_type]:
             cut = grid[0:y + 1, x - blocks_index[blocks_type][0] + 1:x + 1]
-            dx = x - blocks_index[blocks_type][0] + 1
+            dx = x - blocks_index[blocks_type] + 1
             dy = 0
         else:  # cornered
             cut = grid[0:y + 1, 0:x + 1]
@@ -755,7 +757,7 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
     return grid, grid_rotation, grid_data, storage
 
 
-def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,
+def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,
                 extra_conveyor_list=extra_conveyor_list):
     cable_delete = False #default value
     grid_h, grid_w = grid.shape
@@ -862,26 +864,26 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
             if abs(grid[ry,rx]) in [16, 17, 18, 19]:
                 cable_delete = True
                 
-            if grid[ry, rx] in [12, 13, 14, 15, 16, 17, 18, 19, 20, 33, 34, 35]:
+            if grid[ry, rx] in big_tiles:
                 if abs(grid[ry,rx]) == 18 and grid_cables[ry,rx] > 0:
                     grid_cables[ry,rx] = 0
                 else:
                     index = grid[ry, rx]
-                    for y_ in range(blocks_index[index][0]):
-                        for x_ in range(blocks_index[index][0]):
+                    for y_ in range(blocks_index[index]):
+                        for x_ in range(blocks_index[index]):
                             grid[ry + y_, rx + x_] = r.randint(10, 11)
                             grid_rotation[ry + y_, rx + x_] = r.randint(0, 3)
                             grid_data[ry + y_, rx + x_] = {}
 
-            elif -grid[ry, rx] in [12, 13, 14, 15, 16, 17, 18, 19, 20, 33, 34, 35]:
+            elif -grid[ry, rx] in big_tiles:
                 if abs(grid[ry,rx]) == 18 and grid_cables[ry,rx] > 0:
                     grid_cables[ry,rx] = {}
                 else:
                     index = -1 * grid[ry, rx]
                     xlinksboven, ylinksboven = outside_screen_render(rx, ry, grid, grid_rotation, blocks_index,
                                                                     -1 * grid[ry, rx])
-                    for y_ in range(ylinksboven, ylinksboven + blocks_index[index][0]):
-                        for x_ in range(xlinksboven, xlinksboven + blocks_index[index][0]):
+                    for y_ in range(ylinksboven, ylinksboven + blocks_index[index]):
+                        for x_ in range(xlinksboven, xlinksboven + blocks_index[index]):
                             grid[y_, x_] = r.randint(10, 11)
                             grid_rotation[y_, x_] = r.randint(0, 3)
                             grid_data[y_, x_] = {}
