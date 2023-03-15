@@ -73,7 +73,9 @@
         "name": "Farm",
         "description": "A basic farm which produces tomatoes, carrots and potatoes.",
         "size": 3,
-        "placed_on_only": [10, 11]
+        "placed_on_only": [10, 11],
+        "spawn_speed": 5,
+        "spawn_items": [1, 2, 3]
     },
     "13": {
         "name": "Forest",

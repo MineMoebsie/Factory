@@ -918,9 +918,6 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                 if not abs(grid[y,x]) in [16,17,18,19]: # not on cable blocks
                     grid_cables[y,x] = 0
 
-
-                        
-
     return grid, grid_rotation, grid_data, storage
 
 def update_locations(grid_data,grid):
@@ -939,62 +936,126 @@ def update_locations(grid_data,grid):
     cargo_locations = np.where(grid == 17)
     return locations,crafting_locations,cargo_locations
 
+def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index):
+    #blocks_index is for tile size
+    append_per_spawn = {} # for ex.: key 1 corresponds to all the items that spawn in 1 second interval etc.
+    # example of keys:
+    '''
+    append_per_spawn = {1: [{"spawn":[1,2,3], "loc": [[10,10], [11,10], [12,10]]}], 2: [], 3: [], 4: [], etc...}
+    '''
+    spawnable_tiles = [1]
+    world_height, world_width = grid.shape
+    for i in spawn_time.values(): # fill the dict with empty list keys for all the used seconds
+        append_per_spawn[i] = []
+    print(append_per_spawn)
 
-    
+    for loc in range(len(locations[0])):
+        x = locations[1][loc]
+        y = locations[0][loc]
+        block = grid[y, x]
+        size = blocks_index[block]
+        spawn_dict = {"spawn": [], "loc": []}
+        
+        #items are spawned directly next to the spawner, so not diagonally, only directly adjacent
+        #check for spawnable spots in the locations:
 
-def spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list, grid_size=grid_size):
-    for x in item_spawn_dict.keys():
-        if item_perf_time[x] + int(x) < t.perf_counter(): #if True, spawn extend list with items
-            if item_spawn_dict[x] is not None:
-                
-                for item in item_spawn_dict[x]:
-                    #print(item)
-                    items_list.append(
-                        Item(item[0] * grid_size + int(grid_size / 2), item[1] * grid_size + int(grid_size / 2), r.randint(item[2],item[3])))
-                    
-                item_perf_time[x] = t.perf_counter()
-                #print(f"spawned items {x}")
+        #check spawn spots above/below block
+        for x_check in range(x, x+size):
+            if y > 0 and grid[x_check, y-1] in spawnable_tiles:
+                spawn_dict["loc"].append([x_check, y-1])
+            if y < world_height and grid[x_check, y+size] in spawnable_tiles:
+                spawn_dict["loc"].append([x_check, y+size])
+        #check spawn spots next to block (left/right)
+        for y_check in range(y, y+size):
+            if x > 0 and grid[x-1, y_check] in spawnable_tiles:
+                spawn_dict["loc"].append([x-1, y_check])
+            if x < world_width and grid[x+size, y_check] in spawnable_tiles:
+                spawn_dict["loc"].append([x+size, y_check])
+        
+        spawn_dict['spawn'] = spawn_items[block]
 
-    if item_perf_time['cargo'] + 10 < t.perf_counter() and cargo_spawn_list != []:
-        item_perf_time['cargo'] = t.perf_counter()
-        for cargo in cargo_spawn_list:
+        append_per_spawn[spawn_time[block]].append(spawn_dict)
+
+    return append_per_spawn
+        
+def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_perf, spawn_time):
+    for time in spawn_perf_counters.keys():
+        if t.perf_counter() + spawn_time[time] > spawn_perf_counters[time]: # spawn items
+            for item in append_per_spawn[time]:
+                spawn_loc = r.choice(item["loc"])
+                spawn_item = r.choice(item["spawn"])
+                items_list.append(Item(spawn_loc[0] * grid_size + int(grid_size / 2), spawn_loc[1] * grid_size + int(grid_size / 2), spawn_item))
+            
+            spawn_perf_counters[time] = t.perf_counter()
+
+    if cargo_spawn_perf < t.perf_counter() + 5:
+        for ind in range(len(cargo_locations[0])):
+            x = cargo_locations[1][ind]
+            y = cargo_locations[0][ind]
+
             items_dict = {}#dict for items inside of cargo item
-            items_dict = craft_data[cargo[1], cargo[0]]
-            craft_data[cargo[1], cargo[0]] = {}
+            items_dict = craft_data[y, x]
+            craft_data[y, x] = {} # delete items (else: infinite resources exploit...)
             
-            items_list.append(
-                Cargo((cargo[0]+1) * grid_size + int(grid_size / 2), (cargo[1]+1) * grid_size + int(grid_size / 2), items_dict))
+            items_list.append(Cargo((y+1) * grid_size + int(grid_size / 2), (x+1) * grid_size + int(grid_size / 2), items_dict))
+
+
+    return items_list, craft_data
+
+
+# def spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list, grid_size=grid_size):
+#     for x in item_spawn_dict.keys():
+#         if item_perf_time[x] + int(x) < t.perf_counter(): #if True, spawn extend list with items
+#             if item_spawn_dict[x] is not None:
+                
+#                 for item in item_spawn_dict[x]:
+#                     #print(item)
+#                     items_list.append(
+#                         Item(item[0] * grid_size + int(grid_size / 2), item[1] * grid_size + int(grid_size / 2), r.randint(item[2],item[3])))
+                    
+#                 item_perf_time[x] = t.perf_counter()
+#                 #print(f"spawned items {x}")
+
+#     if item_perf_time['cargo'] + 10 < t.perf_counter() and cargo_spawn_list != []:
+#         item_perf_time['cargo'] = t.perf_counter()
+#         for cargo in cargo_spawn_list:
+#             items_dict = {}#dict for items inside of cargo item
+#             items_dict = craft_data[cargo[1], cargo[0]]
+#             craft_data[cargo[1], cargo[0]] = {}
+            
+#             items_list.append(
+#                 Cargo((cargo[0]+1) * grid_size + int(grid_size / 2), (cargo[1]+1) * grid_size + int(grid_size / 2), items_dict))
     
-    return craft_data,items_list
+#     return craft_data,items_list
             
-def update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list):
-    item_spawn_dict = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]}
-    #item_spawn_dict = {1:[[x,y,start randint, end randint],[x,y,start ...]],2:[],...}
-    randint_range_dict = {12:[1,3],13:[4,6],14:[7,9],33:[10,12],34:[13,15],35:[16,21]}
-    cargo_spawn_list = []
-    for index in range(len(locations[0])):
-        x = locations[1][index]
-        y = locations[0][index]
+# def update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list):
+#     item_spawn_dict = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]}
+#     #item_spawn_dict = {1:[[x,y,start randint, end randint],[x,y,start ...]],2:[],...}
+#     randint_range_dict = {12:[1,3],13:[4,6],14:[7,9],33:[10,12],34:[13,15],35:[16,21]}
+#     cargo_spawn_list = []
+#     for index in range(len(locations[0])):
+#         x = locations[1][index]
+#         y = locations[0][index]
 
-        if grid[y,x] in list(randint_range_dict.keys()) and grid[y,x] != 16:
-            block = grid[y,x] 
-            add = []
-            if grid_rotation[y,x] == 0:
-                add = [x+1,y+2]
-            elif grid_rotation[y,x] == 1:
-                add = [x,y+1]
-            elif grid_rotation[y,x] == 2:
-                add = [x+1,y]
-            elif grid_rotation[y,x] == 3:
-                add = [x+2,y+1]
+#         if grid[y,x] in list(randint_range_dict.keys()) and grid[y,x] != 16:
+#             block = grid[y,x] 
+#             add = []
+#             if grid_rotation[y,x] == 0:
+#                 add = [x+1,y+2]
+#             elif grid_rotation[y,x] == 1:
+#                 add = [x,y+1]
+#             elif grid_rotation[y,x] == 2:
+#                 add = [x+1,y]
+#             elif grid_rotation[y,x] == 3:
+#                 add = [x+2,y+1]
 
-            add.extend(randint_range_dict[block])
-            item_spawn_dict[item_spawn_time[str(block)]].append(add) # corresponding second key and appends the location
+#             add.extend(randint_range_dict[block])
+#             item_spawn_dict[item_spawn_time[str(block)]].append(add) # corresponding second key and appends the location
             
-        elif grid[y,x] == 16: # cargo item spawner
-            cargo_spawn_list.append([x,y])
+#         elif grid[y,x] == 16: # cargo item spawner
+#             cargo_spawn_list.append([x,y])
 
-    return craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list
+#     return craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list
 
 
 def research_items(crafting_locations, grid, grid_rotation, craft_data, items_list, grid_size=grid_size):

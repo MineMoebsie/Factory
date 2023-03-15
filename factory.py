@@ -1,7 +1,7 @@
 ##############################################
 #Import pygame and sys to draw loading screen#
 ##############################################
-import pygame as pg # this is a test comment to see if branching works!!!
+import pygame as pg
 import sys
 
 # sys.path.append('Files/')
@@ -71,7 +71,7 @@ r_prices = np.array(r_prices)
 
 with open("Data/tile_info.json") as f:
     tile_info = json.load(f)
-    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks = convert_json(tile_info)
+    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters = convert_json(tile_info)
 
 item_names = open('Data/item_names.txt','r')
 item_names = eval(item_names.read())
@@ -100,15 +100,8 @@ Can contain: (with default values)
 {"spawn_item": -1, "spawn_perf": 3, "split_side": 0, "split_count": 2, "sort_item": 0, "craft_recipe": 0}
 '''
 
-
-'''
-0: spawnables,1:t.perf_counter,2:split_side(0=straight,max=turn),3:split_count,4:sort(sorting=item_#),5:crafting type
-'''
-
 for i in range(width_grid):
-    array_side_1.append({}) 
-
-    
+    array_side_1.append({})     
     array_side_2.append({})
     array_side_3.append({}) #items to spawn will be in the dictionary
 
@@ -224,10 +217,11 @@ move_speed = [1.0,1.0,1.0,1.0,2.0,0]
 
 items_list = []
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
-item_spawn_dict = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]} #adds items inside of the dict to the items_list
-item_perf_time = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,'cargo':0} #t.perf_counters for each time
+# item_spawn_dict = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]} #adds items inside of the dict to the items_list
+# item_perf_time = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,'cargo':0} #t.perf_counters for each time
 cargo_spawn_list = [] #only one spawn time
-spawn_cooldown = 1 # cargo cooldown spawn time, when not a lot of items
+
+cargo_spawn_perf = -1 # cargo cooldown spawn time, when not a lot of items
 
 item_spawn_time = {'12':1,'13':2,'14':3,'16':5,'33':1,'34':2,'35':3}
 
