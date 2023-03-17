@@ -291,7 +291,7 @@ if autoload:
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(autoload_world)
-
+    append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -410,6 +410,8 @@ while playing and __name__ == "__main__":
 
                     scroll_keys_hold = [False, False, False, False]
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
+
+                    append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 90, 10, "Setting variables...")
 
@@ -800,7 +802,9 @@ while playing and __name__ == "__main__":
         if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
             grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks)
             locations, crafting_locations, cargo_locations = update_locations(grid_data,grid)
-            craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
+            # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
+            append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
+
             mouse_down = False
         
         #teken grid
@@ -828,11 +832,12 @@ while playing and __name__ == "__main__":
         t_items_cargo = t.perf_counter()
 
         #items
-        items_list, cargo_data, spawn_cooldown = spawn_cargo(cargo_locations,grid,cargo_data,items_list, spawn_cooldown)
+        # items_list, cargo_data, spawn_cooldown = spawn_cargo(cargo_locations,grid,cargo_data,items_list, spawn_cooldown)
 
         t_items = t.perf_counter()
 
-        craft_data, items_list = spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list)
+        # craft_data, items_list = spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list)
+        items_list, craft_data = spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_perf, spawn_time)
 
         t_research = t.perf_counter()
 

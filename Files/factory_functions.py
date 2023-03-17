@@ -961,17 +961,19 @@ def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_i
 
         #check spawn spots above/below block
         for x_check in range(x, x+size):
-            if y > 0 and grid[x_check, y-1] in spawnable_tiles:
-                spawn_dict["loc"].append([x_check, y-1])
-            if y < world_height and grid[x_check, y+size] in spawnable_tiles:
-                spawn_dict["loc"].append([x_check, y+size])
+            if y > 0 and grid[y-1, x_check] in spawnable_tiles:
+                spawn_dict["loc"].append([y-1, x_check])
+            if y < world_height and grid[y+size, x_check] in spawnable_tiles:
+                spawn_dict["loc"].append([y+size, x_check])
         #check spawn spots next to block (left/right)
         for y_check in range(y, y+size):
-            if x > 0 and grid[x-1, y_check] in spawnable_tiles:
-                spawn_dict["loc"].append([x-1, y_check])
-            if x < world_width and grid[x+size, y_check] in spawnable_tiles:
-                spawn_dict["loc"].append([x+size, y_check])
+            if x > 0 and grid[ y_check, x-1] in spawnable_tiles:
+                spawn_dict["loc"].append([y_check, x-1])
+            if x < world_width and grid[y_check, x+size] in spawnable_tiles:
+                spawn_dict["loc"].append([y_check, x+size])
         
+        print(spawn_dict["loc"])
+
         spawn_dict['spawn'] = spawn_items[block]
 
         append_per_spawn[spawn_time[block]].append(spawn_dict)
@@ -979,14 +981,15 @@ def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_i
     return append_per_spawn
         
 def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_perf, spawn_time):
-    for time in spawn_perf_counters.keys():
-        if t.perf_counter() + spawn_time[time] > spawn_perf_counters[time]: # spawn items
-            for item in append_per_spawn[time]:
-                spawn_loc = r.choice(item["loc"])
-                spawn_item = r.choice(item["spawn"])
-                items_list.append(Item(spawn_loc[0] * grid_size + int(grid_size / 2), spawn_loc[1] * grid_size + int(grid_size / 2), spawn_item))
-            
-            spawn_perf_counters[time] = t.perf_counter()
+    for time in append_per_spawn.keys():
+        if time != -1:
+            if t.perf_counter() + spawn_time[time] > spawn_perf_counters[time]: # spawn items
+                for item in append_per_spawn[time]:
+                    spawn_loc = r.choice(item["loc"])
+                    spawn_item = r.choice(item["spawn"])
+                    items_list.append(Item(spawn_loc[0] * grid_size + int(grid_size / 2), spawn_loc[1] * grid_size + int(grid_size / 2), spawn_item))
+                
+                spawn_perf_counters[time] = t.perf_counter()
 
     if cargo_spawn_perf < t.perf_counter() + 5:
         for ind in range(len(cargo_locations[0])):
