@@ -895,7 +895,7 @@ while playing and __name__ == "__main__":
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
-        deltaTime = clock.tick(500)
+        deltaTime = clock.tick(1000)
         angle += 1
 
         t_final = t.perf_counter()

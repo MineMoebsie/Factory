@@ -985,10 +985,11 @@ def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_per
         if time != -1:
             if t.perf_counter() + spawn_time[time] > spawn_perf_counters[time]: # spawn items
                 for item in append_per_spawn[time]:
-                    spawn_loc = r.choice(item["loc"])
-                    spawn_item = r.choice(item["spawn"])
-                    items_list.append(Item(spawn_loc[0] * grid_size + int(grid_size / 2), spawn_loc[1] * grid_size + int(grid_size / 2), spawn_item))
-                
+                    if len(item["loc"]) > 0:
+                        spawn_loc = r.choice(item["loc"])
+                        spawn_item = r.choice(item["spawn"])
+                        items_list.append(Item(spawn_loc[1] * grid_size + int(grid_size / 2), spawn_loc[0] * grid_size + int(grid_size / 2), spawn_item))
+                    
                 spawn_perf_counters[time] = t.perf_counter()
 
     if cargo_spawn_perf < t.perf_counter() + 5:
