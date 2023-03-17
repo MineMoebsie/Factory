@@ -947,7 +947,6 @@ def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_i
     world_height, world_width = grid.shape
     for i in spawn_time.values(): # fill the dict with empty list keys for all the used seconds
         append_per_spawn[i] = []
-    print(append_per_spawn)
 
     for loc in range(len(locations[0])):
         x = locations[1][loc]
@@ -972,8 +971,6 @@ def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_i
             if x < world_width and grid[y_check, x+size] in spawnable_tiles:
                 spawn_dict["loc"].append([y_check, x+size])
         
-        print(spawn_dict["loc"])
-
         spawn_dict['spawn'] = spawn_items[block]
 
         append_per_spawn[spawn_time[block]].append(spawn_dict)

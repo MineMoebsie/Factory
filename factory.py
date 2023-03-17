@@ -465,7 +465,6 @@ while playing and __name__ == "__main__":
                     in_menu = False
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
-                    print("done loading " + str(selected_world))
 
             btn.draw(screen)
 
