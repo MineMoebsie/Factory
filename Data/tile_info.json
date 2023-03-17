@@ -97,12 +97,14 @@
     "16": {
         "name": "Cable Sender",
         "description": "Sends out packages every few seconds. Start of the cable line.",
-        "size": 3
+        "size": 3,
+        "placed_on_only": [10,11]
     },
     "17": {
         "name": "Cable Reciever",
         "description": "End of cable line. Unpacks cargo items and outputs the items in four directions (not all have to be used) which have to be conveyors.",
-        "size": 3
+        "size": 3,
+        "placed_on_only": [10,11]
     },
     "18": {
         "name": "Cable",

@@ -299,7 +299,6 @@ class Inputbox:
         if self.active:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_RETURN:
-                    print(self.text)
                     self.text = ''
                     self.active = False
                 elif event.key == pg.K_BACKSPACE:
@@ -456,7 +455,7 @@ def read_world(world_folder):
     f = open('Data/Saves/'+world_folder+'/keybinds.txt')
     keybinds = eval(f.read())
     f.close()
-    locations, crafting_locations, cargo_locations = update_locations(grid_data,grid)
+    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid)
 
     f = open('Data/Saves/'+world_folder+'/research_data.txt')
     research_progress = eval(f.read())

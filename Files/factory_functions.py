@@ -920,7 +920,7 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
 
     return grid, grid_rotation, grid_data, storage
 
-def update_locations(grid_data,grid):
+def update_locations(grid):
     locations = np.array([])
     loc_grid = grid
     loc12 = np.where(loc_grid == 12, 13, loc_grid)  # transform all 13 into 14
@@ -933,8 +933,9 @@ def update_locations(grid_data,grid):
 
     crafting_locations = np.where(grid == 15)
 
+    cargo_spawn_locations = np.where(grid == 16)
     cargo_locations = np.where(grid == 17)
-    return locations,crafting_locations,cargo_locations
+    return locations,crafting_locations,cargo_locations,cargo_spawn_locations
 
 def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index):
     #blocks_index is for tile size
@@ -977,7 +978,7 @@ def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_i
 
     return append_per_spawn
         
-def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_perf, spawn_time):
+def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_locations, spawn_time, cargo_spawn_perf):
     for time in append_per_spawn.keys():
         if time != -1:
             if t.perf_counter() + spawn_time[time] > spawn_perf_counters[time]: # spawn items
@@ -989,19 +990,19 @@ def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_per
                     
                 spawn_perf_counters[time] = t.perf_counter()
 
-    if cargo_spawn_perf < t.perf_counter() + 5:
-        for ind in range(len(cargo_locations[0])):
-            x = cargo_locations[1][ind]
-            y = cargo_locations[0][ind]
+    if cargo_spawn_perf + 5 < t.perf_counter():
+        cargo_spawn_perf = t.perf_counter()
+        for ind in range(len(cargo_spawn_locations[0])):
+            x = cargo_spawn_locations[1][ind]
+            y = cargo_spawn_locations[0][ind]
 
             items_dict = {}#dict for items inside of cargo item
             items_dict = craft_data[y, x]
             craft_data[y, x] = {} # delete items (else: infinite resources exploit...)
-            
-            items_list.append(Cargo((y+1) * grid_size + int(grid_size / 2), (x+1) * grid_size + int(grid_size / 2), items_dict))
 
+            items_list.append(Cargo((x+1) * grid_size + int(grid_size / 2), (y+1) * grid_size + int(grid_size / 2), items_dict))
 
-    return items_list, craft_data
+    return items_list, craft_data, cargo_spawn_perf
 
 
 # def spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list, grid_size=grid_size):
@@ -1708,32 +1709,6 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                     if research_grid[y][x]:
                         r_screen.blit(research_crafter_btn, (round(175 * np.sqrt(3) / 2 * x),175*y + (x % 2) *half_size))
 
-                    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # scrollbar?
-    # if (max(research_progress[0]) + 2) * button_dist_x - button_space_x >= width:
-    #     pass  # scrollbar x!
-    # for y in range(len(research_progress[category])):
-    #     if research_progress[category][max(y - 1, 0)] < 0:
-    #         pass
-    #         # print(y)
-    # if (max(research_progress[0]) + 2) * button_dist_x - button_space_x >= width:
-    #     pass  # scrollbar x!
-
     return r_screen
     
 def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_page, mx,my,r_scrollx, r_scrolly):
@@ -1773,7 +1748,6 @@ def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_p
     return [width - 50 - cross_margin, cross_margin], r_icons_click_list
 
 def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_scrollx, r_scrolly, mx, my,research_progress, research_scrollx, research_scrolly, research_button_clicked, r_screen_page, research_grid, r_crafter_grid):
-    
     clicked_button = -1
     clicked_row = -1
     update_r_screen = False
@@ -1795,6 +1769,7 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                                             r_points -= r_prices[row][button]
                                             clicked_button = button
                                             clicked_row = row
+                                            update_r_screen = True
 
                                         else:  # not enough research points
                                             shortage_timer = t.perf_counter()

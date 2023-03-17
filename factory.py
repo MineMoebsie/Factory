@@ -228,6 +228,7 @@ item_spawn_time = {'12':1,'13':2,'14':3,'16':5,'33':1,'34':2,'35':3}
 locations = [[],[]] #list of locations (x,y) of spawnable blocks
 crafting_locations = [[],[]]
 cargo_locations = [[],[]]
+cargo_spawn_locations = [[],[]]
 
 # player data
 start_play_perf = -1
@@ -800,7 +801,7 @@ while playing and __name__ == "__main__":
         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
         if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
             grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks)
-            locations, crafting_locations, cargo_locations = update_locations(grid_data,grid)
+            locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid)
             # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
             append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
 
@@ -836,7 +837,7 @@ while playing and __name__ == "__main__":
         t_items = t.perf_counter()
 
         # craft_data, items_list = spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list)
-        items_list, craft_data = spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_perf, spawn_time)
+        items_list, craft_data, cargo_spawn_perf = spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_locations, spawn_time, cargo_spawn_perf)
 
         t_research = t.perf_counter()
 
@@ -894,7 +895,7 @@ while playing and __name__ == "__main__":
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
-        deltaTime = clock.tick(1000)
+        deltaTime = clock.tick(500)
         angle += 1
 
         t_final = t.perf_counter()
