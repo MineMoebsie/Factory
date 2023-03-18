@@ -71,7 +71,7 @@ r_prices = np.array(r_prices)
 
 with open("Data/tile_info.json") as f:
     tile_info = json.load(f)
-    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks = convert_json(tile_info)
+    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters = convert_json(tile_info)
 
 item_names = open('Data/item_names.txt','r')
 item_names = eval(item_names.read())
@@ -100,15 +100,8 @@ Can contain: (with default values)
 {"spawn_item": -1, "spawn_perf": 3, "split_side": 0, "split_count": 2, "sort_item": 0, "craft_recipe": 0}
 '''
 
-
-'''
-0: spawnables,1:t.perf_counter,2:split_side(0=straight,max=turn),3:split_count,4:sort(sorting=item_#),5:crafting type
-'''
-
 for i in range(width_grid):
-    array_side_1.append({}) 
-
-    
+    array_side_1.append({})     
     array_side_2.append({})
     array_side_3.append({}) #items to spawn will be in the dictionary
 
@@ -224,16 +217,18 @@ move_speed = [1.0,1.0,1.0,1.0,2.0,0]
 
 items_list = []
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
-item_spawn_dict = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]} #adds items inside of the dict to the items_list
-item_perf_time = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,'cargo':0} #t.perf_counters for each time
+# item_spawn_dict = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]} #adds items inside of the dict to the items_list
+# item_perf_time = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,'cargo':0} #t.perf_counters for each time
 cargo_spawn_list = [] #only one spawn time
-spawn_cooldown = 1 # cargo cooldown spawn time, when not a lot of items
+
+cargo_spawn_perf = -1 # cargo cooldown spawn time, when not a lot of items
 
 item_spawn_time = {'12':1,'13':2,'14':3,'16':5,'33':1,'34':2,'35':3}
 
 locations = [[],[]] #list of locations (x,y) of spawnable blocks
 crafting_locations = [[],[]]
 cargo_locations = [[],[]]
+cargo_spawn_locations = [[],[]]
 
 # player data
 start_play_perf = -1
@@ -297,7 +292,7 @@ if autoload:
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(autoload_world)
-
+    append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -417,6 +412,8 @@ while playing and __name__ == "__main__":
                     scroll_keys_hold = [False, False, False, False]
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
 
+                    append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
+
                     draw_loading_screen_create_world(screen, clock, loading_surf, 90, 10, "Setting variables...")
 
                     in_menu = False
@@ -469,7 +466,6 @@ while playing and __name__ == "__main__":
                     in_menu = False
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
-                    print("done loading " + str(selected_world))
 
             btn.draw(screen)
 
@@ -805,8 +801,10 @@ while playing and __name__ == "__main__":
         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
         if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
             grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks)
-            locations, crafting_locations, cargo_locations = update_locations(grid_data,grid)
-            craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
+            locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid)
+            # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
+            append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
+
             mouse_down = False
         
         #teken grid
@@ -834,11 +832,12 @@ while playing and __name__ == "__main__":
         t_items_cargo = t.perf_counter()
 
         #items
-        items_list, cargo_data, spawn_cooldown = spawn_cargo(cargo_locations,grid,cargo_data,items_list, spawn_cooldown)
+        # items_list, cargo_data, spawn_cooldown = spawn_cargo(cargo_locations,grid,cargo_data,items_list, spawn_cooldown)
 
         t_items = t.perf_counter()
 
-        craft_data, items_list = spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list)
+        # craft_data, items_list = spawn_items(grid, grid_data, items_list, item_perf_time, craft_data, item_spawn_dict, cargo_spawn_list)
+        items_list, craft_data, cargo_spawn_perf = spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_locations, spawn_time, cargo_spawn_perf)
 
         t_research = t.perf_counter()
 
