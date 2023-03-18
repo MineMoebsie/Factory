@@ -280,9 +280,9 @@ for craftable in crafter_craftables.keys():
         #crafter_frames[craftable][i+1] = [pg.transform.rotate(final_picture, -angle) for angle in range(0, 360, 90)]
         research_frames["picture_15_{}_{}".format(i+1, craftable)] = [pg.transform.rotate(final_picture, -angle) for angle in range(0, 360, 90)]
         pictures_scales['picture_15_' + str(i + 1) + "_" + str(craftable)] = [3 for angle in range(0, 360, 90)]
-        scaled_pictures["picture_15_{}_{}".format(i+1, craftable)] = [pg.transform.rotate(pg.transform.scale(research_frames["picture_15_{}_{}".format(i+1, craftable)][int(angle/90)], (
+        scaled_pictures["picture_15_{}_{}".format(i+1, craftable)] = [pg.transform.scale(research_frames["picture_15_{}_{}".format(i+1, craftable)][int(angle/90)], (
                 int(np.ceil(pictures_scales["picture_15_{}_{}".format(i+1, craftable)][int(angle/90)] * 1 * grid_size)),
-                int(np.ceil(pictures_scales["picture_15_{}_{}".format(i+1, craftable)][int(angle/90)] * 1 * grid_size)))), -angle) for angle in range(0, 360, 90)] 
+                int(np.ceil(pictures_scales["picture_15_{}_{}".format(i+1, craftable)][int(angle/90)] * 1 * grid_size)))) for angle in range(0, 360, 90)] 
 
 def scale_pictures(scale, grid_size=grid_size, item_size=item_size, scaled_pictures=scaled_pictures):
     for key in scaled_pictures.keys():
@@ -1695,10 +1695,10 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
     elif r_screen_page == 1:
         half_size = 175/2
         for x in range(15):
-            for y in range(15):
+            for y in range(15):#research_crafter_btn_clicked
                 lines = r_crafter_grid[y][x]
                 for line in lines:
-                    if research_grid[y][x] and research_grid[line[1]][line[0]]:
+                    if research_grid[y][x][0] and research_grid[line[1]][line[0]][0]:
                         pg.draw.line(r_screen, (40, 140, 144), (round(175 * np.sqrt(3) / 2 * x + half_size),175*y + (x % 2) *half_size+half_size), (round(175 * np.sqrt(3) / 2 * line[0]+half_size),175*line[1] + (line[0] % 2) *175/2+half_size), width=10)
         
         for x in range(15):
@@ -1706,8 +1706,11 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                 if x == 7 and y == 7: # centre of grid
                     r_screen.blit(research_crafter_btn_start, (round(175 * np.sqrt(3) / 2 * x),175*y + (x % 2) *half_size))
                 else:    
-                    if research_grid[y][x]:
-                        r_screen.blit(research_crafter_btn, (round(175 * np.sqrt(3) / 2 * x),175*y + (x % 2) *half_size))
+                    if research_grid[y][x][0]:
+                        if research_grid[y][x][1]:
+                            r_screen.blit(research_crafter_btn_clicked, (round(175 * np.sqrt(3) / 2 * x),175*y + (x % 2) *half_size))
+                        else:
+                            r_screen.blit(research_crafter_btn, (round(175 * np.sqrt(3) / 2 * x),175*y + (x % 2) *half_size))
 
     return r_screen
     
@@ -1751,6 +1754,7 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
     clicked_button = -1
     clicked_row = -1
     update_r_screen = False
+
     if r_screen_page == 0:
         button_space_x = 50
         button_space_y = 25
@@ -1781,14 +1785,14 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
         half_size = 175/2
         for row in range(len(r_crafter_grid)):
             for button in range(len(r_crafter_grid[0])):
-                if research_grid[row][button]:
-                    mid_loc = (round(175 * np.sqrt(3) / 2 * button) + half_size,175*row + (button % 2) *half_size + half_size)
+                if research_grid[row][button][0]:
+                    mid_loc = (round(half_size * np.sqrt(3) * button) + half_size,2*half_size*row + (button % 2) *half_size + half_size)
                     distance = np.sqrt((mouse_x - mid_loc[0])**2 + (mouse_y - mid_loc[1])**2)
-                    if distance <= 175/2:
-                        print("Clicked ({},{})".format(row, button))
+                    if distance <= half_size:
+                        research_grid[row][button][1] = True
+                        update_r_screen = True
                         for line in r_crafter_grid[row][button]:
-                            research_grid[line[1]][line[0]] = True
-                            update_r_screen = True
+                            research_grid[line[1]][line[0]][0] = True
                         
 
 

@@ -1,1 +1,1 @@
-{'playtime': '0:05:39', 'last_played': 'Mar 17, 2023', 'version': 'pre-alpha v.1.0', 'created': 'Mar 08, 2023'}
+{'playtime': '0:06:35', 'last_played': 'Mar 18, 2023', 'version': 'pre-alpha v.1.0', 'created': 'Mar 08, 2023'}

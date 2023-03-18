@@ -705,16 +705,18 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
             f.write(str(research_data))
 
         #research_grid
+        r_grid_size = 15
         research_grid = []
-        for row in range(grid_size):
+        for row in range(r_grid_size):
             row_line = []
-            for index in range(grid_size):
-                if row == int(grid_size / 2) and index == int(grid_size / 2):
-                    row_line.append(True)
+            for index in range(r_grid_size):
+                if row == int(r_grid_size / 2) and index == int(r_grid_size / 2):
+                    row_line.append([True, False])
                 else:
-                    row_line.append(False)
+                    row_line.append([False, False])
                     
             research_grid.append(row_line[:])
+
         with open(world_path+"/research_grid.txt", "w") as f:
             f.write(str(research_grid))
 

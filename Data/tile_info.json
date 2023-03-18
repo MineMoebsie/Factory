@@ -92,7 +92,8 @@
     "15": {
         "name": "Crafter",
         "description": "Can be used to craft things. Unlock (more) recipies to craft in the research menu.",
-        "size": 3
+        "size": 3,
+        "placed_on_only": [10, 11]
     },
     "16": {
         "name": "Cable Sender",
