@@ -222,6 +222,7 @@ storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, et
 cargo_spawn_list = [] #only one spawn time
 
 cargo_spawn_perf = -1 # cargo cooldown spawn time, when not a lot of items
+spawn_cooldown = -1
 
 item_spawn_time = {'12':1,'13':2,'14':3,'16':5,'33':1,'34':2,'35':3}
 
@@ -416,6 +417,7 @@ while playing and __name__ == "__main__":
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 90, 10, "Setting variables...")
 
+                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid)
                     in_menu = False
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
@@ -584,6 +586,7 @@ while playing and __name__ == "__main__":
                                     grid_data[selected_y,selected_x]["sort_item"] -= 1
 
                         elif keybind_menu == True:
+                            print(unlocked_blocks)
                             for k_index in keybinds.keys():
                                 if keyb_up_buttons[k_index].collidepoint(mx,my):
                                     stop_mouse_placement = True
@@ -832,7 +835,7 @@ while playing and __name__ == "__main__":
         t_items_cargo = t.perf_counter()
 
         #items
-        # items_list, cargo_data, spawn_cooldown = spawn_cargo(cargo_locations,grid,cargo_data,items_list, spawn_cooldown)
+        items_list, cargo_data, spawn_cooldown = spawn_cargo(cargo_locations,grid,cargo_data,items_list, spawn_cooldown)
 
         t_items = t.perf_counter()
 

@@ -449,6 +449,12 @@ def read_world(world_folder):
             for j in range(0, research_progress_[0][i] + 1):
                 unlocked_blocks, conveyor_speed, move_speed = research_clicked_item(unlocked_blocks,i,j,research_progress_,conveyor_speed,move_speed)
 
+    duplicate_blocks = []
+    for x in unlocked_blocks:
+        if x not in duplicate_blocks:
+            duplicate_blocks.append(x)
+    unlocked_blocks = duplicate_blocks
+
     f = open('Data/Saves/'+world_folder+'/storage.txt')
     storage = eval(f.read())
     f.close()
