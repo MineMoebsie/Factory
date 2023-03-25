@@ -13,7 +13,44 @@ def generate_r_craft_grid(grid_size=grid_size):
     xm = ym = int((grid_size - 1) / 2)
     print(xm, ym)
     grid = fill_grid((xm, ym), (xm, ym), grid, None, True)
+
+    for x in range(len(grid)):
+        for y in range(len(grid[x])):
+            grid[x][y] = [grid[x][y], None, 100]
+
+    start = (xm, ym)
+    up_branch = [[22, 500], [23, 600]]
+    for i in up_branch:
+        start, grid = update_text_costs(start, grid, 'up', *i)
+    #new_loc, grid = update_text_costs(*update_text_costs(start, grid, 'up'), 'up', 'blablabla', 1000)    
+
+    # import pdb; pdb.set_trace()
+
     return grid
+
+def update_text_costs(start_loc, grid, direction, text=None, cost=100, update_text_cost=True):
+    new_loc = start_loc
+    match direction:
+        case 'up':
+            new_loc = (new_loc[0] - 1, new_loc[1])
+        case 'rup':
+            new_loc = (new_loc[0] - 1 + new_loc[1] % 2, new_loc[1] + 1)
+        case 'lup':
+            new_loc = (new_loc[0] - 1 + new_loc[1] % 2, new_loc[1] - 1)
+        case 'down':
+            new_loc = (new_loc[0] + 1, new_loc[1])
+        case 'rdown':
+            new_loc = (new_loc[0] + new_loc[1] % 2, new_loc[1] + 1)
+        case 'ldown':
+            new_loc = (new_loc[0] + new_loc[1] % 2, new_loc[1] - 1)
+        case 'here':
+            pass
+
+    if update_text_cost:
+        grid[new_loc[0]][new_loc[1]][1] = text
+        grid[new_loc[0]][new_loc[1]][2] = cost
+    
+    return new_loc, grid
 
 
 def fill_grid(center_point, start_point, grid, direction, on_main_branch):
@@ -91,9 +128,6 @@ def fill_grid(center_point, start_point, grid, direction, on_main_branch):
                         grid[sy][sx].append((sx, sy - 1))
                         fill_grid(center_point, (sx, sy - 1), grid, 'up', False)
              
-
-
-
     return grid
 
 
@@ -112,6 +146,6 @@ for row in range(grid_size):
             
     boolean_grid.append(row_line[:])
 
-for world in ["another_world", "research_world", "research_world_copy", "~menu_world"]:
-    with open("Data/Saves/{}/research_grid.txt".format(world), "w") as f:
-        f.write(str(boolean_grid))
+# for world in ["another_world", "research_world", "research_world_copy", "~menu_world"]:
+#     with open("Data/Saves/{}/research_grid.txt".format(world), "w") as f:
+#         f.write(str(boolean_grid))

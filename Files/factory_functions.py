@@ -153,16 +153,16 @@ with open("Data/tile_info.json") as f:
 # items
 lst = []
 
-for x in range(22):
+for x in range(24):
     lst.append(import_foto('Items/item{}.png'.format(x if x != 0 else 'r'), item_size, item_size))
 item_0_picture, item_1_picture, item_2_picture, item_3_picture, item_4_picture, item_5_picture, item_6_picture, \
 item_7_picture, item_8_picture, item_9_picture, item_10_picture, item_11_picture, item_12_picture, item_13_picture, \
 item_14_picture, item_15_picture, item_16_picture, item_17_picture, item_18_picture, item_19_picture, item_20_picture, \
-item_21_picture = lst
+item_21_picture, item_22_picture, item_23_picture = lst
 
 item_c_picture = import_foto('Items/itemc.png', item_size, item_size) 
 
-items_pictures = list(range(0, 22))  # list of all the items (0,1,2 etc)
+items_pictures = list(range(0, 24))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
 
 # add to scale lists
@@ -686,8 +686,8 @@ def outside_screen_render(x, y, grid, grid_rotation, blocks_index, blocks_type):
 
 
 def bereken_muis_pos(mx, my, scrollx, scrolly, scale, grid_size=grid_size):
-    mrx = round((mx - scrollx - grid_size / 2) / scale / grid_size)
-    mry = round((my - scrolly - grid_size / 2) / scale / grid_size)
+    mrx = round((mx - scrollx - (scale*grid_size) / 2) / scale / grid_size)
+    mry = round((my - scrolly - (scale*grid_size) / 2) / scale / grid_size)
 
     #mrx = round((mx - scrollx - grid_size/scale) / 2 / grid_size)
     #mry = round((my - scrolly - grid_size/scale) / 2 / grid_size)
@@ -1696,7 +1696,7 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
         half_size = 175/2
         for x in range(15):
             for y in range(15):#research_crafter_btn_clicked
-                lines = r_crafter_grid[y][x]
+                lines = r_crafter_grid[y][x][0]
                 for line in lines:
                     if research_grid[y][x][0] and research_grid[line[1]][line[0]][0]:
                         pg.draw.line(r_screen, (40, 140, 144), (round(175 * np.sqrt(3) / 2 * x + half_size),175*y + (x % 2) *half_size+half_size), (round(175 * np.sqrt(3) / 2 * line[0]+half_size),175*line[1] + (line[0] % 2) *175/2+half_size), width=10)
@@ -1711,6 +1711,30 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                             r_screen.blit(research_crafter_btn_clicked, (round(175 * np.sqrt(3) / 2 * x),175*y + (x % 2) *half_size))
                         else:
                             r_screen.blit(research_crafter_btn, (round(175 * np.sqrt(3) / 2 * x),175*y + (x % 2) *half_size))
+
+                        x_, y_ = (round(175 * np.sqrt(3) / 2 * x),175*y + (x % 2) *half_size)
+                        if r_crafter_grid[y][x][1] is not None:
+                            # get w/h of text
+                            cost = str(r_crafter_grid[y][x][2])
+                            cost_w, cost_h = r_font.size(cost)
+                            #get w of research icon picture
+                            r_icon_w = r_icon_picture.get_width()
+
+                            margin_cost_r = 7
+                            y_offset = 25
+
+                            length = r_icon_w + margin_cost_r + cost_w
+                            r_screen.blit(r_icon_picture, (x_ + (175 - length) / 2, y_ + y_offset))
+                            
+                            cost_render = r_font.render(cost, True, (0, 0, 0))
+
+                            r_screen.blit(cost_render, (x_ + (175 - length) / 2 + margin_cost_r + r_icon_w, y_ + 30))
+
+                            print(cost_h, y_offset, (cost_h - y_offset) / 2)
+
+                            pic = eval("item_{}_picture".format(r_crafter_grid[y][x][1]))
+                            pic = pg.transform.scale(pic, (half_size, half_size))
+                            r_screen.blit(pic, (x_ + (175 - half_size) / 2, y_ + (175 - half_size) / 1.5))
 
     return r_screen
     
@@ -1791,7 +1815,7 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                     if distance <= half_size:
                         research_grid[row][button][1] = True
                         update_r_screen = True
-                        for line in r_crafter_grid[row][button]:
+                        for line in r_crafter_grid[row][button][0]:
                             research_grid[line[1]][line[0]][0] = True
                         
 

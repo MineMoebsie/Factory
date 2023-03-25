@@ -586,7 +586,6 @@ while playing and __name__ == "__main__":
                                     grid_data[selected_y,selected_x]["sort_item"] -= 1
 
                         elif keybind_menu == True:
-                            print(unlocked_blocks)
                             for k_index in keybinds.keys():
                                 if keyb_up_buttons[k_index].collidepoint(mx,my):
                                     stop_mouse_placement = True
