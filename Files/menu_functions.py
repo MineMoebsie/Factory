@@ -11,6 +11,7 @@ from perlin_noise import PerlinNoise
 import copy
 
 from Files.factory_functions import *
+from Files.item_spawn import *
 
 with open("Data/ver.txt") as f:
     version = f.read()

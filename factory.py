@@ -50,6 +50,7 @@ percent_vals = loading_screen(screen,percent_vals,30,load_font,"Loading function
 from Files.factory_functions import *
 from Files.menu_functions import *
 from Files.loading_functions import *
+from Files.item_spawn import *
 
 percent_vals = loading_screen(screen,percent_vals,70,load_font,"Reading save files")
 
