@@ -28,7 +28,7 @@ with open("Data/r_crafter_grid.txt") as f:
     r_crafter_grid = eval(f.read())
 
 conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7, 15, -15, -16, 16, -17, 17]
-extra_conveyor_list = [12, 13, 14, 33, 34, 35]
+# extra_conveyor_list = [12, 13, 14, 33, 34, 35]
 
 item_font = pg.font.Font('Fonts/Lato.ttf', 20)
 r_display_font = pg.font.Font('Fonts/Roboto-Light.ttf', 30)
@@ -765,7 +765,7 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
     return grid, grid_rotation, grid_data, storage
 
 
-def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,placed_on_only,cannot_place_on,ground_blocks,extra_conveyor_list=extra_conveyor_list):
+def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,placed_on_only,cannot_place_on,ground_blocks):
     cable_delete = False #default value
     grid_h, grid_w = grid.shape
     grid_h -= 1
@@ -845,33 +845,6 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                     if brush == 16: #spawn cargo items
                         grid_data[ry, rx] = {"spawn_item": brush, "spawn_perf": t.perf_counter()}
                         
-                    if brush in extra_conveyor_list:  # extra conveyor
-                        if rr == 0:
-                            grid, grid_rotation, grid_data, storage = build(rx + int(0.5 * size - 0.5),
-                                                                            ry + int(size - 1), 2, grid, grid_rotation,
-                                                                            grid_data, brush,
-                                                                            size, b_prices, storage, item_names,
-                                                                            draw_brush=1, free=True, spawn=True)
-                        elif rr == 1:
-                            grid, grid_rotation, grid_data, storage = build(rx, ry + int(0.5 * size - 0.5), 3,
-                                                                            grid, grid_rotation, grid_data, brush,
-                                                                            size, b_prices, storage, item_names,
-                                                                            draw_brush=1,
-                                                                            free=True, spawn=True)
-
-                        elif rr == 2:
-                            grid, grid_rotation, grid_data, storage = build(rx + int(0.5 * size - 0.5), ry, 0,
-                                                                            grid, grid_rotation, grid_data, brush,
-                                                                            size, b_prices, storage, item_names,
-                                                                            draw_brush=1,
-                                                                            free=True, spawn=True)
-                        elif rr == 3:
-                            grid, grid_rotation, grid_data, storage = build(rx + int(size - 1),
-                                                                            ry + int(0.5 * size - 0.5), 1,
-                                                                            grid, grid_rotation, grid_data, brush,
-                                                                            size, b_prices, storage, item_names,
-                                                                            draw_brush=1,
-                                                                            free=True, spawn=True)
                 else:
                     print("not enough resources!")
 
