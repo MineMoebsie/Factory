@@ -259,7 +259,6 @@ class Inputbox:
         pg.draw.rect(screen, (100,100,100), ((self.x, self.y), (width, self.height)), border_radius=self.border_radius)
 
         screen.blit(self.textimg, (self.x + int((self.width - self.textimg.get_width()) / 2), self.y + int((self.height - self.textimg.get_height()) / 2)))
-        # print(self.x + int((self.width - self.textimg.get_width()) / 2), self.y + int((self.height - self.textimg.get_height()) / 2))
 
         pg.draw.rect(screen, self.active_color if self.active else self.inactive_color, ((self.x, self.y), (width, self.height)), width=5, border_radius=self.border_radius)
 

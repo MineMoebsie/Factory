@@ -11,7 +11,6 @@ def generate_r_craft_grid(grid_size=grid_size):
             line.append([])
         grid.append(line)
     xm = ym = int((grid_size - 1) / 2)
-    print(xm, ym)
     grid = fill_grid((xm, ym), (xm, ym), grid, None, True)
 
     for x in range(len(grid)):
@@ -65,7 +64,6 @@ def fill_grid(center_point, start_point, grid, direction, on_main_branch):
     else:
         sx = start_point[0]
         sy = start_point[1]
-        print(sx, sy)
         match direction:
             case 'up':
                 if sy > 0:

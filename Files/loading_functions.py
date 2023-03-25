@@ -29,6 +29,4 @@ def convert_json(tile_info):
     for time in spawn_time.values():
         spawn_perf_counters[time] = -1
     
-    print(spawn_time)
-
     return tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters
