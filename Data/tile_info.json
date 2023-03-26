@@ -74,20 +74,24 @@
         "description": "A basic farm which produces tomatoes, carrots and potatoes.",
         "size": 3,
         "placed_on_only": [10, 11],
-        "spawn_time": 5,
+        "spawn_time": 3,
         "spawn_items": [1, 2, 3]
     },
     "13": {
         "name": "Forest",
         "description": "A forest which produces sticks, logs with leaves and logs without leaves.",
         "size": 4,
-        "placed_on_only": [10, 11]
+        "placed_on_only": [10, 11],
+        "spawn_time": 4,
+        "spawn_items": [4, 5, 6]
     },
     "14": {
         "name": "Barn",
         "description": "A farm which produces eggs, wool and milk.",
         "size": 5,
-        "placed_on_only": [10, 11]
+        "placed_on_only": [10, 11],
+        "spawn_time": 5,
+        "spawn_items": [1, 2, 3]
     },
     "15": {
         "name": "Crafter",
@@ -171,23 +175,31 @@
     "33": {
         "name": "Small Mine",
         "description": "A mine which produces hard rocks, smooth stones and normal stones.",
-        "size": 3
+        "size": 3,
+        "spawn_time": 3,
+        "spawn_items": [10, 11, 12]
     },
     "34": {
         "name": "Mine",
         "description": "A mine which produces emeralds, gold and iron.",
-        "size": 4
+        "size": 4,
+        "spawn_time": 4,
+        "spawn_items": [13, 14, 15]
     },
     "35": {
         "name": "Mineral Mine",
         "description": "A large mineral mine which produces amethyst, rubies, topaz, diamonds, opals and sapphire.",
-        "size": 5
+        "size": 5,
+        "spawn_time": 5,
+        "spawn_items": [16, 17, 18, 19, 20, 21]
     },
     "36": {
         "name": "Miner",
         "description": "Mines sand, clay or limestone. Can not mine limestone or clay underwater.",
         "size": 2,
-        "placed_on_only": [23, 24, 25, 26, 27, 28]
+        "placed_on_only": [23, 24, 25, 26, 27, 28],
+        "spawn_time": 5,
+        "spawn_items": [25]
     },
     "37": {
         "name": "Water Miner",

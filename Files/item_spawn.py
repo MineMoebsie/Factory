@@ -67,7 +67,7 @@ def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_i
 def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_locations, spawn_time, cargo_spawn_perf):
     for time in append_per_spawn.keys():
         if time != -1:
-            if t.perf_counter() + spawn_time[time] > spawn_perf_counters[time]: # spawn items
+            if t.perf_counter() > spawn_perf_counters[time] + time: # spawn items
                 for item in append_per_spawn[time]:
                     if len(item["loc"]) > 0:
                         spawn_loc = r.choice(item["loc"])

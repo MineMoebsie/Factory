@@ -152,17 +152,17 @@ with open("Data/tile_info.json") as f:
 
 # items
 lst = []
-
-for x in range(24):
+item_count = 25
+for x in range(item_count+1):
     lst.append(import_foto('Items/item{}.png'.format(x if x != 0 else 'r'), item_size, item_size))
 item_0_picture, item_1_picture, item_2_picture, item_3_picture, item_4_picture, item_5_picture, item_6_picture, \
 item_7_picture, item_8_picture, item_9_picture, item_10_picture, item_11_picture, item_12_picture, item_13_picture, \
 item_14_picture, item_15_picture, item_16_picture, item_17_picture, item_18_picture, item_19_picture, item_20_picture, \
-item_21_picture, item_22_picture, item_23_picture = lst
+item_21_picture, item_22_picture, item_23_picture, item_24_picture, item_25_picture = lst
 
 item_c_picture = import_foto('Items/itemc.png', item_size, item_size) 
 
-items_pictures = list(range(0, 24))  # list of all the items (0,1,2 etc)
+items_pictures = list(range(0, item_count+1))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
 
 # add to scale lists
@@ -885,124 +885,6 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
 
     return grid, grid_rotation, grid_data, storage
 
-# def update_locations(grid):
-#     locations = np.array([])
-#     loc_grid = grid
-#     loc12 = np.where(loc_grid == 12, 13, loc_grid)  # transform all 13 into 14
-#     loc13 = np.where(loc12 == 13, 14, loc_grid)  # transform all 14 (and 13) into 15
-#     loc14 = np.where(loc13 == 14, 16, loc_grid)
-#     loc16 = np.where(loc14 == 16, 33, loc_grid)
-#     loc33 = np.where(loc16 == 33, 34, loc_grid)
-#     loc34 = np.where(loc33 == 34, 35, loc_grid)
-#     locations = np.where(loc34 == 35)
-
-#     crafting_locations = np.where(grid == 15)
-
-#     cargo_spawn_locations = np.where(grid == 16)
-#     cargo_locations = np.where(grid == 17)
-#     return locations,crafting_locations,cargo_locations,cargo_spawn_locations
-
-# def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index):
-#     #blocks_index is for tile size
-#     append_per_spawn = {} # for ex.: key 1 corresponds to all the items that spawn in 1 second interval etc.
-#     # example of keys:
-#     '''
-#     append_per_spawn = {1: [{"spawn":[1,2,3], "loc": [[10,10], [11,10], [12,10]]}], 2: [], 3: [], 4: [], etc...}
-#     '''
-#     spawnable_tiles = [1]
-#     world_height, world_width = grid.shape
-#     for i in spawn_time.values(): # fill the dict with empty list keys for all the used seconds
-#         append_per_spawn[i] = []
-
-#     for loc in range(len(locations[0])):
-#         x = locations[1][loc]
-#         y = locations[0][loc]
-#         block = grid[y, x]
-#         size = blocks_index[block]
-#         spawn_dict = {"spawn": [], "loc": []}
-        
-#         #items are spawned directly next to the spawner, so not diagonally, only directly adjacent
-#         #check for spawnable spots in the locations:
-
-#         #check spawn spots above/below block
-#         for x_check in range(x, x+size):
-#             if y > 0 and grid[y-1, x_check] in spawnable_tiles:
-#                 spawn_dict["loc"].append([y-1, x_check])
-#             if y < world_height and grid[y+size, x_check] in spawnable_tiles:
-#                 spawn_dict["loc"].append([y+size, x_check])
-#         #check spawn spots next to block (left/right)
-#         for y_check in range(y, y+size):
-#             if x > 0 and grid[ y_check, x-1] in spawnable_tiles:
-#                 spawn_dict["loc"].append([y_check, x-1])
-#             if x < world_width and grid[y_check, x+size] in spawnable_tiles:
-#                 spawn_dict["loc"].append([y_check, x+size])
-        
-#         spawn_dict['spawn'] = spawn_items[block]
-
-#         append_per_spawn[spawn_time[block]].append(spawn_dict)
-
-#     return append_per_spawn
-        
-# def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_perf_counters, cargo_locations, cargo_spawn_locations, spawn_time, cargo_spawn_perf):
-#     for time in append_per_spawn.keys():
-#         if time != -1:
-#             if t.perf_counter() + spawn_time[time] > spawn_perf_counters[time]: # spawn items
-#                 for item in append_per_spawn[time]:
-#                     if len(item["loc"]) > 0:
-#                         spawn_loc = r.choice(item["loc"])
-#                         spawn_item = r.choice(item["spawn"])
-#                         items_list.append(Item(spawn_loc[1] * grid_size + int(grid_size / 2), spawn_loc[0] * grid_size + int(grid_size / 2), spawn_item))
-                    
-#                 spawn_perf_counters[time] = t.perf_counter()
-
-#     if cargo_spawn_perf + 5 < t.perf_counter():
-#         cargo_spawn_perf = t.perf_counter()
-#         for ind in range(len(cargo_spawn_locations[0])):
-#             x = cargo_spawn_locations[1][ind]
-#             y = cargo_spawn_locations[0][ind]
-
-#             items_dict = {}#dict for items inside of cargo item
-#             items_dict = craft_data[y, x]
-#             craft_data[y, x] = {} # delete items (else: infinite resources exploit...)
-
-#             items_list.append(Cargo((x+1) * grid_size + int(grid_size / 2), (y+1) * grid_size + int(grid_size / 2), items_dict))
-
-#     return items_list, craft_data, cargo_spawn_perf
-
-# def research_items(crafting_locations, grid, grid_rotation, craft_data, items_list, grid_size=grid_size):
-#     locations = crafting_locations
-#     for ind in range(len(locations[1])):
-#         x = locations[1][ind]
-#         y = locations[0][ind]
-#         if True:
-#         #for y in locations[0]:
-#             if '1' in list(craft_data[y, x].keys()) and '2' in list(craft_data[y, x].keys()) and '3' in list(craft_data[y, x].keys()):
-#                 if craft_data[y, x]["1"] > 0 and craft_data[y, x]["2"] > 0 and craft_data[y, x]["3"] > 0:
-#                     # subtract data from craft_data
-#                     craft_data[y, x]["1"] -= 1
-#                     craft_data[y, x]["2"] -= 1
-#                     craft_data[y, x]["3"] -= 1
-
-#                     # spawn research item
-#                     spawnx = -1
-#                     spawny = -1
-#                     if grid_rotation[y, x] == 0:
-#                         spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-#                         spawny = (y + 3) * grid_size + int(grid_size / 10)
-#                     elif grid_rotation[y, x] == 1:
-#                         spawnx = x * grid_size - int(grid_size / 10)
-#                         spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-#                     elif grid_rotation[y, x] == 2:
-#                         spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-#                         spawny = y * grid_size - int(grid_size / 10)
-#                     elif grid_rotation[y, x] == 3:
-#                         spawnx = (x + 3) * grid_size + int(grid_size / 10)
-#                         spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-#                     items_list.append(Item(int(spawnx), int(spawny), 0))
-
-#     return craft_data, items_list
-
-
 class Item:
     def __init__(self, x0, y0, item_type, item_size=item_size):
         self.x = x0
@@ -1724,11 +1606,8 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                         update_r_screen = True
                         for line in r_crafter_grid[row][button][0]:
                             research_grid[line[1]][line[0]][0] = True
-                        
-
 
     return shortage_timer, shortage_item, r_points, clicked_row, clicked_button, research_grid, update_r_screen
-
 
 def draw_shortage_notification(screen, not_enough_picture, shortage_item):
     width, height = screen.get_size()
