@@ -217,6 +217,9 @@ move_animation = [1,1,1,1,1]#conveyor,cross conveyor,split_conveyor,sorting conv
 move_speed = [1.0,1.0,1.0,1.0,2.0,0]
 
 items_list = []
+
+
+
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
 # item_spawn_dict = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]} #adds items inside of the dict to the items_list
 # item_perf_time = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,'cargo':0} #t.perf_counters for each time
@@ -283,7 +286,7 @@ ignore_click = False
 world_menu_top, world_menu_bottom = update_pictures(screen)
 world_select_scrolly = -world_menu_top.get_height() + 45
 
-grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world('~menu_world') # load background for title screen
+grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid = read_world('~menu_world', spawn_items) # load background for title screen
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
@@ -293,7 +296,7 @@ autoload_world = "testing world"
 if autoload:
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
-    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(autoload_world)
+    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid = read_world(autoload_world, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
@@ -412,13 +415,13 @@ while playing and __name__ == "__main__":
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world...")
 
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid = read_world(selected_world, spawn_items)
 
                     append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 90, 10, "Setting variables...")
 
-                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid)
+                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
                     in_menu = False
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
@@ -804,7 +807,7 @@ while playing and __name__ == "__main__":
         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
         if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
             grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks)
-            locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid)
+            locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
             # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
             append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
 

@@ -6,16 +6,22 @@ import numpy as np
 
 from Files.factory_functions import *
 
-def update_locations(grid):
+def update_locations(grid, spawn_items):
     locations = np.array([])
     loc_grid = grid
-    loc12 = np.where(loc_grid == 12, 13, loc_grid)  # transform all 13 into 14
-    loc13 = np.where(loc12 == 13, 14, loc_grid)  # transform all 14 (and 13) into 15
-    loc14 = np.where(loc13 == 14, 16, loc_grid)
-    loc16 = np.where(loc14 == 16, 33, loc_grid)
-    loc33 = np.where(loc16 == 33, 34, loc_grid)
-    loc34 = np.where(loc33 == 34, 35, loc_grid)
-    locations = np.where(loc34 == 35)
+
+    for item in spawn_items:
+        if spawn_items[item] != []:
+            loc_grid = np.where(loc_grid == int(item), -1, loc_grid)
+    locations = np.where(loc_grid == -1)
+
+    # loc_grid = np.where(loc_grid == 12, 13, loc_grid)  # transform all 13 into 14
+    # loc13 = np.where(loc_grid == 13, 14, loc_grid)  # transform all 14 (and 13) into 15
+    # loc14 = np.where(loc13 == 14, 16, loc_grid)
+    # loc16 = np.where(loc14 == 16, 33, loc_grid)
+    # loc33 = np.where(loc16 == 33, 34, loc_grid)
+    # loc34 = np.where(loc33 == 34, 35, loc_grid)
+    # locations = np.where(loc34 == 35)
 
     crafting_locations = np.where(grid == 15)
 

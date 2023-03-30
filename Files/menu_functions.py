@@ -415,7 +415,7 @@ def update_pictures(screen):
 
     return world_menu_top, world_menu_bottom
 
-def read_world(world_folder):
+def read_world(world_folder, spawn_items):
     breedte, hoogte = 500,500
     unlocked_blocks = [0,1,12,13,14,15,20,23, 24, 25,33,34,35,36,37]
     conveyor_speed = [25.0,25.0,25.0,25.0,12.5,5]
@@ -461,7 +461,7 @@ def read_world(world_folder):
     f = open('Data/Saves/'+world_folder+'/keybinds.txt')
     keybinds = eval(f.read())
     f.close()
-    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid)
+    # locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
 
     f = open('Data/Saves/'+world_folder+'/research_data.txt')
     research_progress = eval(f.read())
@@ -471,7 +471,7 @@ def read_world(world_folder):
     research_grid = eval(f.read())
     f.close()
 
-    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid
+    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid
 
 def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid):
     f = open('Data/Saves/'+world_folder+'/grid.txt','w')
@@ -729,7 +729,10 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
         draw_loading_screen_create_world(screen, clock, loading_surf, 90, 80, "Clearing storage...")
 
         #storage
-        storage = [0,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        storage = {}
+        for x in range(26):
+            storage[x] = 0
+        storage[0] = 100
         with open(world_path+"/storage.txt", "w") as f:
             f.write(str(storage))
 

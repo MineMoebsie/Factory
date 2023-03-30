@@ -205,7 +205,8 @@
         "name": "Water Miner",
         "description": "Mines sand, clay or limestone that is underwater.",
         "size": 2,
-        "placed_on_only": [21, 22, 25, 26, 29, 30]
+        "placed_on_only": [21, 22, 25, 26, 29, 30],
+        "spawn_items": [1, 2, 3]
     },
 
     "ground_blocks": [10, 11, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]

@@ -151,19 +151,12 @@ with open("Data/tile_info.json") as f:
 
 
 # items
-lst = []
 item_count = 25
-for x in range(item_count+1):
-    lst.append(import_foto('Items/item{}.png'.format(x if x != 0 else 'r'), item_size, item_size))
-item_0_picture, item_1_picture, item_2_picture, item_3_picture, item_4_picture, item_5_picture, item_6_picture, \
-item_7_picture, item_8_picture, item_9_picture, item_10_picture, item_11_picture, item_12_picture, item_13_picture, \
-item_14_picture, item_15_picture, item_16_picture, item_17_picture, item_18_picture, item_19_picture, item_20_picture, \
-item_21_picture, item_22_picture, item_23_picture, item_24_picture, item_25_picture = lst
-
-item_c_picture = import_foto('Items/itemc.png', item_size, item_size) 
-
 items_pictures = list(range(0, item_count+1))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
+unsc_pics = {} # unscaled pictures
+for x in items_pictures:
+    unsc_pics[f"item_{x}_picture"] = import_foto('Items/item{}.png'.format(x if x != 0 else 'r'), item_size, item_size)
 
 # add to scale lists
 scaled_pictures = {}
@@ -175,8 +168,8 @@ for i in range(len(picture_list)):
         float(eval('picture_' + str(picture_list[i])).get_size()[0] / grid_size)) for angle in range(0, 360, 90)]
     
 for i in range(len(items_pictures)):
-    scaled_pictures[str('item_' + str(items_pictures[i]) + '_picture')] = [pg.transform.rotate(eval(
-        'item_' + str(items_pictures[i]) + '_picture'), -angle) for angle in range(0, 360, 90)]
+    scaled_pictures[str('item_' + str(items_pictures[i]) + '_picture')] = [pg.transform.rotate(unsc_pics[
+        'item_' + str(items_pictures[i]) + '_picture'], -angle) for angle in range(0, 360, 90)]
     pictures_scales[str('item_' + str(items_pictures[i]) + '_picture')] =[1 for angle in range(0, 360, 90)]
 
 scaled_pictures['picture_arrow'] = [pg.transform.rotate(picture_arrow, -angle) for angle in range(0, 360, 90)]
@@ -255,9 +248,6 @@ for color in crafter_colors:
         final_picture.blit(research_frames["picture_15_"+str(i + 1)][0],(0,0))
         final_picture.blit(crafter_picture_colors[color][0],(0,0))
 
-        if color == "dark_blue":
-            pictjure = final_picture
-
         crafter_frames[str(color)][i+1] = [pg.transform.rotate(final_picture, -angle) for angle in range(0, 360, 90)]
         pictures_scales['picture_15_' + str(i + 1)] = [3 for angle in range(0, 360, 90)]
 
@@ -287,7 +277,7 @@ for craftable in crafter_craftables.keys():
 def scale_pictures(scale, grid_size=grid_size, item_size=item_size, scaled_pictures=scaled_pictures):
     for key in scaled_pictures.keys():
         if 'item' in key:  # item
-            scaled_pictures[key] =[pg.transform.rotate(pg.transform.scale(eval(key), (
+            scaled_pictures[key] =[pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * item_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * item_size)))), -angle) for angle in range(0, 360, 90)]
         elif 'picture_1_' in key:  # animated conveyor
@@ -1182,7 +1172,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
             screen.blit(text3, (int((rect_w - text3.get_size()[0]) / 2) - 42, height - rect_h + 155))
         elif tile_block in [5, 6]:  # item for sorter
             if grid_data[mry, mrx]["sort_item"] != 0:  # not research item
-                screen.blit(pg.transform.scale(eval("item_" + str(grid_data[mry, mrx]["sort_item"]) + "_picture"), (45, 45)),
+                screen.blit(pg.transform.scale(unsc_pics["item_" + str(grid_data[mry, mrx]["sort_item"]) + "_picture"], (45, 45)),
                             (80, height - rect_h + 145))
             else:
                 screen.blit(pg.transform.scale(r_icon_picture, (43, 43)), (80, height - rect_h + 146))
@@ -1300,7 +1290,7 @@ def draw_info_popup(screen,mx,my,menu_pictures,clicked_icon,clicked_button,tile_
     for b_material in b_price_list.keys():
         item_type = item_names[0].index(b_material) # in numbers
         item_quantity = b_price_list[b_material]
-        item_pic = eval("item_"+str(item_type)+"_picture")
+        item_pic = unsc_pics["item_"+str(item_type)+"_picture"]
         item_pic_size = item_pic.get_width() #width and height are the same
         screen.blit(item_pic,(blit_x+x_start,b_price_blit_y))
         x_start += item_pic_size + 5
@@ -1521,7 +1511,7 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
 
                             r_screen.blit(cost_render, (x_ + (175 - length) / 2 + margin_cost_r + r_icon_w, y_ + 30))
 
-                            pic = eval("item_{}_picture".format(r_crafter_grid[y][x][1]))
+                            pic = unsc_pics["item_{}_picture".format(r_crafter_grid[y][x][1])]
                             pic = pg.transform.scale(pic, (half_size, half_size))
                             r_screen.blit(pic, (x_ + (175 - half_size) / 2, y_ + (175 - half_size) / 1.5))
 
@@ -1615,7 +1605,7 @@ def draw_shortage_notification(screen, not_enough_picture, shortage_item):
     screen.blit(not_enough_picture, (int((width - width_rect) / 2), int(height / 75)))
     item_size = int(height_rect / 3 * 2)
     if shortage_item != 0:  # not research item
-        screen.blit(pg.transform.scale(eval("item_" + str(shortage_item) + "_picture"), (item_size, item_size)),
+        screen.blit(pg.transform.scale(unsc_pics["item_" + str(shortage_item) + "_picture"], (item_size, item_size)),
                     (int((width - width_rect) / 2), int((height / 75) + (height_rect - item_size) / 2)))
     elif shortage_item == 0:
         screen.blit(pg.transform.scale(r_icon_picture, (item_size, item_size)), (
