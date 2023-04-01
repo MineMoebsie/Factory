@@ -286,17 +286,17 @@ ignore_click = False
 world_menu_top, world_menu_bottom = update_pictures(screen)
 world_select_scrolly = -world_menu_top.get_height() + 45
 
-grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid = read_world('~menu_world', spawn_items) # load background for title screen
+grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world('~menu_world', spawn_items) # load background for title screen
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
-autoload = True
+autoload = False
 autoload_world = "testing world"
 
 if autoload:
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
-    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid = read_world(autoload_world, spawn_items)
+    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world(autoload_world, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
@@ -415,7 +415,7 @@ while playing and __name__ == "__main__":
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world...")
 
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world(selected_world, spawn_items)
 
                     append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
 
@@ -465,7 +465,7 @@ while playing and __name__ == "__main__":
                     
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,locations,research_progress,research_grid = read_world(selected_world)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world(selected_world, spawn_items)
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 100, 10, "Finishing up...")
 
@@ -806,7 +806,7 @@ while playing and __name__ == "__main__":
         #add to grid
         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
         if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
-            grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks)
+            grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks, grid_generation)
             locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
             # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
             append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)

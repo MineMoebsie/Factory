@@ -426,15 +426,17 @@ def read_world(world_folder, spawn_items):
     grid = grid.astype(int)
     grid_rotation = np.loadtxt('Data/Saves/'+world_folder+'/grid_rotation.txt').reshape(breedte, hoogte)
     grid_rotation = grid_rotation.astype(int)
+
+    grid_generation = np.loadtxt('Data/Saves/'+world_folder+'/grid_generation.txt').reshape(breedte, hoogte)
+    grid_generation = grid_generation.astype(float)
+    grid_features_generation = np.loadtxt('Data/Saves/'+world_folder+'/grid_generation_features.txt').reshape(breedte, hoogte)
+    grid_features_generation = grid_features_generation.astype(float)
+
     grid_cables = np.loadtxt('Data/Saves/'+world_folder+'/grid_cables.txt').reshape(breedte, hoogte)
     grid_cables = grid_cables.astype(int)
 
-    grid_data_load = json.loads(open("Data/Saves/another_world/grid_data.json").read())    
+    grid_data_load = json.loads(open(f'Data/Saves/{world_folder}/grid_data.json').read())    
     grid_data = np.array(grid_data_load["data"]).reshape(grid_data_load["shape"])
-
-    # for y in range(grid_data.shape[0]):
-    #     for x in range(grid_data.shape[1]):
-    #         grid_data[y][x][1] = 3
 
     f = open('Data/Saves/'+world_folder+'/research_data.txt')
     research_progress_ = eval(f.read())
@@ -461,7 +463,6 @@ def read_world(world_folder, spawn_items):
     f = open('Data/Saves/'+world_folder+'/keybinds.txt')
     keybinds = eval(f.read())
     f.close()
-    # locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
 
     f = open('Data/Saves/'+world_folder+'/research_data.txt')
     research_progress = eval(f.read())
@@ -471,7 +472,7 @@ def read_world(world_folder, spawn_items):
     research_grid = eval(f.read())
     f.close()
 
-    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid
+    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation
 
 def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid):
     f = open('Data/Saves/'+world_folder+'/grid.txt','w')
@@ -536,6 +537,10 @@ def save_player_data(world_folder, start_play_perf):
         player_data["version"] = version
 
         player_data["created"] = player_data_r['created']
+
+        player_data["seed"] = player_data_r['seed']
+
+        player_data["mode"] = player_data_r['mode']
     
         f.write(str(player_data))
 
@@ -616,7 +621,6 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
         
         draw_loading_screen_create_world(screen, clock, loading_surf, 40, 30, "Reading noise...")
 
-
         grid_generation = [[grid_noise([i/width_grid, j/height_grid]) for j in range(width_grid)] for i in range(height_grid)]
         pg.event.pump() # takes long time so update events
         grid_generation_features = [[grid_features_noise([i/width_grid, j/height_grid]) for j in range(width_grid)] for i in range(height_grid)]
@@ -642,26 +646,26 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
                             grid[y,x] = r.choice([27, 28])
                         else:
                             grid[y,x] = r.choice([29, 30])
+
         # TEMP 
-        import matplotlib.pyplot as plt
-        plt.imshow(grid_generation_features)
-        plt.imshow(grid)
-        plt.imshow(grid_generation)
+        # import matplotlib.pyplot as plt
+        # plt.imshow(grid_generation_features)
+        # plt.imshow(grid)
+        # plt.imshow(grid_generation)
 
-        plt.figure(1)
-        plt.pcolormesh(grid)
-        plt.colorbar()
+        # plt.figure(1)
+        # plt.pcolormesh(grid)
+        # plt.colorbar()
 
-        plt.figure(2)
-        plt.pcolormesh(grid_generation_features)
-        plt.colorbar()
+        # plt.figure(2)
+        # plt.pcolormesh(grid_generation_features)
+        # plt.colorbar()
 
-        plt.figure(3)
-        plt.pcolormesh(grid_generation)
-        plt.colorbar()
+        # plt.figure(3)
+        # plt.pcolormesh(grid_generation)
+        # plt.colorbar()
 
-        plt.show()
-
+        # plt.show()
         # TEMP
 
         with open(world_path+"/grid.txt","w") as f:
@@ -669,6 +673,12 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
 
         with open(world_path+"/grid_rotation.txt","w") as f:
             np.savetxt(f, grid_rotation, fmt="%i")    
+
+        with open(world_path+"/grid_generation.txt","w") as f:
+            np.savetxt(f, grid_generation, fmt="%f")
+
+        with open(world_path+"/grid_generation_features.txt","w") as f:
+            np.savetxt(f, grid_generation_features, fmt="%f")    
 
         draw_loading_screen_create_world(screen, clock, loading_surf, 65, 50, "Creating grid data...")
 
