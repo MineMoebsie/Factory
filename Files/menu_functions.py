@@ -629,23 +629,7 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
 
         for x in range(width_grid):
             for y in range(height_grid):
-                grid_rotation[y, x] = int(grid_generation[y][x] * 1000) % 4
-                
-                if grid_generation[y][x] > -0.075:
-                    grid[y, x] = r.choice([10,11])
-                elif grid_generation[y][x] > -0.15:
-                    grid[y, x] = r.choice([23,24])
-                elif grid_generation[y][x] > -0.425:
-                    grid[y,x] = r.choice([21,22])
-                else:
-                    grid[y,x] = r.choice([25, 26])
-
-                if grid_generation_features[y][x] < -0.3:
-                    if grid_generation[y][x] < -0.125:
-                        if grid_generation[y][x] > -0.15:
-                            grid[y,x] = r.choice([27, 28])
-                        else:
-                            grid[y,x] = r.choice([29, 30])
+                generate_block(x, y, grid, grid_rotation, grid_generation, grid_generation_features)
 
         # TEMP 
         # import matplotlib.pyplot as plt
@@ -756,8 +740,6 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
             f.write(str(player_data))
 
         draw_loading_screen_create_world(screen, clock, loading_surf, 100, 95, "Loading world...")
-
-
 
 if __name__ == '__main__':
     pg.font.quit()

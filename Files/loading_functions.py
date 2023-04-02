@@ -1,3 +1,5 @@
+import random as r
+
 def convert_json(tile_info):
     tile_names = {}
     tile_des = {} # tile descriptions
@@ -30,3 +32,24 @@ def convert_json(tile_info):
         spawn_perf_counters[time] = -1
     
     return tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters
+
+def generate_block(x, y, grid, grid_rotation, grid_generation, grid_generation_features):
+        grid_rotation[y, x] = int(grid_generation[y][x] * 1000) % 4
+                
+        if grid_generation[y][x] > -0.075:
+            grid[y, x] = r.choice([10,11])
+        elif grid_generation[y][x] > -0.15:
+            grid[y, x] = r.choice([23,24])
+        elif grid_generation[y][x] > -0.425:
+            grid[y,x] = r.choice([21,22])
+        else:
+            grid[y,x] = r.choice([25, 26])
+
+        if grid_generation_features[y][x] < -0.3:
+            if grid_generation[y][x] < -0.125:
+                if grid_generation[y][x] > -0.15:
+                    grid[y,x] = r.choice([27, 28])
+                else:
+                    grid[y,x] = r.choice([29, 30])
+        
+        return grid, grid_rotation

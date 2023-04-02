@@ -6,6 +6,7 @@ import pdb
 import matplotlib.pyplot as plt
 import json
 from perlin_noise import PerlinNoise
+from Files.loading_functions import generate_block
 
 pg.init()
 pg.font.init()
@@ -747,7 +748,7 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
     return grid, grid_rotation, grid_data, storage
 
 
-def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,placed_on_only,cannot_place_on,ground_blocks, grid_generation):
+def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,placed_on_only,cannot_place_on,ground_blocks, grid_generation, grid_generation_features):
     cable_delete = False #default value
     grid_h, grid_w = grid.shape
     grid_h -= 1
@@ -831,9 +832,8 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                     print("not enough resources!")
 
     elif brush == 0: # red x removing thing
+        cable_delete = False
         if not grid[ry, rx] in ground_blocks:
-            cable_delete = False
-            
             if abs(grid[ry,rx]) in [16, 17, 18, 19]:
                 cable_delete = True
                 
@@ -844,8 +844,7 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                     index = grid[ry, rx]
                     for y_ in range(blocks_index[index]):
                         for x_ in range(blocks_index[index]):
-                            grid[ry + y_, rx + x_] = r.randint(10, 11)
-                            grid_rotation[ry + y_, rx + x_] = r.randint(0, 3)
+                            grid, grid_rotation = generate_block(rx + x_, ry + y_, grid, grid_rotation, grid_generation, grid_generation_features)
                             grid_data[ry + y_, rx + x_] = {}
 
             elif -grid[ry, rx] in big_tiles:
@@ -857,13 +856,11 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                                                                     -1 * grid[ry, rx])
                     for y_ in range(ylinksboven, ylinksboven + blocks_index[index]):
                         for x_ in range(xlinksboven, xlinksboven + blocks_index[index]):
-                            grid[y_, x_] = r.randint(10, 11)
-                            grid_rotation[y_, x_] = r.randint(0, 3)
+                            grid, grid_rotation = generate_block(x_, y_, grid, grid_rotation, grid_generation, grid_generation_features)
                             grid_data[y_, x_] = {}
 
-            else:
-                grid[ry, rx] = r.randint(10, 11)
-                grid_rotation[ry, rx] = r.randint(0, 3)
+            else: # 1x1 tile
+                grid, grid_rotation = generate_block(rx, ry, grid, grid_rotation, grid_generation, grid_generation_features)
                 grid_data[ry, rx] = {}
 
     if cable_delete:
