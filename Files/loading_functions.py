@@ -12,6 +12,7 @@ def convert_json(tile_info):
     spawn_time = {}
     spawn_items = {}
     spawn_perf_counters = {}
+    strict_placement_tiles = [] # which tiles require strict placement (only allows 1 type of ground block)
 
     for block in tile_info.keys():
         if block != "ground_blocks":
@@ -25,13 +26,15 @@ def convert_json(tile_info):
             spawn_time[int(block)] = tile_info[block]['spawn_time'] if 'spawn_time' in tile_info[block] else -1
             spawn_items[int(block)] = tile_info[block]['spawn_items'] if 'spawn_items' in tile_info[block] else []
             b_prices[int(block)] = tile_info[block]['price'] if 'price' in tile_info[block] else {}
+            if 'strict_placement' in tile_info[block] and tile_info[block]['strict_placement']:
+                strict_placement_tiles.append(int(block)) 
         else:
             ground_blocks = tile_info['ground_blocks']
 
     for time in spawn_time.values():
         spawn_perf_counters[time] = -1
     
-    return tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters
+    return tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters, strict_placement_tiles
 
 def generate_block(x, y, grid, grid_rotation, grid_generation, grid_generation_features):
         grid_rotation[y, x] = int(grid_generation[y][x] * 1000) % 4

@@ -72,7 +72,7 @@ r_prices = np.array(r_prices)
 
 with open("Data/tile_info.json") as f:
     tile_info = json.load(f)
-    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters = convert_json(tile_info)
+    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters, strict_placement_tiles = convert_json(tile_info)
 
 item_names = open('Data/item_names.txt','r')
 item_names = eval(item_names.read())
@@ -217,6 +217,8 @@ move_animation = [1,1,1,1,1]#conveyor,cross conveyor,split_conveyor,sorting conv
 move_speed = [1.0,1.0,1.0,1.0,2.0,0]
 
 items_list = []
+
+placeable = False
 
 
 
@@ -809,7 +811,7 @@ while playing and __name__ == "__main__":
         #add to grid
         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
         if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
-            grid, grid_rotation, grid_data, storage = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks, grid_generation, grid_features_generation)
+            grid, grid_rotation, grid_data, storage, place_status = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks, grid_generation, grid_features_generation, strict_placement_tiles)
             locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
             # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
             append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
@@ -836,7 +838,8 @@ while playing and __name__ == "__main__":
         grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y,move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
 
         if not research_menu:
-            draw_preview_box(screen,selecting_tile,mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush])
+            placeable = check_placeable(mrx, mry, mrr, grid, grid_rotation, brush, blocks_index[brush], blocks_index, storage, b_prices, grid_cables, big_tiles, placed_on_only, cannot_place_on, ground_blocks, strict_placement_tiles, item_names)
+            draw_preview_box(screen,selecting_tile,mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush], placeable)
 
         t_items_cargo = t.perf_counter()
 

@@ -3,7 +3,9 @@
         "name": "Void",
         "description": "How did you even get this?",
         "size": 1,
-        "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
+        "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28],
+        "convert_alpha": true,
+        "background_tile": 0 
     },
     "1": {
         "name": "Conveyor",
@@ -18,25 +20,25 @@
         "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
     },
     "3": {
-        "name": "Splitting Conveyor (to right)",
+        "name": "Splitting Conveyor (right)",
         "description": "Conveyor that is used to split items. Outputs items to the front and right.",
         "size": 1,
         "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
     },
     "4": {
-        "name": "Splitting Conveyor (to left)",
+        "name": "Splitting Conveyor (left)",
         "description": "Conveyor that is used to split items. Outputs items to the front and left.",
         "size": 1,
         "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
     },
     "5": {
-        "name": "Sorting Conveyor (to right)",
+        "name": "Sorting Conveyor (right)",
         "description": "Conveyor that is used to sort items. Outputs the selected item to the right.",
         "size": 1,
         "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
     },
     "6": {
-        "name": "Sorting Conveyor (to left)",
+        "name": "Sorting Conveyor (left)",
         "description": "Conveyor that is used to sort items. Outputs the selected item to the right.",
         "size": 1,
         "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
@@ -114,7 +116,9 @@
     "18": {
         "name": "Cable",
         "description": "Transports packages containing items efficiently. Cable track starts at cable sender and ends at the reciever.",
-        "size": 1
+        "size": 1,
+        "convert_alpha": true,
+        "background_tile": [10, 11]
     },
     "20": {
         "name": "Storage",
@@ -195,18 +199,25 @@
     },
     "36": {
         "name": "Miner",
-        "description": "Mines sand, clay or limestone. Can not mine limestone or clay underwater.",
+        "description": "Mines sand or limestone. Can not mine limestone underwater.",
         "size": 2,
         "placed_on_only": [23, 24, 25, 26, 27, 28],
         "spawn_time": 5,
-        "spawn_items": [25]
+        "varients": [23, 24, 27, 28],
+        "spawn_items": [26, 26, 26, 26],
+        "convert_alpha": true,
+        "strict_placement": true
     },
     "37": {
         "name": "Water Miner",
         "description": "Mines sand, clay or limestone that is underwater.",
         "size": 2,
         "placed_on_only": [21, 22, 25, 26, 29, 30],
-        "spawn_items": [1, 2, 3]
+        "spawn_items": [1, 2, 3],
+        "varients": [21, 22, 25, 26, 29, 30],
+        "spawn": [26, 26, 25, 25, 25, 25],
+        "convert_alpha": true,
+        "strict_placement": true
     },
 
     "ground_blocks": [10, 11, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]

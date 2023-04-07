@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import json
 from perlin_noise import PerlinNoise
 from Files.loading_functions import generate_block
+import copy
 
 pg.init()
 pg.font.init()
@@ -96,52 +97,69 @@ icon_r_1 = import_foto('UI/menu_icon_1.png', 50, 50)
 icon_r_2 = import_foto('UI/menu_icon_5.png', 50, 50)
 
 # blocks
-picture_0 = import_foto('Blocks/0.png', grid_size, grid_size)
-picture_1 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # conveyor
-picture_2 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # cross-conveyor
-picture_3 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # split-conveyor-r
-picture_4 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # split-conveyor-l
-picture_5 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # sort-conveyor-r
-picture_6 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # sort-conveyor-l
-picture_7 = import_foto('Blocks/01.png', grid_size, grid_size, True)  # highway-conveyor
+unsc_pics = {} # unscaled pictures
 
-picture_8 = import_foto('Blocks/8.png', grid_size, grid_size)
-picture_9 = import_foto('Blocks/9.png', grid_size, grid_size)
+with open("Data/tile_info.json") as f:
+    tile_info = json.load(f)
+    tile_info.pop("ground_blocks")
 
-picture_10 = import_foto('Blocks/10.png', grid_size, grid_size, True)
-picture_11 = import_foto('Blocks/11.png', grid_size, grid_size, True)
-picture_12 = import_foto('Blocks/12.png', grid_size * 3, grid_size * 3)
-picture_13 = import_foto('Blocks/13.png', grid_size * 4, grid_size * 4)
-picture_14 = import_foto('Blocks/14.png', grid_size * 5, grid_size * 5)
-picture_15 = import_foto('Blocks/15.png', grid_size * 3, grid_size * 3, True)
-picture_16 = import_foto('Blocks/16.png', grid_size * 3, grid_size * 3, True)
-picture_17 = import_foto('Blocks/17.png', grid_size * 3, grid_size * 3, True)
-picture_18 = import_foto('Blocks/18.png', grid_size, grid_size)
-#picture_19 = import_foto('19.png', grid_size, grid_size, True)
-picture_20 = import_foto('Blocks/20.png', grid_size * 3, grid_size * 3, True)# storage temp
+unsc_pics['picture_0'] = import_foto('Blocks/0.png', grid_size, grid_size)
+unsc_pics['picture_1'] = import_foto('Blocks/01.png', grid_size, grid_size, True)  # conveyor
+unsc_pics['picture_2'] = import_foto('Blocks/01.png', grid_size, grid_size, True)  # cross-conveyor
+unsc_pics['picture_3'] = import_foto('Blocks/01.png', grid_size, grid_size, True)  # split-conveyor-r
+unsc_pics['picture_4'] = import_foto('Blocks/01.png', grid_size, grid_size, True)  # split-conveyor-l
+unsc_pics['picture_5'] = import_foto('Blocks/01.png', grid_size, grid_size, True)  # sort-conveyor-r
+unsc_pics['picture_6'] = import_foto('Blocks/01.png', grid_size, grid_size, True)  # sort-conveyor-l
+unsc_pics['picture_7'] = import_foto('Blocks/01.png', grid_size, grid_size, True)  # highway-conveyor
 
-picture_21 = import_foto('Blocks/21.png', grid_size, grid_size, True)
-picture_22 = import_foto('Blocks/22.png', grid_size, grid_size, True)
+exclude = [1,2,3,4,5,6,7]
 
-picture_23 = import_foto('Blocks/23.png', grid_size, grid_size, True)
-picture_24 = import_foto('Blocks/24.png', grid_size, grid_size, True)
+for block in tile_info.keys():
+    if not int(block) in exclude:
+        convert = True
+        if "convert_alpha" in tile_info[block]:
+            convert = False
+        size = int(grid_size * tile_info[block]["size"])
+        if "varients" in tile_info[block]: # background tiles varients
+            unsc_pics[f'picture_{block}'] = import_foto(f'Blocks/{block}.png', size, size, convert)
 
-picture_25 = import_foto('Blocks/25.png', grid_size, grid_size, True)
-picture_26 = import_foto('Blocks/26.png', grid_size, grid_size, True)
-picture_27 = import_foto('Blocks/27.png', grid_size, grid_size, True)
-picture_28 = import_foto('Blocks/28.png', grid_size, grid_size, True)
-picture_29 = import_foto('Blocks/29.png', grid_size, grid_size, True)
-picture_30 = import_foto('Blocks/30.png', grid_size, grid_size, True)
+            temp_pic = pg.Surface((size, size), pg.SRCALPHA)
+            varients = tile_info[block]["varients"]
 
+            for i in range(int(len(varients) / 2)):
+                for x in range(tile_info[block]["size"]):
+                    for y in range(tile_info[block]["size"]):
+                        tile = r.choice(varients[i*2:i*2+2])
+                        tile_pic = import_foto(f"Blocks/{tile}.png", size, size, True)
+                        temp_pic.blit(tile_pic, (x * 50, y * 50))
+                    
+                foreground = import_foto(f'Blocks/{block}.png', size, size, convert)
+                temp_pic.blit(foreground, (0,0))
 
-# picture_25 = import_foto('Blocks/25_base.png', grid_size, grid_size, True)
-# picture_26 = import_foto('Blocks/25_arm.png', grid_size * 3, grid_size * 3)
+                unsc_pics[f'picture_{block}-{varients[i*2]}-{varients[i*2+1]}'] = temp_pic
 
-picture_33 = import_foto('Blocks/33.png', grid_size * 3, grid_size * 3, True)
-picture_34 = import_foto('Blocks/34.png', grid_size * 4, grid_size * 4, True)
-picture_35 = import_foto('Blocks/35.png', grid_size * 5, grid_size * 5, True)
-picture_36 = import_foto('Blocks/36.png', grid_size * 2, grid_size * 2, False)
-picture_37 = import_foto('Blocks/37.png', grid_size * 2, grid_size * 2, False)
+        elif not convert:
+            temp_pic = pg.Surface((size, size), pg.SRCALPHA)
+
+            for x in range(tile_info[block]["size"]):
+                for y in range(tile_info[block]["size"]):
+                    if type(tile_info[block]["background_tile"]) is list:
+                        tile = r.choice(tile_info[block]["background_tile"])
+                    else:
+                        tile = tile_info[block]["background_tile"]
+                    tile_pic = import_foto(f"Blocks/{tile}.png", size, size, True)
+                    temp_pic.blit(tile_pic, (x * 50, y * 50))
+
+            foreground = import_foto(f'Blocks/{block}.png', size, size, convert)
+            temp_pic.blit(foreground, (0,0))
+
+            unsc_pics[f'picture_{block}'] = temp_pic
+
+        else: # single image
+            unsc_pics[f'picture_{block}'] = import_foto(f'Blocks/{block}.png', size, size, convert)
+
+# # picture_25 = import_foto('Blocks/25_base.png', grid_size, grid_size, True)
+# # picture_26 = import_foto('Blocks/25_arm.png', grid_size * 3, grid_size * 3) legacy code
 
 picture_list = []
 with open("Data/tile_info.json") as f:
@@ -150,12 +168,10 @@ with open("Data/tile_info.json") as f:
         if block != "ground_blocks":
             picture_list.append(int(block))
 
-
 # items
 item_count = 25
 items_pictures = list(range(0, item_count+1))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
-unsc_pics = {} # unscaled pictures
 for x in items_pictures:
     unsc_pics[f"item_{x}_picture"] = import_foto('Items/item{}.png'.format(x if x != 0 else 'r'), item_size, item_size)
 
@@ -164,9 +180,9 @@ scaled_pictures = {}
 pictures_scales = {}
 for i in range(len(picture_list)):
     scaled_pictures[str('picture_' + str(picture_list[i]))] = [pg.transform.rotate(
-        eval('picture_' + str(picture_list[i])), -angle) for angle in range(0, 360, 90)]
+        unsc_pics['picture_' + str(picture_list[i])], -angle) for angle in range(0, 360, 90)]
     pictures_scales[str('picture_' + str(picture_list[i]))] = [round(
-        float(eval('picture_' + str(picture_list[i])).get_size()[0] / grid_size)) for angle in range(0, 360, 90)]
+        float(unsc_pics['picture_' + str(picture_list[i])].get_size()[0] / grid_size)) for angle in range(0, 360, 90)]
     
 for i in range(len(items_pictures)):
     scaled_pictures[str('item_' + str(items_pictures[i]) + '_picture')] = [pg.transform.rotate(unsc_pics[
@@ -204,7 +220,7 @@ def generate_random_background(tile1,tile2,size):
     picture = pg.Surface((grid_size * size, grid_size * size))
     for x in range(3):
         for y in range(3):
-            picture.blit(pg.transform.rotate(eval('picture_'+str(r.choice([tile1,tile2]))),r.randint(0,3)*90),(x*grid_size,y*grid_size))
+            picture.blit(pg.transform.rotate(unsc_pics['picture_'+str(r.choice([tile1,tile2]))],r.randint(0,3)*90),(x*grid_size,y*grid_size))
     return picture
 
 picture_random = generate_random_background(10,11,3)
@@ -289,8 +305,12 @@ def scale_pictures(scale, grid_size=grid_size, item_size=item_size, scaled_pictu
             scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(research_frames[key][int(angle/90)], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]   
-        else:
+        elif 'picture_arrow' in key or 'picture_cable' in key:
             scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(eval(key), (
+                int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+                int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
+        else:
+            scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
     return scaled_pictures
@@ -677,7 +697,7 @@ def bereken_muis_pos(mx, my, scrollx, scrolly, scale, grid_size=grid_size):
     return mrx, mry
 
 
-def draw_preview_box(screen, selecting_tile, mrx, mry, mrr, brush, scrollx, scrolly, scale, scaled_pictures, size,
+def draw_preview_box(screen, selecting_tile, mrx, mry, mrr, brush, scrollx, scrolly, scale, scaled_pictures, size, placeable,
                      grid_size=grid_size):
     if not brush in [10, 11]:
         if not selecting_tile:
@@ -706,7 +726,8 @@ def draw_preview_box(screen, selecting_tile, mrx, mry, mrr, brush, scrollx, scro
                             (mrx * grid_size * scale + scrollx, mry * grid_size * scale + scrolly))
         else:
             size = 1
-        pg.draw.rect(screen, (0, 0, 255), (
+        color = (14, 178, 237) if placeable else (235, 42, 16) 
+        pg.draw.rect(screen, color, (
         (int(mrx * grid_size * scale + scrollx), int(mry * grid_size * scale + scrolly)),
         (int(grid_size * size * scale), int(grid_size * size * scale))), width=2)
 
@@ -747,22 +768,69 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
         print("not enough resources!")
     return grid, grid_rotation, grid_data, storage
 
+def check_placeable(rx, ry, rr, grid, grid_rotation, brush, size, blocks_index, storage, b_prices, grid_cables, big_tiles, placed_on_only, cannot_place_on, ground_blocks, strict_placement_tiles, item_names):
+    placeable = False
 
-def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,placed_on_only,cannot_place_on,ground_blocks, grid_generation, grid_generation_features):
+    if brush != 0 and not (grid[ry, rx] == brush and grid_rotation[ry, rx] == rr):
+        if size == 1:
+            placeable = False # if it is placeable or not
+            if placed_on_only[brush] == [] and cannot_place_on[brush] == []: # default tile placement required: defaults to ground blocks
+                if grid[ry, rx] in ground_blocks:
+                    placeable = True
+            elif placed_on_only[brush] != [] and grid[ry, rx] in placed_on_only[brush]:
+                placeable = True
+            elif (cannot_place_on[brush] != []) and (not grid[ry, rx] in cannot_place_on[brush]):
+                placeable = True
+
+        else:  # size > 1
+            placeable = False
+
+            if placed_on_only[brush] == [] and cannot_place_on[brush] == []: # default tile placement required: defaults to ground blocks
+                if grid[ry, rx] in ground_blocks:
+                    placeable = True
+            elif placed_on_only[brush] != [] and grid[ry, rx] in placed_on_only[brush]:
+                placeable = True
+            elif (cannot_place_on[brush] != []) and (not grid[ry, rx] in cannot_place_on[brush]):
+                placeable = True
+
+            if placeable and brush in strict_placement_tiles:
+                ground_block = int(grid[ry, rx])
+                ground_block_index = ground_blocks.index(ground_block)
+                if ground_block_index % 2 == 0:
+                    allowed_ground_blocks = [ground_block, ground_blocks[ground_block_index + 1]]
+                else: 
+                    allowed_ground_blocks = [ground_block, ground_blocks[ground_block_index - 1]]
+
+            if placeable:
+                for x in range(rx, rx + size):
+                    for y in range(ry, ry + size):
+                        if grid[y, x] in cannot_place_on[brush]:                            
+                            placeable = False
+                        elif placed_on_only != [] and not grid[y, x] in placed_on_only[brush]:
+                            placeable = False
+                        elif (brush in strict_placement_tiles) and (not grid[y, x] in allowed_ground_blocks):
+                            placeable = False
+
+    elif brush == 0: # red x removing thing
+        if not grid[ry, rx] in ground_blocks:
+            placeable = True
+
+    if (not check_build_prices(b_prices, brush, storage, item_names)) and False:
+        placeable = False
+
+    return placeable
+
+
+def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_index, storage, item_names, b_prices,grid_cables,big_tiles,placed_on_only,cannot_place_on,ground_blocks, grid_generation, grid_generation_features, strict_placement_tiles):
+    placeable = False
     cable_delete = False #default value
     grid_h, grid_w = grid.shape
     grid_h -= 1
     grid_w -= 1
     if brush != 0 and not (grid[ry, rx] == brush and grid_rotation[ry, rx] == rr):
-        if size == 1:  # brush = [1 2 3 4 5 6 7]
-            # if brush in [1, 2, 3, 4, 5, 6, 7]:
-            #     check_list = [10, 11, 21, 22, 1, 2, 3, 4, 5, 6, 7]
-            # else:
-            #     check_list = [10, 11, 21, 22, brush]
-            # if grid[ry, rx] not in check_list:
-            #     print("Cannot build!")
+        if size == 1:
             placeable = False # if it is placeable or not
-            if placed_on_only[brush] == [] and cannot_place_on[brush] == []: # specific tile placement required: defaults to ground blocks
+            if placed_on_only[brush] == [] and cannot_place_on[brush] == []: # default tile placement required: defaults to ground blocks
                 if grid[ry, rx] in ground_blocks:
                     placeable = True
             elif placed_on_only[brush] != [] and grid[ry, rx] in placed_on_only[brush]:
@@ -800,15 +868,35 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                         grid_cables[ry,rx] = rr + 1 #update grid cables list
 
         else:  # size > 1
-            build_spot = True
-            for x in range(rx, rx + size):
-                for y in range(ry, ry + size):
-                    if grid[y, x] in cannot_place_on[brush]:                            
-                        build_spot = False
-                    elif placed_on_only != [] and not grid[y, x] in placed_on_only[brush]:
-                        build_spot = False
+            placeable = False
 
-            if build_spot:
+            if placed_on_only[brush] == [] and cannot_place_on[brush] == []: # default tile placement required: defaults to ground blocks
+                if grid[ry, rx] in ground_blocks:
+                    placeable = True
+            elif placed_on_only[brush] != [] and grid[ry, rx] in placed_on_only[brush]:
+                placeable = True
+            elif (cannot_place_on[brush] != []) and (not grid[ry, rx] in cannot_place_on[brush]):
+                placeable = True
+
+            if placeable and brush in strict_placement_tiles:
+                ground_block = int(grid[ry, rx])
+                ground_block_index = ground_blocks.index(ground_block)
+                if ground_block_index % 2 == 0:
+                    allowed_ground_blocks = [ground_block, ground_blocks[ground_block_index + 1]]
+                else: 
+                    allowed_ground_blocks = [ground_block, ground_blocks[ground_block_index - 1]]
+
+            if placeable:
+                for x in range(rx, rx + size):
+                    for y in range(ry, ry + size):
+                        if grid[y, x] in cannot_place_on[brush]:                            
+                            placeable = False
+                        elif placed_on_only != [] and not grid[y, x] in placed_on_only[brush]:
+                            placeable = False
+                        elif (brush in strict_placement_tiles) and (not grid[y, x] in allowed_ground_blocks):
+                            placeable = False
+
+            if placeable:
                 crafter = 0
                 if brush == 15:
                     crafter = -1
@@ -870,7 +958,7 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
                 if not abs(grid[y,x]) in [16,17,18,19]: # not on cable blocks
                     grid_cables[y,x] = 0
 
-    return grid, grid_rotation, grid_data, storage
+    return grid, grid_rotation, grid_data, storage, placeable
 
 class Item:
     def __init__(self, x0, y0, item_type, item_size=item_size):
@@ -1183,7 +1271,7 @@ def draw_keybind_menu(screen, k_scrolly, unlocked_blocks, data_display, data_arr
         screen.blit(data_display, (90, height - rect_h + 70 + k_index * key_distance + k_scrolly))
 
         # pint("picture_"+str(keybinds[k_index]))
-        screen.blit(pg.transform.smoothscale(eval("picture_" + str(keybinds[k_index])), (50, 50)),
+        screen.blit(pg.transform.smoothscale(unsc_pics["picture_" + str(keybinds[k_index])], (50, 50)),
                     (107, height - rect_h + 73 + k_index * key_distance + k_scrolly))
         if str(keybinds[k_index]) in list(conveyor_arrow_dict.keys()):
             screen.blit(pg.transform.scale(eval(conveyor_arrow_dict[str(keybinds[k_index])]), (50, 50)),
@@ -1307,7 +1395,7 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
             if do_continue:
                 continue
 
-            screen.blit(pg.transform.scale(eval(scaled_picture), (
+            screen.blit(pg.transform.scale(unsc_pics[scaled_picture], (
                 int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
                             button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
                             height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
