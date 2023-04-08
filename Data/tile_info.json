@@ -39,13 +39,13 @@
     },
     "6": {
         "name": "Sorting Conveyor (left)",
-        "description": "Conveyor that is used to sort items. Outputs the selected item to the right.",
+        "description": "Conveyor that is used to sort items. Outputs the selected item to the left.",
         "size": 1,
         "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
     },
     "7": {
         "name": "Highway Conveyor",
-        "description": "Conveyor that is used to transport items quickly. Faster than a normal coneyor.",
+        "description": "Conveyor that is used to transport items quickly. Faster than a normal conveyor.",
         "size": 1,
         "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
     },

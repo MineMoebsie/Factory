@@ -198,12 +198,13 @@ r_particles = []#x center,y center,size
 exit_corner = [] #collidepoint of rect research menu
 
 #tile selecting menu
-selecting_tile = False#selecting tile mode
 selected_x = -1#tile data editing (when selected)
 selected_y = -1
 tile_mode = ""#0, splitter, sorter
 up_button = pg.Rect((0,0),(0,0))
 down_button = pg.Rect((0,0),(0,0))
+
+tile_mode = "place" # can be place, edit (=select recipe etc.), info (=name tile+description x,y etc.), view(=view, only tile mode menu visible).  
 
 #keybinds
 keybind_menu = False
@@ -427,6 +428,7 @@ while playing and __name__ == "__main__":
                     in_menu = False
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
+                    tile_mode = "place"
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 100, 90, "Rendering...")
 
@@ -471,12 +473,13 @@ while playing and __name__ == "__main__":
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world(selected_world, spawn_items)
-
+                    
                     draw_loading_screen_create_world(screen, clock, loading_surf, 100, 10, "Finishing up...")
 
                     in_menu = False
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
+                    tile_mode = "place"
 
             btn.draw(screen)
 
@@ -571,7 +574,7 @@ while playing and __name__ == "__main__":
                                             else: #exception
                                                 clicked_button = button
 
-                            if selecting_tile:
+                            if tile_mode == "info":
                                 stop_mouse_placement = True
                                 if not (selected_x > -1 and selected_y > -1) or (not(mx < rect_info.get_size()[0] and my > screen_size[1]-rect_info.get_size()[1])):
                                     mouse_down = False#no more tile placement
@@ -583,15 +586,15 @@ while playing and __name__ == "__main__":
 
                             if up_button.collidepoint(mx,my):
                                 stop_mouse_placement = True
-                                if grid_data[selected_y,selected_x]["split_count"] < 100 and tile_mode == "splitter":
+                                if grid_data[selected_y,selected_x]["split_count"] < 100 and tile_info_mode == "splitter":
                                     grid_data[selected_y,selected_x]["split_count"] += 1
-                                if grid_data[selected_y,selected_x]["sort_item"] < len(storage)-1 and tile_mode == "sorter":
+                                if grid_data[selected_y,selected_x]["sort_item"] < len(storage)-1 and tile_info_mode == "sorter":
                                     grid_data[selected_y,selected_x]["sort_item"] += 1
                             elif down_button.collidepoint(mx,my):
                                 stop_mouse_placement = True
-                                if grid_data[selected_y,selected_x]["split_count"] > 1 and tile_mode == "splitter":
+                                if grid_data[selected_y,selected_x]["split_count"] > 1 and tile_info_mode == "splitter":
                                     grid_data[selected_y,selected_x]["split_count"] -= 1
-                                if grid_data[selected_y,selected_x]["sort_item"] > 0 and tile_mode == "sorter":
+                                if grid_data[selected_y,selected_x]["sort_item"] > 0 and tile_info_mode == "sorter":
                                     grid_data[selected_y,selected_x]["sort_item"] -= 1
 
                         elif keybind_menu == True:
@@ -601,16 +604,23 @@ while playing and __name__ == "__main__":
                                     if keybinds[k_index] < unlocked_blocks[-1]:
                                         unlocked_blocks_where = np.array(unlocked_blocks)
                                         unlocked_block_find = np.where(unlocked_blocks_where==keybinds[k_index])
+                                        if unlocked_block_find[0].shape[0] == 0:
+                                            unlocked_block_find = np.where(unlocked_blocks_where>=keybinds[k_index])
+                                            keybinds[k_index] = unlocked_blocks[unlocked_block_find[0][0]]
 
-                                        keybinds[k_index] = unlocked_blocks[unlocked_block_find[0][0]+1]
+                                        else:
+                                            keybinds[k_index] = unlocked_blocks[unlocked_block_find[0][0]+1]
 
                                 elif keyb_down_buttons[k_index].collidepoint(mx,my):
                                     stop_mouse_placement = True
                                     if keybinds[k_index] > 0:
                                         unlocked_blocks_where = np.array(unlocked_blocks)
                                         unlocked_block_find = np.where(unlocked_blocks_where == keybinds[k_index])
-
-                                        keybinds[k_index] = unlocked_blocks[unlocked_block_find[0][0] - 1]
+                                        if unlocked_block_find[0].shape[0] == 0:
+                                            unlocked_block_find = np.where(unlocked_blocks_where<=keybinds[k_index])
+                                            keybinds[k_index] = unlocked_blocks[unlocked_block_find[0][-1]]
+                                        else:
+                                            keybinds[k_index] = unlocked_blocks[unlocked_block_find[0][0] - 1]
 
                         elif research_menu:#research menu open
                             stop_mouse_placement = True
@@ -750,9 +760,6 @@ while playing and __name__ == "__main__":
                 if e.key == pg.K_k:
                     keybind_menu = not keybind_menu
 
-                if e.key == pg.K_i:
-                    selecting_tile = not selecting_tile
-
                 if e.key == pg.K_m:
                     scale = 1
                     scaled_pictures = scale_pictures(scale)
@@ -763,6 +770,15 @@ while playing and __name__ == "__main__":
                 if e.key == pg.K_o:
                     print_timing = not print_timing
                 
+                if e.key == pg.K_F1:
+                    tile_mode = "place"
+                if e.key == pg.K_F2:
+                    tile_mode = "edit"
+                if e.key == pg.K_F3:
+                    tile_mode = "info" 
+                if e.key == pg.K_F4:
+                    tile_mode = "view"
+
                 if e.key == pg.K_q:
                     if selected_world is not None:
                         in_menu = not in_menu
@@ -810,7 +826,7 @@ while playing and __name__ == "__main__":
         t_mouse_and_locations = t.perf_counter()
         #add to grid
         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
-        if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not research_menu:#click
+        if (mouse_down or mouse_drag_brush) and mrx < grid.shape[1] and mry < grid.shape[0] and not (research_menu or tile_mode in ["edit", "info", "view"]):#click
             grid, grid_rotation, grid_data, storage, place_status = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks, grid_generation, grid_features_generation, strict_placement_tiles)
             locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
             # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
@@ -834,12 +850,11 @@ while playing and __name__ == "__main__":
 
         t_teken = t.perf_counter()
 
-
         grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y,move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
 
-        if not research_menu:
+        if not (research_menu or tile_mode in ["edit", "info", "view"]):
             placeable = check_placeable(mrx, mry, mrr, grid, grid_rotation, brush, blocks_index[brush], blocks_index, storage, b_prices, grid_cables, big_tiles, placed_on_only, cannot_place_on, ground_blocks, strict_placement_tiles, item_names)
-            draw_preview_box(screen,selecting_tile,mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush], placeable)
+            draw_preview_box(screen,tile_mode == "info",mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush], placeable)
 
         t_items_cargo = t.perf_counter()
 
@@ -871,43 +886,48 @@ while playing and __name__ == "__main__":
         t_teken_menu = t.perf_counter()
 
         #teken menu
-        if selecting_tile and selected_x > -1 and selected_y > -1:
-            tile_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
+        if tile_mode == "info" and selected_x > -1 and selected_y > -1:
+            tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
         else:
             selected_x = -1
             selected_y = -1
         
-        if research_menu and update_r_screen:
+        if research_menu and update_r_screen: #update r_screen once (for 1 frame)
             r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]),pg.SRCALPHA)
             r_screen = draw_research(screen,storage[0],r_screen,rect_ui,0,0,research_display,research_button_clicked,research_button_unclicked,research_progress,research_text,r_tile_text,research_subtext,r_prices,r_screen_page, research_grid)
             update_r_screen = False
 
-        if research_menu: #research menu is open
-            screen.blit(r_screen_transparent,(0,0))
-            screen.blit(r_screen,(-r_scrollx[r_screen_page],-r_scrolly[r_screen_page]))
-            exit_corner, r_icons_click_list = draw_research_fixed(screen, screen, research_display, storage[0], r_screen_page, mx,my,r_scrollx, r_scrolly)
-            
-            #do later
-            r_particles = research_particles(screen,r_particles)
-        else: #r menu closed
-            icon_click_list,bar_width,bar_height,button_distance,button_click_list,button_width = teken_menu(screen,conveyor_research_progress_dict,research_progress,menu_pictures,open_menu,clicked_icon,clicked_button,menu_scrollx,scaled_pictures,b_prices)
+        if not tile_mode == "view":
+            if research_menu: #research menu is open
+                screen.blit(r_screen_transparent,(0,0))
+                screen.blit(r_screen,(-r_scrollx[r_screen_page],-r_scrolly[r_screen_page]))
+                exit_corner, r_icons_click_list = draw_research_fixed(screen, screen, research_display, storage[0], r_screen_page, mx,my,r_scrollx, r_scrolly)
+                
+                #fix later
+                r_particles = research_particles(screen,r_particles)
+            else: #r menu closed
+                icon_click_list,bar_width,bar_height,button_distance,button_click_list,button_width = teken_menu(screen,conveyor_research_progress_dict,research_progress,menu_pictures,open_menu,clicked_icon,clicked_button,menu_scrollx,scaled_pictures,b_prices)
 
-        if keybind_menu:
-            keyb_up_buttons,keyb_down_buttons = draw_keybind_menu(screen,k_scrolly,unlocked_blocks,data_display,data_arrow,rect_keybinds,keybinds)
+            if keybind_menu:
+                keyb_up_buttons,keyb_down_buttons = draw_keybind_menu(screen,k_scrolly,unlocked_blocks,data_display,data_arrow,rect_keybinds,keybinds)
 
-        if my > screen_size[1] - bar_height and open_menu: #mouse in menu bar
-            for button in range(len(button_click_list)):
-                if mx > button_click_list[button][0] and my > button_click_list[button][1]:
-                    if mx < button_click_list[button][0]+button_width and my < button_click_list[button][1]+button_width:
-                        draw_info_popup(screen,mx,my,menu_pictures,clicked_icon,button,tile_names,b_prices,info_ui,item_names,tile_des)
+            if my > screen_size[1] - bar_height and open_menu: #mouse in menu bar
+                for button in range(len(button_click_list)):
+                    if mx > button_click_list[button][0] and my > button_click_list[button][1]:
+                        if mx < button_click_list[button][0]+button_width and my < button_click_list[button][1]+button_width:
+                            draw_info_popup(screen,mx,my,menu_pictures,clicked_icon,button,tile_names,b_prices,info_ui,item_names,tile_des)
 
-        if shortage_timer + 2.5 > t.perf_counter():
-            draw_shortage_notification(screen,not_enough_picture,shortage_item)
-        
+            if shortage_timer + 2.5 > t.perf_counter():
+                draw_shortage_notification(screen,not_enough_picture,shortage_item)
+
+        draw_tile_mode_menu(screen, tile_mode)
+
+
+        # draw_craft_select([0, 0, 0, 0, 0, 0, 0, 0, 0], screen, -50)
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
-        deltaTime = clock.tick(500)
+        deltaTime = clock.tick(120)
         angle += 1
 
         t_final = t.perf_counter()
@@ -918,3 +938,4 @@ while playing and __name__ == "__main__":
 pg.display.quit()
 pg.font.quit()
 pg.quit()
+sys.exit()

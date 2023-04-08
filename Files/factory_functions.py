@@ -96,6 +96,16 @@ icon_cross = import_foto('UI/menu_icon_cross.png', 50, 50)
 icon_r_1 = import_foto('UI/menu_icon_1.png', 50, 50)
 icon_r_2 = import_foto('UI/menu_icon_5.png', 50, 50)
 
+craft_select_menu_picture = import_foto("UI/craft_select_menu.png", 500, 375)
+craft_select_btn_picture = import_foto("UI/craft_select_btn.png", 375, 125)
+craft_select_menu_border_picture = import_foto("UI/craft_select_menu_border.png", 500, 375)
+
+tile_menu_w, tile_menu_h = 200, 50
+tile_info_menu_1 = import_foto("UI/tile_info_menu_1.png", tile_menu_w, tile_menu_h)
+tile_info_menu_2 = import_foto("UI/tile_info_menu_2.png", tile_menu_w, tile_menu_h)
+tile_info_menu_3 = import_foto("UI/tile_info_menu_3.png", tile_menu_w, tile_menu_h)
+tile_info_menu_4 = import_foto("UI/tile_info_menu_4.png", tile_menu_w, tile_menu_h)
+
 # blocks
 unsc_pics = {} # unscaled pictures
 
@@ -169,7 +179,7 @@ with open("Data/tile_info.json") as f:
             picture_list.append(int(block))
 
 # items
-item_count = 25
+item_count = 26
 items_pictures = list(range(0, item_count+1))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
 for x in items_pictures:
@@ -231,7 +241,7 @@ for i in range(0,25):
     picture.blit(import_foto("Blocks/15-" + str(i + 1) + ".png", grid_size * 3, grid_size * 3),(0,0))
     picture = pg.transform.rotate(picture, 180) #image is upside down
     research_frames['picture_15_' + str(i + 1)] = [picture for angle in range(0, 360, 90)]
-    scaled_pictures['picture_15_' + str(i + 1)] = [pg.transform.rotate(picture, -angle) for angle in range(0, 360, 90)]
+    scaled_pictures['picture_15_' + str(i + 1)] = [picture for angle in range(0, 360, 90)]
     pictures_scales['picture_15_' + str(i + 1)] = [3 for angle in range(0, 360, 90)]
 
 #for little part of exporters/importers of cable things that gets blit over
@@ -254,7 +264,7 @@ crafter_picture_colors = {}
 for i in crafter_colors:
     crafter_picture_colors[i] = [pg.transform.rotate(import_foto("Blocks/base_research_"+str(i)+".png",150,150), -angle) for angle in range(0, 360, 90)]
 
-crafter_craftables = {'r':"dark_blue", 21: "light_green"}
+crafter_craftables = {'r':"dark_blue", 23: "light_green"}
 
 for color in crafter_colors:
     crafter_frames[str(color)] = {}
@@ -302,9 +312,9 @@ def scale_pictures(scale, grid_size=grid_size, item_size=item_size, scaled_pictu
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
         elif 'picture_15_' in key:
-            scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(research_frames[key][int(angle/90)], (
+            scaled_pictures[key] = [pg.transform.scale(research_frames[key][int(angle/90)], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
-                int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]   
+                int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))) for angle in range(0, 360, 90)]   
         elif 'picture_arrow' in key or 'picture_cable' in key:
             scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(eval(key), (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
@@ -899,7 +909,7 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
             if placeable:
                 crafter = 0
                 if brush == 15:
-                    crafter = -1
+                    crafter = 23
                 if check_build_prices(b_prices, brush, storage, item_names) or True:
                     free_build = False
                     for x in range(rx, rx + size):
@@ -1344,6 +1354,41 @@ def draw_info_popup(screen,mx,my,menu_pictures,clicked_icon,clicked_button,tile_
     #print(pg.Rect(blit_x,blit_y,w,h),(blit_x + 10, b_price_blit_y + height_text + 10),blit_y)
     blit_text(screen,blit_x + w,tile_des[menu_pictures[clicked_icon][clicked_button]],(blit_x + 10, b_price_blit_y + height_text + 10),i_text_font,(0,0,0))
 
+def draw_craft_select(unlocked_recipes, screen, craft_scrolly):
+    craft_buffer = 5
+    scr_w, scr_h = screen.get_size()
+    temp_surf = pg.Surface(craft_select_menu_picture.get_size(), pg.SRCALPHA)
+
+    temp_surf.blit(craft_select_menu_picture, (0,0))
+
+    #buttons
+    for n, recipe in enumerate(unlocked_recipes):
+        btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
+        if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
+            temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
+            # draw recipe!!!!!
+
+            
+    temp_surf.blit(craft_select_menu_border_picture, (0,0))
+    
+    
+    screen.blit(temp_surf, ((scr_w - temp_surf.get_width()) / 2, (scr_h - temp_surf.get_height()) / 2))
+
+def draw_tile_mode_menu(screen, tile_mode):
+    print(tile_mode)
+    match tile_mode:
+        case "place":
+            img = tile_info_menu_1
+        case "edit":
+            img = tile_info_menu_2
+        case "info":
+            img = tile_info_menu_3
+        case "view": 
+            img = tile_info_menu_4
+    margin_screen = 10
+    screen.blit(img, (screen.get_width() - img.get_width() - margin_screen, margin_screen))
+
+
 def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_pictures, open_menu, clicked_icon,
                clicked_button, menu_scrollx, scaled_pictures, b_prices):
     # bar
@@ -1634,10 +1679,15 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                     mid_loc = (round(half_size * np.sqrt(3) * button) + half_size,2*half_size*row + (button % 2) *half_size + half_size)
                     distance = np.sqrt((mouse_x - mid_loc[0])**2 + (mouse_y - mid_loc[1])**2)
                     if distance <= half_size:
-                        research_grid[row][button][1] = True
-                        update_r_screen = True
-                        for line in r_crafter_grid[row][button][0]:
-                            research_grid[line[1]][line[0]][0] = True
+                        if r_crafter_grid[row][button][2] <= r_points:
+                            research_grid[row][button][1] = True
+                            update_r_screen = True
+                            for line in r_crafter_grid[row][button][0]:
+                                research_grid[line[1]][line[0]][0] = True
+                            r_points -= r_crafter_grid[row][button][2]
+                        else:  # not enough research points
+                            shortage_timer = t.perf_counter()
+                            shortage_item = 0
 
     return shortage_timer, shortage_item, r_points, clicked_row, clicked_button, research_grid, update_r_screen
 
