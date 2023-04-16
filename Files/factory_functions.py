@@ -29,6 +29,9 @@ side_size = int(grid_size / 5)
 with open("Data/r_crafter_grid.txt") as f:
     r_crafter_grid = eval(f.read())
 
+with open("Data/recipes.json") as f:
+    recipes = json.load(f)
+
 conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7, 15, -15, -16, 16, -17, 17]
 # extra_conveyor_list = [12, 13, 14, 33, 34, 35]
 
@@ -41,6 +44,9 @@ r_font = pg.font.Font('Fonts/Roboto.ttf', 15)
 i_title_font = pg.font.Font('Fonts/Roboto-Bold.ttf', 25)
 i_text_font = pg.font.Font('Fonts/Roboto.ttf', 16)
 i_des_font = pg.font.Font('Fonts/Roboto-Light.ttf', 17)
+
+edit_tile_font = pg.font.Font('Fonts/Roboto.ttf', 35)
+edit_tile_font_small = pg.font.Font('Fonts/Roboto.ttf', 30)
 
 picture_arrow = import_foto('Blocks/arrow-single.png', grid_size, grid_size)
 picture_arrow_cross = import_foto('Blocks/arrow-cross.png', grid_size, grid_size)
@@ -99,6 +105,7 @@ icon_r_2 = import_foto('UI/menu_icon_5.png', 50, 50)
 craft_select_menu_picture = import_foto("UI/craft_select_menu.png", 500, 375)
 craft_select_btn_picture = import_foto("UI/craft_select_btn.png", 375, 125)
 craft_select_menu_border_picture = import_foto("UI/craft_select_menu_border.png", 500, 375)
+edit_mode_menu_picture = import_foto("UI/edit_mode_menu.png", 550, 550)
 
 tile_menu_w, tile_menu_h = 200, 50
 tile_info_menu_1 = import_foto("UI/tile_info_menu_1.png", tile_menu_w, tile_menu_h)
@@ -264,7 +271,12 @@ crafter_picture_colors = {}
 for i in crafter_colors:
     crafter_picture_colors[i] = [pg.transform.rotate(import_foto("Blocks/base_research_"+str(i)+".png",150,150), -angle) for angle in range(0, 360, 90)]
 
-crafter_craftables = {'r':"dark_blue", 23: "light_green"}
+crafter_craftables = {}
+for item in recipes:
+    if item != "_":
+        crafter_craftables[int(item)] = recipes[item]["color"]
+
+# crafter_craftables = {'r':"dark_blue", 23: "light_green"}
 
 for color in crafter_colors:
     crafter_frames[str(color)] = {}
@@ -454,7 +466,7 @@ def teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move, scroll
     #     new_rect = rotated_scaled.get_rect(center = scaled_pictures["picture_26"][i[0]].get_rect(topleft =  i[1]).center)
     #     screen.blit(rotated_scaled, new_rect.topleft)
 
-    pg.draw.rect(screen, (0, 0, 255), (
+    pg.draw.rect(screen, (0, 72, 245), (
     (round(selected_x * grid_size * scale) + scrollx, round(selected_y * grid_size * scale) +scrolly),
     (round(grid_size * scale), round(grid_size * scale))), width=2)
     
@@ -707,10 +719,10 @@ def bereken_muis_pos(mx, my, scrollx, scrolly, scale, grid_size=grid_size):
     return mrx, mry
 
 
-def draw_preview_box(screen, selecting_tile, mrx, mry, mrr, brush, scrollx, scrolly, scale, scaled_pictures, size, placeable,
-                     grid_size=grid_size):
+def draw_preview_box(screen, selecting_tile, mrx, mry, mrr, brush, scrollx, scrolly, scale, scaled_pictures, size, placeable, editing_tile, grid_size=grid_size):
     if not brush in [10, 11]:
-        if not selecting_tile:
+        if not selecting_tile and not editing_tile:
+            color = (18, 230, 194) if placeable else (235, 42, 16) 
             screen.blit(scaled_pictures["picture_" + str(brush)][mrr],
                         (mrx * grid_size * scale + scrollx, mry * grid_size * scale + scrolly))
             if brush == 1:
@@ -734,13 +746,16 @@ def draw_preview_box(screen, selecting_tile, mrx, mry, mrr, brush, scrollx, scro
             elif brush == 7:
                 screen.blit(scaled_pictures["picture_arrow_highway"][mrr],
                             (mrx * grid_size * scale + scrollx, mry * grid_size * scale + scrolly))
-        else:
+        elif selecting_tile:
             size = 1
-        color = (14, 178, 237) if placeable else (235, 42, 16) 
+            color = (32, 18, 230)
+        elif editing_tile:
+            size = 1
+            color = (24, 147, 214)
+        
         pg.draw.rect(screen, color, (
         (int(mrx * grid_size * scale + scrollx), int(mry * grid_size * scale + scrolly)),
         (int(grid_size * size * scale), int(grid_size * size * scale))), width=2)
-
 
 def check_build_prices(b_prices, brush, storage, item_names):
     buildable = True
@@ -1194,7 +1209,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
     down_button = pg.Rect((151, height - rect_h + 170), (arrow_width, arrow_height))
 
     # title
-    text = i_title_font.render("Edit Tile Data:", True, (0, 0, 0))
+    text = i_title_font.render("View Tile Information:", True, (0, 0, 0))
     screen.blit(text, (int((rect_w - text.get_size()[0]) / 2), height - rect_h + 33))
     tile_block = grid[mry, mrx]
 
@@ -1209,7 +1224,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
         else:
             tile_mode = "sorter"
             text1 = i_text_font.render("Edit tile data for sorter:", True, (0, 0, 0))
-            text2 = i_des_font.render("Sorts " + str(item_names[1][grid_data[mry, mrx]["sort_item"]]) + ".", True, (0, 0, 0))
+            text2 = i_des_font.render("Sorts " + str(item_names[grid_data[mry, mrx]["sort_item"]][1]) + ".", True, (0, 0, 0))
             text3 = pg.Surface((1,1))
 
         screen.blit(text1, (int((rect_w - text1.get_size()[0]) / 2), height - rect_h + 65))
@@ -1252,6 +1267,69 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
 
     return tile_mode, up_button, down_button  # buttons = pg.Rect of buttons (collidepoint)
 
+def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
+    edit_menu_surf = pg.Surface(edit_mode_menu_picture.get_size(), pg.SRCALPHA)
+    edit_menu_surf.blit(edit_mode_menu_picture, (0, 0))
+
+    match tile_menu_type:
+        case "crafter":
+            craft_buffer = 5
+            temp_surf = pg.Surface(craft_select_menu_picture.get_size(), pg.SRCALPHA)
+
+            # temp_surf.blit(craft_select_menu_picture, (0,0))
+
+            #buttons
+            for n, recipe in enumerate(unlocked_recipes):
+                btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
+                if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
+                    temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
+                    
+                    color = recipes[str(recipe)]["color"]
+
+                    requirements = {}
+                    for item in recipes[str(recipe)]["recipe"]: #loops through for ex.: [1,2,2]
+                        if not item in requirements: 
+                            requirements[item] = 1 
+                        else:
+                            requirements[item] += 1
+
+                    topleft = ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y)
+
+                    color_pic = crafter_picture_colors[color][0]
+                    color_size = 110
+                    color_pic = pg.transform.scale(color_pic, (color_size, color_size))
+
+                    temp_surf.blit(color_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - color_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - color_size) / 2))
+
+                    item_pic = unsc_pics[f"item_{recipe}_picture"]
+                    item_size = 50
+                    item_pic = pg.transform.scale(item_pic, (item_size, item_size))
+
+                    temp_surf.blit(item_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - item_size) / 2))
+
+                    recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+                    temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, topleft[1] + 25))
+
+
+
+                    
+
+            temp_surf.blit(craft_select_menu_border_picture, (0,0))
+            surf_w, surf_h = edit_menu_surf.get_size()    
+            edit_menu_surf.blit(temp_surf, ((surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)))
+            
+            recipe_text = edit_tile_font.render("Select recipe", True, (0, 0, 0))
+            edit_menu_surf.blit(recipe_text, ((surf_w - recipe_text.get_width()) / 2, 45))
+
+        case _:
+            raise ValueError("Unknown menu!")
+
+    return edit_menu_surf
+
+def blit_tile_edit_menu(screen, edit_menu_surf):
+    scr_w, scr_h = screen.get_size()
+    screen.blit(edit_menu_surf, ((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2))
+        
 
 def draw_keybind_menu(screen, k_scrolly, unlocked_blocks, data_display, data_arrow, rect_keybinds, keybinds):
     rect_w, rect_h = rect_keybinds.get_size()
@@ -1354,28 +1432,8 @@ def draw_info_popup(screen,mx,my,menu_pictures,clicked_icon,clicked_button,tile_
     #print(pg.Rect(blit_x,blit_y,w,h),(blit_x + 10, b_price_blit_y + height_text + 10),blit_y)
     blit_text(screen,blit_x + w,tile_des[menu_pictures[clicked_icon][clicked_button]],(blit_x + 10, b_price_blit_y + height_text + 10),i_text_font,(0,0,0))
 
-def draw_craft_select(unlocked_recipes, screen, craft_scrolly):
-    craft_buffer = 5
-    scr_w, scr_h = screen.get_size()
-    temp_surf = pg.Surface(craft_select_menu_picture.get_size(), pg.SRCALPHA)
-
-    temp_surf.blit(craft_select_menu_picture, (0,0))
-
-    #buttons
-    for n, recipe in enumerate(unlocked_recipes):
-        btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
-        if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
-            temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
-            # draw recipe!!!!!
-
-            
-    temp_surf.blit(craft_select_menu_border_picture, (0,0))
-    
-    
-    screen.blit(temp_surf, ((scr_w - temp_surf.get_width()) / 2, (scr_h - temp_surf.get_height()) / 2))
 
 def draw_tile_mode_menu(screen, tile_mode):
-    print(tile_mode)
     match tile_mode:
         case "place":
             img = tile_info_menu_1

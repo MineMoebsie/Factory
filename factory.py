@@ -74,8 +74,12 @@ with open("Data/tile_info.json") as f:
     tile_info = json.load(f)
     tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters, strict_placement_tiles = convert_json(tile_info)
 
-item_names = open('Data/item_names.txt','r')
-item_names = eval(item_names.read())
+with open("Data/item_info.json") as f:
+    item_info = json.load(f)
+    item_names = convert_item_info(item_info)
+
+# item_names = open('Data/item_names.txt','r')
+# item_names = eval(item_names.read())
 
 percent_vals = loading_screen(screen,percent_vals,80,load_font,"Creating arrays")
 
@@ -206,6 +210,12 @@ down_button = pg.Rect((0,0),(0,0))
 
 tile_mode = "place" # can be place, edit (=select recipe etc.), info (=name tile+description x,y etc.), view(=view, only tile mode menu visible).  
 
+#edit tile menu
+edit_tile_menu_open = False
+tile_menu_type = "" # can be splitter, sorter, crafter 
+craft_scrolly = 0
+update_edit_menu = True
+
 #keybinds
 keybind_menu = False
 keybinds = {0:0,1:1,2:12,3:16,4:15,5:18,6:19,7:33,8:34,9:35}
@@ -253,7 +263,7 @@ max_scale = 1.5
 
 not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui = render_images(screen,True)
 
-pg.event.set_allowed([pg.MOUSEMOTION,pg.MOUSEBUTTONDOWN,pg.MOUSEBUTTONUP,pg.QUIT,pg.VIDEORESIZE,pg.KEYUP,pg.KEYDOWN])
+pg.event.set_allowed([pg.MOUSEMOTION,pg.MOUSEBUTTONDOWN,pg.MOUSEBUTTONUP,pg.QUIT,pg.VIDEORESIZE,pg.KEYUP,pg.KEYDOWN, pg.MOUSEWHEEL])
 
 percent_vals = loading_screen(screen,percent_vals,90,load_font,"Loading world list")
 
@@ -519,6 +529,14 @@ while playing and __name__ == "__main__":
         t_event = t.perf_counter()
 
         for e in events:
+            if e.type == pg.MOUSEWHEEL:
+                if tile_mode == "edit":
+                    if edit_tile_menu_open:
+                        craft_scrolly += e.x * 10
+                        print(craft_scrolly)
+                        update_edit_menu = True
+
+
             if e.type == pg.MOUSEMOTION:
                 if my > screen_size[1] - bar_height: #in menu bar
                     if mx < int(button_distance) and menu_scrollx > 0: #left
@@ -584,6 +602,15 @@ while playing and __name__ == "__main__":
                                 elif (mx < rect_info.get_size()[0] and my > screen_size[1]-rect_info.get_size()[1]):
                                     mouse_down = False
 
+                            elif tile_mode == "edit":
+                                stop_mouse_placement = True
+                                mouse_down = False
+                                edit_tile_menu_open = True
+                                if not edit_tile_menu_open: # now selecting tile
+                                    mrx, mry = bereken_muis_pos(mx, my, scrollx, scrolly, scale)
+                                    selected_x = mrx
+                                    selected_y = mry
+                                    
                             if up_button.collidepoint(mx,my):
                                 stop_mouse_placement = True
                                 if grid_data[selected_y,selected_x]["split_count"] < 100 and tile_info_mode == "splitter":
@@ -854,7 +881,9 @@ while playing and __name__ == "__main__":
 
         if not (research_menu or tile_mode in ["edit", "info", "view"]):
             placeable = check_placeable(mrx, mry, mrr, grid, grid_rotation, brush, blocks_index[brush], blocks_index, storage, b_prices, grid_cables, big_tiles, placed_on_only, cannot_place_on, ground_blocks, strict_placement_tiles, item_names)
-            draw_preview_box(screen,tile_mode == "info",mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush], placeable)
+            draw_preview_box(screen,tile_mode == "info",mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush], placeable, tile_mode == "edit")
+        elif tile_mode in ["info", "edit"]:
+            draw_preview_box(screen,tile_mode == "info",mrx,mry,mrr,brush,scrollx,scrolly,scale,scaled_pictures,blocks_index[brush], placeable, tile_mode == "edit")
 
         t_items_cargo = t.perf_counter()
 
@@ -886,12 +915,19 @@ while playing and __name__ == "__main__":
         t_teken_menu = t.perf_counter()
 
         #teken menu
-        if tile_mode == "info" and selected_x > -1 and selected_y > -1:
-            tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
-        else:
-            selected_x = -1
-            selected_y = -1
+        if selected_x > -1 and selected_y > -1:
+            if tile_mode == "info":
+                tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
+            elif tile_mode == "edit":
+                if update_edit_menu:
+                    edit_menu_surf = draw_edit_menu("crafter", [22, 23], craft_scrolly, item_names)
+                blit_tile_edit_menu(screen, edit_menu_surf)
+            else: 
+                selected_x = -1
+                selected_y = -1
         
+
+
         if research_menu and update_r_screen: #update r_screen once (for 1 frame)
             r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]),pg.SRCALPHA)
             r_screen = draw_research(screen,storage[0],r_screen,rect_ui,0,0,research_display,research_button_clicked,research_button_unclicked,research_progress,research_text,r_tile_text,research_subtext,r_prices,r_screen_page, research_grid)
@@ -920,8 +956,8 @@ while playing and __name__ == "__main__":
             if shortage_timer + 2.5 > t.perf_counter():
                 draw_shortage_notification(screen,not_enough_picture,shortage_item)
 
-        draw_tile_mode_menu(screen, tile_mode)
 
+        draw_tile_mode_menu(screen, tile_mode)
 
         # draw_craft_select([0, 0, 0, 0, 0, 0, 0, 0, 0], screen, -50)
         fps = clock.get_fps()

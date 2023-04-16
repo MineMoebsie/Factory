@@ -1,0 +1,74 @@
+{
+    "r": {
+        "name": ["Research point", "Research points"]
+    },
+    "1": {
+        "name": ["Tomato", "Tomatoes"]
+    },
+    "2": {
+        "name": ["Potato", "Potatoes"]
+    },
+    "3": {
+        "name": ["Carrot", "Carrots"]
+    },
+    "4": {
+        "name": ["Log", "Logs"]
+    },
+    "5": {
+        "name": ["Wood", "Wood"]
+    },
+    "6": {
+        "name": ["Stick", "Sticks"]
+    },
+    "7": {
+        "name": ["Milk", "Milk"]
+    },
+    "8": {
+        "name": ["Egg", "Eggs"]
+    },
+    "9": {
+        "name": ["Wool", "Wool"]
+    },
+    "10": {
+        "name": ["Hard rock", "Hard rocks"]
+    },
+    "11": {
+        "name": ["Smooth stone", "Smooth stones"]
+    },
+    "12": {
+        "name": ["Stone", "Stones"]
+    },
+    "13": {
+        "name": ["Emerald", "Emeralds"]
+    },
+    "14": {
+        "name": ["Gold", "Gold"]
+    },
+    "15": {
+        "name": ["Iron", "Iron"]
+    },
+    "16": {
+        "name": ["Amethyst", "Amethysts"]
+    },
+    "17": {
+        "name": ["Ruby", "Rubies"]
+    },
+    "18": {
+        "name": ["Topaz", "Topaz"]
+    },
+    "19": {
+        "name": ["Diamond", "Diamonds"]
+    },
+    "20": {
+        "name": ["Opal", "Opals"]
+    },
+    "21": {
+        "name": ["Sapphire", "Sapphire"]
+    },
+    "22": {
+        "name": ["Bowl", "Bowls"]
+    },
+    "23": {
+        "name": ["Vegetable bowl", "Vegetable bowls"]
+    }
+}

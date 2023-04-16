@@ -1,0 +1,5 @@
+{
+    "_": {"colors": "red orange yellow light_green dark_green light_blue dark_blue purple pink gray black"},
+    "22": {"recipe": [4, 4, 6], "color": "light_green"},
+    "23": {"recipe": [22, 1, 3], "color": "light_green"} 
+}
