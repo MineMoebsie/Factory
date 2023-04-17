@@ -213,7 +213,7 @@ tile_mode = "place" # can be place, edit (=select recipe etc.), info (=name tile
 #edit tile menu
 edit_tile_menu_open = False
 tile_menu_type = "" # can be splitter, sorter, crafter 
-craft_scrolly = 0
+craft_scrolly = 15
 update_edit_menu = True
 
 #keybinds
@@ -231,11 +231,12 @@ items_list = []
 
 placeable = False
 
-
-
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
-# item_spawn_dict = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]} #adds items inside of the dict to the items_list
-# item_perf_time = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,'cargo':0} #t.perf_counters for each time
+
+#recipes
+unlocked_recipes = [22, 23] # TEMP
+
+# spawning
 cargo_spawn_list = [] #only one spawn time
 
 cargo_spawn_perf = -1 # cargo cooldown spawn time, when not a lot of items
@@ -528,14 +529,6 @@ while playing and __name__ == "__main__":
         t_event = t.perf_counter()
 
         for e in events:
-            if e.type == pg.MOUSEWHEEL:
-                if tile_mode == "edit":
-                    if edit_tile_menu_open:
-                        craft_scrolly += e.x * 10
-                        print(craft_scrolly)
-                        update_edit_menu = True
-
-
             if e.type == pg.MOUSEMOTION:
                 if my > screen_size[1] - bar_height: #in menu bar
                     if mx < int(button_distance) and menu_scrollx > 0: #left
@@ -604,8 +597,6 @@ while playing and __name__ == "__main__":
                                     mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
                                     selected_x = mrx
                                     selected_y = mry
-
-                                
 
                             elif tile_mode == "edit":
                                 stop_mouse_placement = True
@@ -689,8 +680,15 @@ while playing and __name__ == "__main__":
                     if e.button == 5:#scroll down
                         if k_scrolly >= 25:
                             k_scrolly -= 25
+
                 elif edit_tile_menu_open:
-                    print("yeey")
+                    if e.button == 4:#scroll up
+                        craft_scrolly -= 5 * deltaTime
+                        print(craft_scrolly)
+                        craft_scrolly = max(-len(unlocked_recipes) * 130 + 200, craft_scrolly)
+                    if e.button == 5:#scroll down
+                        craft_scrolly += 5 * deltaTime
+                        craft_scrolly = min(15, craft_scrolly)
                 else:
                     mouse_down = False
                     if e.button == 4 and not research_menu:#scroll up
@@ -925,7 +923,7 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf = draw_edit_menu("crafter", [22, 23], craft_scrolly, item_names)
+                    edit_menu_surf = draw_edit_menu("crafter", unlocked_recipes, craft_scrolly, item_names)
                 blit_tile_edit_menu(screen, edit_menu_surf)
             else: 
                 selected_x = -1
