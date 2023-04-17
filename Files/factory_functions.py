@@ -47,6 +47,7 @@ i_des_font = pg.font.Font('Fonts/Roboto-Light.ttf', 17)
 
 edit_tile_font = pg.font.Font('Fonts/Roboto.ttf', 35)
 edit_tile_font_small = pg.font.Font('Fonts/Roboto.ttf', 30)
+edit_tile_font_item = pg.font.Font('Fonts/Roboto.ttf', 25)
 
 picture_arrow = import_foto('Blocks/arrow-single.png', grid_size, grid_size)
 picture_arrow_cross = import_foto('Blocks/arrow-cross.png', grid_size, grid_size)
@@ -1308,7 +1309,25 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
                     temp_surf.blit(item_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - item_size) / 2))
 
                     recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
-                    temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, topleft[1] + 25))
+                    temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, topleft[1] + 30))
+
+                    x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
+                    y_blit = topleft[1] + 65
+                    for item in requirements.keys():
+                        item_pic = unsc_pics[f"item_{item}_picture"]
+                        item_pic_size = 30
+                        item_pic = pg.transform.scale(item_pic, (item_pic_size, item_pic_size))
+
+                        temp_surf.blit(item_pic, (x_blit, y_blit))
+
+                        x_blit += item_pic_size + 7
+
+                        req_text = edit_tile_font_item.render(str(requirements[item]), True, (0, 0, 0))
+                        temp_surf.blit(req_text, (x_blit, y_blit))
+
+                        x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 10
+
+
 
 
 

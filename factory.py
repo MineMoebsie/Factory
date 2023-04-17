@@ -513,7 +513,6 @@ while playing and __name__ == "__main__":
                 btn.disabled = True if selected_world is None else False
                 btn.update_disabled(btn.disabled)
                 
-
         clicked = False
         ignore_click = False
         fps = clock.get_fps()
@@ -571,7 +570,7 @@ while playing and __name__ == "__main__":
                                 open_menu = True
                             if not open_menu:
                                 clicked_icon = -1
-                            if clicked_icon == 5:#research
+                            if clicked_icon == 5: # research
                                 open_menu = False
                                 research_menu = True
                                 clicked_icon = -1
@@ -594,13 +593,19 @@ while playing and __name__ == "__main__":
 
                             if tile_mode == "info":
                                 stop_mouse_placement = True
-                                if not (selected_x > -1 and selected_y > -1) or (not(mx < rect_info.get_size()[0] and my > screen_size[1]-rect_info.get_size()[1])):
+                                print(selected_x, selected_y)
+                                if (not (mx < rect_info.get_size()[0] and my > screen_size[1]-rect_info.get_size()[1])) and selected_x == mrx and selected_y == mry:
+                                    stop_mouse_placement = True
+                                    selected_x, selected_y = -1, -1
+                                elif (mx < rect_info.get_size()[0] and my > screen_size[1]-rect_info.get_size()[1]):
+                                    mouse_down = False
+                                else:
                                     mouse_down = False#no more tile placement
                                     mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
                                     selected_x = mrx
                                     selected_y = mry
-                                elif (mx < rect_info.get_size()[0] and my > screen_size[1]-rect_info.get_size()[1]):
-                                    mouse_down = False
+
+                                
 
                             elif tile_mode == "edit":
                                 stop_mouse_placement = True
@@ -684,6 +689,8 @@ while playing and __name__ == "__main__":
                     if e.button == 5:#scroll down
                         if k_scrolly >= 25:
                             k_scrolly -= 25
+                elif edit_tile_menu_open:
+                    print("yeey")
                 else:
                     mouse_down = False
                     if e.button == 4 and not research_menu:#scroll up
@@ -722,7 +729,6 @@ while playing and __name__ == "__main__":
                             scrolly = int(round((grid.shape[0])*50*scale-screen_size[1], 3))
                         scaled_pictures = scale_pictures(scale)
                         render_distance = int(1/scale+1)
-
 
             if e.type == pg.QUIT:
                 playing = False
@@ -823,7 +829,7 @@ while playing and __name__ == "__main__":
             scrollx = round(min(0,scrollx))
             scrolly = round(min(0,scrolly))
 
-        else:#scrolling in research menu
+        elif research_menu:#scrolling in research menu
             if scroll_keys_hold[3]:
                 r_scrollx[r_screen_page] += scroll_speed * deltaTime
             if scroll_keys_hold[1] and r_scrollx[r_screen_page] > -5:
@@ -833,7 +839,6 @@ while playing and __name__ == "__main__":
             if scroll_keys_hold[0] and r_scrolly[r_screen_page] > -5:
                 r_scrolly[r_screen_page] += -scroll_speed * deltaTime
             
-
             if r_scrollx[r_screen_page] + screen_w > r_width[r_screen_page]:
                 r_scrollx[r_screen_page] = r_width[r_screen_page] - screen_w
             if r_scrolly[r_screen_page] + screen_h > r_height[r_screen_page]:
