@@ -39,10 +39,7 @@ def convert_json(tile_info):
 def convert_item_info(item_info):
     item_names = {} #should be {0: ["potato", "potatoes"] etc..}
     for item in item_info.keys():
-        if item != "r":
-            item_names[int(item)] = item_info[item]["name"]
-        else:
-            item_names[item] = item_info[item]["name"]
+        item_names[int(item)] = item_info[item]["name"]
 
     return item_names
 

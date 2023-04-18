@@ -234,7 +234,7 @@ placeable = False
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
 
 #recipes
-unlocked_recipes = [22, 23] # TEMP
+unlocked_recipes = [21, 22, 23] # TEMP
 
 # spawning
 cargo_spawn_list = [] #only one spawn time
@@ -586,7 +586,6 @@ while playing and __name__ == "__main__":
 
                             if tile_mode == "info":
                                 stop_mouse_placement = True
-                                print(selected_x, selected_y)
                                 if (not (mx < rect_info.get_size()[0] and my > screen_size[1]-rect_info.get_size()[1])) and selected_x == mrx and selected_y == mry:
                                     stop_mouse_placement = True
                                     selected_x, selected_y = -1, -1
@@ -609,15 +608,15 @@ while playing and __name__ == "__main__":
                                     
                             if up_button.collidepoint(mx,my):
                                 stop_mouse_placement = True
-                                if grid_data[selected_y,selected_x]["split_count"] < 100 and tile_info_mode == "splitter":
+                                if tile_info_mode == "splitter" and grid_data[selected_y,selected_x]["split_count"] < 100:
                                     grid_data[selected_y,selected_x]["split_count"] += 1
-                                if grid_data[selected_y,selected_x]["sort_item"] < len(storage)-1 and tile_info_mode == "sorter":
+                                elif tile_info_mode == "sorter" and grid_data[selected_y,selected_x]["sort_item"] < len(storage)-1:
                                     grid_data[selected_y,selected_x]["sort_item"] += 1
                             elif down_button.collidepoint(mx,my):
                                 stop_mouse_placement = True
-                                if grid_data[selected_y,selected_x]["split_count"] > 1 and tile_info_mode == "splitter":
+                                if tile_info_mode == "splitter" and grid_data[selected_y,selected_x]["split_count"] > 1:
                                     grid_data[selected_y,selected_x]["split_count"] -= 1
-                                if grid_data[selected_y,selected_x]["sort_item"] > 0 and tile_info_mode == "sorter":
+                                elif tile_info_mode == "sorter" and grid_data[selected_y,selected_x]["sort_item"] > 0:
                                     grid_data[selected_y,selected_x]["sort_item"] -= 1
 
                         elif keybind_menu == True:
@@ -684,7 +683,6 @@ while playing and __name__ == "__main__":
                 elif edit_tile_menu_open:
                     if e.button == 4:#scroll up
                         craft_scrolly -= 5 * deltaTime
-                        print(craft_scrolly)
                         craft_scrolly = max(-len(unlocked_recipes) * 130 + 200, craft_scrolly)
                     if e.button == 5:#scroll down
                         craft_scrolly += 5 * deltaTime

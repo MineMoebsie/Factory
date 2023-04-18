@@ -782,8 +782,10 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
             if brush in [3, 4]:
                 grid_data[ry, rx]["split_side"] = 0
                 grid_data[ry, rx]["split_count"] = 2
+                print("splitttt")
             elif brush in [5, 6]:
                 grid_data[ry, rx]["sort_item"] = 0
+                print("sortttttttt")
         else:
             grid_data[ry, rx] = {"spawn_item": brush, "spawn_perf": t.perf_counter()}
 
@@ -841,7 +843,7 @@ def check_placeable(rx, ry, rr, grid, grid_rotation, brush, size, blocks_index, 
         if not grid[ry, rx] in ground_blocks:
             placeable = True
 
-    if (not check_build_prices(b_prices, brush, storage, item_names)) and False:
+    if (not check_build_prices(b_prices, brush, storage, 1230)) and False:
         placeable = False
 
     return placeable
@@ -1225,7 +1227,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
         else:
             tile_mode = "sorter"
             text1 = i_text_font.render("Edit tile data for sorter:", True, (0, 0, 0))
-            text2 = i_des_font.render("Sorts " + str(item_names[grid_data[mry, mrx]["sort_item"]][1]) + ".", True, (0, 0, 0))
+            text2 = i_des_font.render(f"Sorts {item_names[grid_data[mry, mrx]['sort_item']][1]}.", True, (0, 0, 0))
             text3 = pg.Surface((1,1))
 
         screen.blit(text1, (int((rect_w - text1.get_size()[0]) / 2), height - rect_h + 65))
@@ -1327,12 +1329,6 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
 
                         x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 10
 
-
-
-
-
-                    
-
             temp_surf.blit(craft_select_menu_border_picture, (0,0))
             surf_w, surf_h = edit_menu_surf.get_size()    
             edit_menu_surf.blit(temp_surf, ((surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)))
@@ -1343,6 +1339,7 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
         case _:
             raise ValueError("Unknown menu!")
 
+    edit_menu_surf.set_alpha(230)
     return edit_menu_surf
 
 def blit_tile_edit_menu(screen, edit_menu_surf):
