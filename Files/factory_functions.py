@@ -1274,6 +1274,8 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
     edit_menu_surf = pg.Surface(edit_mode_menu_picture.get_size(), pg.SRCALPHA)
     edit_menu_surf.blit(edit_mode_menu_picture, (0, 0))
 
+    crafter_btn_collidepoints = []
+
     match tile_menu_type:
         case "crafter":
             craft_buffer = 5
@@ -1283,6 +1285,7 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
 
             #buttons
             for n, recipe in enumerate(unlocked_recipes):
+
                 btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
                 if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
                     temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
@@ -1329,6 +1332,11 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
 
                         x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 10
 
+                    surf_w, surf_h = edit_menu_surf.get_size()    
+                    add_x, add_y = (surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)
+
+                    crafter_btn_collidepoints.append(pg.Rect(((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + add_x, btn_y + add_y), (craft_select_btn_picture.get_width(),craft_select_btn_picture.get_height())))
+            
             temp_surf.blit(craft_select_menu_border_picture, (0,0))
             surf_w, surf_h = edit_menu_surf.get_size()    
             edit_menu_surf.blit(temp_surf, ((surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)))
@@ -1340,12 +1348,19 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
             raise ValueError("Unknown menu!")
 
     edit_menu_surf.set_alpha(230)
-    return edit_menu_surf
+    return edit_menu_surf, crafter_btn_collidepoints
 
-def blit_tile_edit_menu(screen, edit_menu_surf):
+def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints):
     scr_w, scr_h = screen.get_size()
     screen.blit(edit_menu_surf, ((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2))
-        
+
+    x_add, y_add = (scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2
+
+    new_list = []
+    for i, btn in enumerate(crafter_btn_collidepoints):
+        new_list.append(pg.Rect((btn.x + x_add, btn.y + y_add),(btn.w, btn.h)))
+
+    return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), new_list
 
 def draw_keybind_menu(screen, k_scrolly, unlocked_blocks, data_display, data_arrow, rect_keybinds, keybinds):
     rect_w, rect_h = rect_keybinds.get_size()

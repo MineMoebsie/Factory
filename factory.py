@@ -210,6 +210,8 @@ down_button = pg.Rect((0,0),(0,0))
 
 tile_mode = "place" # can be place, edit (=select recipe etc.), info (=name tile+description x,y etc.), view(=view, only tile mode menu visible).  
 
+rect_edit_menu = pg.Rect((0,0),(0,0))
+crafter_btn_collidepoints = []
 #edit tile menu
 edit_tile_menu_open = False
 tile_menu_type = "" # can be splitter, sorter, crafter 
@@ -480,7 +482,6 @@ while playing and __name__ == "__main__":
 
                     append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
 
-
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world(selected_world, spawn_items)
@@ -535,6 +536,8 @@ while playing and __name__ == "__main__":
                         menu_scrollx -= menu_scrollspeed
                     elif mx >  screen_size[0] - int(button_distance) < 1000: #right
                         menu_scrollx += menu_scrollspeed
+
+                
                     
             if e.type == pg.MOUSEBUTTONDOWN:
                 if mousebutton_pressed == False:
@@ -558,15 +561,18 @@ while playing and __name__ == "__main__":
                                             clicked_icon = icon
                                             open_menu = True
                                             clicked_button = -1
+                                            tile_mode = "place"
 
                             if my > screen.get_size()[1] - bar_height:
                                 open_menu = True
+                                tile_mode = "place"
                             if not open_menu:
                                 clicked_icon = -1
                             if clicked_icon == 5: # research
                                 open_menu = False
                                 research_menu = True
                                 clicked_icon = -1
+                                tile_mode = "place"
 
                             for button in range(len(button_click_list)):
                                 if mx > button_click_list[button][0] and my > button_click_list[button][1]:
@@ -598,14 +604,22 @@ while playing and __name__ == "__main__":
                                     selected_y = mry
 
                             elif tile_mode == "edit":
-                                stop_mouse_placement = True
-                                mouse_down = False
                                 edit_tile_menu_open = True
-                                if not edit_tile_menu_open: # now selecting tile
-                                    mrx, mry = bereken_muis_pos(mx, my, scrollx, scrolly, scale)
+                                stop_mouse_placement = True
+                                if (not (rect_edit_menu.collidepoint(mx,my))) and selected_x == mrx and selected_y == mry:
+                                    stop_mouse_placement = True
+                                    selected_x, selected_y = -1, -1
+                                elif rect_edit_menu.collidepoint(mx,my): # click in the edit menu
+                                    mouse_down = False
+                                    for btn in crafter_btn_collidepoints:
+                                        if btn.collidepoint(mx, my):
+                                            print(btn)
+                                else:
+                                    mouse_down = False#no more tile placement
+                                    mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
                                     selected_x = mrx
                                     selected_y = mry
-                                    
+
                             if up_button.collidepoint(mx,my):
                                 stop_mouse_placement = True
                                 if tile_info_mode == "splitter" and grid_data[selected_y,selected_x]["split_count"] < 100:
@@ -799,14 +813,20 @@ while playing and __name__ == "__main__":
                 if e.key == pg.K_o:
                     print_timing = not print_timing
                 
-                if e.key == pg.K_F1:
-                    tile_mode = "place"
-                if e.key == pg.K_F2:
-                    tile_mode = "edit"
-                if e.key == pg.K_F3:
-                    tile_mode = "info" 
-                if e.key == pg.K_F4:
-                    tile_mode = "view"
+                if e.key in [pg.K_F1, pg.K_F2, pg.K_F3, pg.K_F4]:
+                    open_menu = False
+                    clicked_button = -1
+                    clicked_icon = -1
+                    selected_x, selected_y = -1, -1
+                    if e.key == pg.K_F1:
+                        tile_mode = "place"
+                    elif e.key == pg.K_F2:
+                        tile_mode = "edit"
+                    elif e.key == pg.K_F3:
+                        tile_mode = "info" 
+                    elif e.key == pg.K_F4:
+                        tile_mode = "view"
+
 
                 if e.key == pg.K_q:
                     if selected_world is not None:
@@ -921,13 +941,13 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf = draw_edit_menu("crafter", unlocked_recipes, craft_scrolly, item_names)
-                blit_tile_edit_menu(screen, edit_menu_surf)
+                    edit_menu_surf, crafter_btn_collidepoints = draw_edit_menu("crafter", unlocked_recipes, craft_scrolly, item_names)
+                rect_edit_menu, crafter_btn_collidepoints = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints)
             else: 
                 selected_x = -1
                 selected_y = -1
-        
-
+        else:
+            rect_edit_menu = pg.Rect((0,0),(0,0))
 
         if research_menu and update_r_screen: #update r_screen once (for 1 frame)
             r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]),pg.SRCALPHA)
@@ -960,7 +980,6 @@ while playing and __name__ == "__main__":
 
         draw_tile_mode_menu(screen, tile_mode)
 
-        # draw_craft_select([0, 0, 0, 0, 0, 0, 0, 0, 0], screen, -50)
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
