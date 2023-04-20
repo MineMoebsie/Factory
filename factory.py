@@ -207,7 +207,7 @@ selected_y = -1
 tile_mode = ""#0, splitter, sorter
 up_button = pg.Rect((0,0),(0,0))
 down_button = pg.Rect((0,0),(0,0))
-
+tile_menu_open = ""
 tile_mode = "place" # can be place, edit (=select recipe etc.), info (=name tile+description x,y etc.), view(=view, only tile mode menu visible).  
 
 rect_edit_menu = pg.Rect((0,0),(0,0))
@@ -217,6 +217,7 @@ edit_tile_menu_open = False
 tile_menu_type = "" # can be splitter, sorter, crafter 
 craft_scrolly = 15
 update_edit_menu = True
+hover_recipe = -1 # which recipe is hovered
 
 #keybinds
 keybind_menu = False
@@ -537,8 +538,15 @@ while playing and __name__ == "__main__":
                     elif mx >  screen_size[0] - int(button_distance) < 1000: #right
                         menu_scrollx += menu_scrollspeed
 
-                
-                    
+                elif edit_tile_menu_open:
+                    if rect_edit_menu.collidepoint(mx,my): # in the edit menu
+                        update_edit_menu = True
+                        mouse_down = False
+                        for btn_obj in crafter_btn_collidepoints:
+                            btn = btn_obj[0]
+                            if btn.collidepoint(mx, my):
+                                hover_recipe = btn_obj[1]
+                                
             if e.type == pg.MOUSEBUTTONDOWN:
                 if mousebutton_pressed == False:
                     stop_mouse_placement = False
@@ -611,9 +619,11 @@ while playing and __name__ == "__main__":
                                     selected_x, selected_y = -1, -1
                                 elif rect_edit_menu.collidepoint(mx,my): # click in the edit menu
                                     mouse_down = False
-                                    for btn in crafter_btn_collidepoints:
+                                    for btn_obj in crafter_btn_collidepoints:
+                                        btn = btn_obj[0]
                                         if btn.collidepoint(mx, my):
-                                            print(btn)
+                                            hover_recipe = btn_obj[1]
+                                            update_edit_menu = True
                                 else:
                                     mouse_down = False#no more tile placement
                                     mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
@@ -701,6 +711,7 @@ while playing and __name__ == "__main__":
                     if e.button == 5:#scroll down
                         craft_scrolly += 5 * deltaTime
                         craft_scrolly = min(15, craft_scrolly)
+                    update_edit_menu = True
                 else:
                     mouse_down = False
                     if e.button == 4 and not research_menu:#scroll up
@@ -941,7 +952,8 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf, crafter_btn_collidepoints = draw_edit_menu("crafter", unlocked_recipes, craft_scrolly, item_names)
+                    edit_menu_surf, crafter_btn_collidepoints = draw_edit_menu("crafter", unlocked_recipes, craft_scrolly, item_names, hover_recipe)
+                    update_edit_menu = False
                 rect_edit_menu, crafter_btn_collidepoints = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints)
             else: 
                 selected_x = -1

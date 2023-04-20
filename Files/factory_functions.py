@@ -105,6 +105,7 @@ icon_r_2 = import_foto('UI/menu_icon_5.png', 50, 50)
 
 craft_select_menu_picture = import_foto("UI/craft_select_menu.png", 500, 375)
 craft_select_btn_picture = import_foto("UI/craft_select_btn.png", 375, 125)
+craft_select_btn_hover_picture = import_foto("UI/craft_select_btn_hover.png", 375, 125)
 craft_select_menu_border_picture = import_foto("UI/craft_select_menu_border.png", 500, 375)
 edit_mode_menu_picture = import_foto("UI/edit_mode_menu.png", 550, 550)
 
@@ -1270,7 +1271,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
 
     return tile_mode, up_button, down_button  # buttons = pg.Rect of buttons (collidepoint)
 
-def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
+def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, hover_recipe=-1):
     edit_menu_surf = pg.Surface(edit_mode_menu_picture.get_size(), pg.SRCALPHA)
     edit_menu_surf.blit(edit_mode_menu_picture, (0, 0))
 
@@ -1281,14 +1282,15 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
             craft_buffer = 5
             temp_surf = pg.Surface(craft_select_menu_picture.get_size(), pg.SRCALPHA)
 
-            # temp_surf.blit(craft_select_menu_picture, (0,0))
-
             #buttons
             for n, recipe in enumerate(unlocked_recipes):
 
                 btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
                 if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
-                    temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
+                    if recipe == hover_recipe:
+                        temp_surf.blit(craft_select_btn_hover_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
+                    else:
+                        temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
                     
                     color = recipes[str(recipe)]["color"]
 
@@ -1335,7 +1337,9 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names):
                     surf_w, surf_h = edit_menu_surf.get_size()    
                     add_x, add_y = (surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)
 
-                    crafter_btn_collidepoints.append(pg.Rect(((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + add_x, btn_y + add_y), (craft_select_btn_picture.get_width(),craft_select_btn_picture.get_height())))
+                    crafter_btn_collidepoints.append(
+                        [pg.Rect(((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + add_x, btn_y + add_y), (craft_select_btn_picture.get_width(),craft_select_btn_picture.get_height())),
+                         recipe])
             
             temp_surf.blit(craft_select_menu_border_picture, (0,0))
             surf_w, surf_h = edit_menu_surf.get_size()    
@@ -1357,8 +1361,9 @@ def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints):
     x_add, y_add = (scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2
 
     new_list = []
-    for i, btn in enumerate(crafter_btn_collidepoints):
-        new_list.append(pg.Rect((btn.x + x_add, btn.y + y_add),(btn.w, btn.h)))
+    for i, btn_obj in enumerate(crafter_btn_collidepoints):
+        btn = btn_obj[0]
+        new_list.append([pg.Rect((btn.x + x_add, btn.y + y_add),(btn.w, btn.h)), btn_obj[1]])
 
     return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), new_list
 
