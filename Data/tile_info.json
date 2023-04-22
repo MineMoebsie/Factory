@@ -53,13 +53,17 @@
         "name": "Cable Bending",
         "description": "Transports packages containing items efficiently. Cable track starts at cable sender and ends at the reciever.",
         "size": 1,
-        "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
+        "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28],
+        "convert_alpha": true,
+        "background_tile": [0]
     },
     "9": {
         "name": "Cable Bending",
         "description": "Transports packages containing items efficiently. Cable track starts at cable sender and ends at the reciever.",
         "size": 1,
-        "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28]
+        "placed_on_only": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 23, 24, 27, 28],
+        "convert_alpha": true,
+        "background_tile": [0]
     },
     "10": {
         "name": "Grass",
@@ -118,7 +122,7 @@
         "description": "Transports packages containing items efficiently. Cable track starts at cable sender and ends at the reciever.",
         "size": 1,
         "convert_alpha": true,
-        "background_tile": [10, 11]
+        "background_tile": [0]
     },
     "20": {
         "name": "Storage",

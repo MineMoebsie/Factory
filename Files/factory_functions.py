@@ -160,14 +160,15 @@ for block in tile_info.keys():
         elif not convert:
             temp_pic = pg.Surface((size, size), pg.SRCALPHA)
 
-            for x in range(tile_info[block]["size"]):
-                for y in range(tile_info[block]["size"]):
-                    if type(tile_info[block]["background_tile"]) is list:
-                        tile = r.choice(tile_info[block]["background_tile"])
-                    else:
-                        tile = tile_info[block]["background_tile"]
-                    tile_pic = import_foto(f"Blocks/{tile}.png", size, size, True)
-                    temp_pic.blit(tile_pic, (x * 50, y * 50))
+            if tile_info[block]["background_tile"] != [0]:
+                for x in range(tile_info[block]["size"]):
+                    for y in range(tile_info[block]["size"]):
+                        if type(tile_info[block]["background_tile"]) is list:
+                            tile = r.choice(tile_info[block]["background_tile"])
+                        else:
+                            tile = tile_info[block]["background_tile"]
+                        tile_pic = import_foto(f"Blocks/{tile}.png", size, size, True)
+                        temp_pic.blit(tile_pic, (x * 50, y * 50))
 
             foreground = import_foto(f'Blocks/{block}.png', size, size, convert)
             temp_pic.blit(foreground, (0,0))
@@ -1060,9 +1061,9 @@ class Item:
             elif volgend_blokje in [5, 6]:  # sort-r-l
                 if grid_data[ry, rx]["sort_item"] == self.item_type:  # go left/right (wanted item)
                     if volgend_blokje == 5:
-                        orientatie_blokje += self.split_side
+                        orientatie_blokje += 1
                     elif volgend_blokje == 6:
-                        orientatie_blokje -= self.split_side
+                        orientatie_blokje -= 1
                     orientatie_blokje %= 4
 
                 # else, go straight (not wanted item)
@@ -1344,28 +1345,39 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
             temp_surf.blit(craft_select_menu_border_picture, (0,0))
             surf_w, surf_h = edit_menu_surf.get_size()    
             edit_menu_surf.blit(temp_surf, ((surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)))
-            
+
             recipe_text = edit_tile_font.render("Select recipe", True, (0, 0, 0))
             edit_menu_surf.blit(recipe_text, ((surf_w - recipe_text.get_width()) / 2, 45))
+
+            line_1 =  int((surf_h - temp_surf.get_height()) / 1.5)
+            line_2 =  int((surf_h - temp_surf.get_height()) / 1.5) + temp_surf.get_height()
 
         case _:
             raise ValueError("Unknown menu!")
 
     edit_menu_surf.set_alpha(230)
-    return edit_menu_surf, crafter_btn_collidepoints
+    return edit_menu_surf, crafter_btn_collidepoints, line_1, line_2
 
-def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints):
+def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1_basis, line_2_basis, update=True):
     scr_w, scr_h = screen.get_size()
     screen.blit(edit_menu_surf, ((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2))
 
+
     x_add, y_add = (scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2
 
-    new_list = []
-    for i, btn_obj in enumerate(crafter_btn_collidepoints):
-        btn = btn_obj[0]
-        new_list.append([pg.Rect((btn.x + x_add, btn.y + y_add),(btn.w, btn.h)), btn_obj[1]])
+    if update:
+        new_list = []
+        for i, btn_obj in enumerate(crafter_btn_collidepoints):
+            btn = btn_obj[0]
+            new_list.append([pg.Rect((btn.x + x_add, btn.y + y_add),(btn.w, btn.h)), btn_obj[1]])
 
-    return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), new_list
+        line_1 = line_1_basis + (scr_h - edit_menu_surf.get_height()) / 2
+        line_2 = line_2_basis + (scr_h - edit_menu_surf.get_height()) / 2
+        
+        return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), new_list, line_1, line_2
+    else:
+        return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), crafter_btn_collidepoints
+
 
 def draw_keybind_menu(screen, k_scrolly, unlocked_blocks, data_display, data_arrow, rect_keybinds, keybinds):
     rect_w, rect_h = rect_keybinds.get_size()

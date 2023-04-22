@@ -218,6 +218,8 @@ tile_menu_type = "" # can be splitter, sorter, crafter
 craft_scrolly = 15
 update_edit_menu = True
 hover_recipe = -1 # which recipe is hovered
+line_1 = 0
+line_2 = 0
 
 #keybinds
 keybind_menu = False
@@ -619,16 +621,21 @@ while playing and __name__ == "__main__":
                                     selected_x, selected_y = -1, -1
                                 elif rect_edit_menu.collidepoint(mx,my): # click in the edit menu
                                     mouse_down = False
-                                    for btn_obj in crafter_btn_collidepoints:
-                                        btn = btn_obj[0]
-                                        if btn.collidepoint(mx, my):
-                                            hover_recipe = btn_obj[1]
-                                            update_edit_menu = True
+                                    if line_1 < my < line_2:
+                                        for btn_obj in crafter_btn_collidepoints:
+                                            btn = btn_obj[0]
+                                            if btn.collidepoint(mx, my):
+                                                hover_recipe = btn_obj[1]
+                                                update_edit_menu = True
+                                                print(hover_recipe)
+
                                 else:
                                     mouse_down = False#no more tile placement
                                     mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
                                     selected_x = mrx
                                     selected_y = mry
+                            elif not tile_mode == "edit":
+                                edit_tile_menu_open = False
 
                             if up_button.collidepoint(mx,my):
                                 stop_mouse_placement = True
@@ -712,6 +719,7 @@ while playing and __name__ == "__main__":
                         craft_scrolly += 5 * deltaTime
                         craft_scrolly = min(15, craft_scrolly)
                     update_edit_menu = True
+
                 else:
                     mouse_down = False
                     if e.button == 4 and not research_menu:#scroll up
@@ -952,9 +960,12 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf, crafter_btn_collidepoints = draw_edit_menu("crafter", unlocked_recipes, craft_scrolly, item_names, hover_recipe)
+                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu("crafter", unlocked_recipes, craft_scrolly, item_names, hover_recipe)
                     update_edit_menu = False
-                rect_edit_menu, crafter_btn_collidepoints = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints)
+                    rect_edit_menu, crafter_btn_collidepoints, line_1, line_2 = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2)
+                else:
+                    rect_edit_menu, crafter_btn_collidepoints = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2, False)
+
             else: 
                 selected_x = -1
                 selected_y = -1
@@ -988,7 +999,6 @@ while playing and __name__ == "__main__":
 
             if shortage_timer + 2.5 > t.perf_counter():
                 draw_shortage_notification(screen,not_enough_picture,shortage_item)
-
 
         draw_tile_mode_menu(screen, tile_mode)
 
