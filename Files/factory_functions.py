@@ -1362,7 +1362,6 @@ def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_
     scr_w, scr_h = screen.get_size()
     screen.blit(edit_menu_surf, ((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2))
 
-
     x_add, y_add = (scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2
 
     if update:
@@ -1378,6 +1377,40 @@ def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_
     else:
         return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), crafter_btn_collidepoints
 
+def update_craft_recipe(grid,grid_data,recipe,x,y, blocks_index, blocks_type=15):
+    if grid[y, x] == 15:
+        grid_data[y, x]["craft_recipe"] = recipe
+    elif grid[y, x] == -15:
+        #find the topleft of block to change recipe there
+        if x > blocks_index[blocks_type] and y > blocks_index[blocks_type]:
+            cut = grid[y - blocks_index[blocks_type] + 1:y + 1, x - blocks_index[blocks_type] + 1:x + 1]
+            dx = x - blocks_index[blocks_type] + 1
+            dy = y - blocks_index[blocks_type] + 1
+        elif x >= blocks_index[blocks_type] and y >= blocks_index[blocks_type]:
+            cut = grid[y - blocks_index[blocks_type] + 1:y + 1, x - blocks_index[blocks_type] + 1:x + 1]
+            dx = x - blocks_index[blocks_type] + 1
+            dy = y - blocks_index[blocks_type] + 1
+        else:  # on edge of grid
+            if not x >= blocks_index[blocks_type] and (y >= blocks_index[blocks_type]):
+                cut = grid[y - blocks_index[blocks_type] + 1:y + 1, 0:x + 1]
+                dx = 0
+                dy = y - blocks_index[blocks_type] + 1
+            elif (x >= blocks_index[blocks_type]) and not y >= blocks_index[blocks_type]:
+                cut = grid[0:y + 1, x - blocks_index[blocks_type] + 1:x + 1]
+                dx = x - blocks_index[blocks_type] + 1
+                dy = 0
+            else:  # cornered
+                cut = grid[0:y + 1, 0:x + 1]
+                dx = 0
+                dy = 0
+
+        linksboven = np.where(cut == blocks_type)
+        x_ = dx + linksboven[1][0]
+        y_ = dy + linksboven[0][0]
+
+        grid_data[y_, x_]["craft_recipe"] = recipe
+
+    return grid_data
 
 def draw_keybind_menu(screen, k_scrolly, unlocked_blocks, data_display, data_arrow, rect_keybinds, keybinds):
     rect_w, rect_h = rect_keybinds.get_size()

@@ -627,13 +627,15 @@ while playing and __name__ == "__main__":
                                             if btn.collidepoint(mx, my):
                                                 hover_recipe = btn_obj[1]
                                                 update_edit_menu = True
-                                                print(hover_recipe)
+                                                grid_data = update_craft_recipe(grid,grid_data,hover_recipe,selected_x,selected_y, blocks_index)
 
                                 else:
-                                    mouse_down = False#no more tile placement
-                                    mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
-                                    selected_x = mrx
-                                    selected_y = mry
+                                    if grid[mry, mrx] == 15 or grid[mry, mrx] == -15: 
+                                        mouse_down = False#no more tile placement
+                                        mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
+                                        selected_x = mrx
+                                        selected_y = mry
+
                             elif not tile_mode == "edit":
                                 edit_tile_menu_open = False
 
