@@ -6,6 +6,9 @@ import numpy as np
 
 from Files.factory_functions import *
 
+with open("Data/recipes.json") as f:
+    recipes = json.load(f)
+
 def update_locations(grid, spawn_items):
     locations = np.array([])
     loc_grid = grid
@@ -96,34 +99,47 @@ def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_per
 
     return items_list, craft_data, cargo_spawn_perf
 
-def research_items(crafting_locations, grid, grid_rotation, craft_data, items_list, grid_size=grid_size):
+def craft_items(crafting_locations, craft_data, grid, grid_rotation, grid_data, items_list, grid_size=grid_size):
     locations = crafting_locations
     for ind in range(len(locations[1])):
         x = locations[1][ind]
         y = locations[0][ind]
-        if '1' in list(craft_data[y, x].keys()) and '2' in list(craft_data[y, x].keys()) and '3' in list(craft_data[y, x].keys()):
-            if craft_data[y, x]["1"] > 0 and craft_data[y, x]["2"] > 0 and craft_data[y, x]["3"] > 0:
-                # subtract data from craft_data
-                craft_data[y, x]["1"] -= 1
-                craft_data[y, x]["2"] -= 1
-                craft_data[y, x]["3"] -= 1
+        #all the required "ingredients" for craft recipe required
+        requirements = {}
+        for item in recipes[str(grid_data[y, x]["craft_recipe"])]["recipe"]: #loops through for ex.: [1,2,2]
+            if not item in requirements: 
+                requirements[item] = 1 
+            else:
+                requirements[item] += 1
+        
+        can_craft = True # if it can craft the item
+        for req in requirements.keys():
+            if not (str(req) in list(craft_data[y, x].keys())):
+                can_craft = False
+            elif requirements[req] > craft_data[y, x][str(req)]:
+                can_craft = False
+    
+        if can_craft:
+            # subtract items from craft_data
+            for req in requirements:
+                craft_data[y, x][str(req)] -= requirements[req]
 
-                # spawn research item
-                spawnx = -1
-                spawny = -1
-                if grid_rotation[y, x] == 0:
-                    spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-                    spawny = (y + 3) * grid_size + int(grid_size / 10)
-                elif grid_rotation[y, x] == 1:
-                    spawnx = x * grid_size - int(grid_size / 10)
-                    spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-                elif grid_rotation[y, x] == 2:
-                    spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-                    spawny = y * grid_size - int(grid_size / 10)
-                elif grid_rotation[y, x] == 3:
-                    spawnx = (x + 3) * grid_size + int(grid_size / 10)
-                    spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-                items_list.append(Item(int(spawnx), int(spawny), 0))
+            # spawn crafted item
+            spawnx = -1
+            spawny = -1
+            if grid_rotation[y, x] == 0:
+                spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
+                spawny = (y + 3) * grid_size + int(grid_size / 10)
+            elif grid_rotation[y, x] == 1:
+                spawnx = x * grid_size - int(grid_size / 10)
+                spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
+            elif grid_rotation[y, x] == 2:
+                spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
+                spawny = y * grid_size - int(grid_size / 10)
+            elif grid_rotation[y, x] == 3:
+                spawnx = (x + 3) * grid_size + int(grid_size / 10)
+                spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
+            items_list.append(Item(int(spawnx), int(spawny), int(grid_data[y, x]["craft_recipe"])))
 
     return craft_data, items_list
 

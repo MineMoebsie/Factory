@@ -939,7 +939,7 @@ while playing and __name__ == "__main__":
 
         t_research = t.perf_counter()
 
-        craft_data,items_list = research_items(crafting_locations,grid,grid_rotation,craft_data,items_list)
+        craft_data,items_list = craft_items(crafting_locations, craft_data, grid, grid_rotation, grid_data, items_list)
 
         t_pop_items = t.perf_counter()
 
