@@ -1255,6 +1255,33 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
         # descrition
         blit_text(screen, rect_info, str(tile_des[abs(tile_block)]), (25, height - rect_h + 275), i_des_font)
 
+    elif tile_block in [15, -15]:
+        tile_mode = ""  # no tile mode
+        text1 = i_text_font.render("Edit tile data via Edit Mode:", True, (0, 0, 0))
+        if grid_data[mry, mrx]['craft_recipe'] != 0:
+            text2 = i_des_font.render(f"Crafts {item_names[grid_data[mry, mrx]['craft_recipe']][1]}.", True, (0, 0, 0))
+        else:
+            text2 = i_des_font.render(f"No recipe selected.", True, (0, 0, 0))
+        text3 = i_des_font.render("Select a recipe via the Edit Mode", True, (0, 0, 0))
+        text4 = i_des_font.render("(click the edit icon or press F2)", True, (0, 0, 0))
+
+
+        screen.blit(text1, (int((rect_w - text1.get_size()[0]) / 2), height - rect_h + 65))
+        screen.blit(text2, (int((rect_w - text2.get_size()[0]) / 2), height - rect_h + 95))
+        screen.blit(text3, (int((rect_w - text3.get_size()[0]) / 2), height - rect_h + 125))
+        screen.blit(text4, (int((rect_w - text4.get_size()[0]) / 2), height - rect_h + 150))
+
+
+        # x,y
+        text = i_des_font.render("Tile at x: " + str(mrx) + ", y: " + str(mry), True, (0, 0, 0))
+        screen.blit(text, (int((rect_w - text.get_size()[0]) / 2), height - rect_h + 215))
+        # type
+        text = i_des_font.render("Item type: " + str(tile_names[abs(tile_block)]), True, (0, 0, 0))
+        screen.blit(text, (int((rect_w - text.get_size()[0]) / 2), height - rect_h + 245))
+        # descrition
+        blit_text(screen, rect_info, str(tile_des[abs(tile_block)]), (25, height - rect_h + 275), i_des_font)
+
+
     else:  # no info to edit, show defeault info
         tile_mode = ""  # no tile mode
         text = i_text_font.render("No information to edit.", True, (0, 0, 0))
@@ -1376,7 +1403,9 @@ def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_
 
 def update_craft_recipe(grid,grid_data,recipe,x,y, blocks_index, blocks_type=15):
     if grid[y, x] == 15:
-        grid_data[y, x]["craft_recipe"] = recipe
+        for x_loop in range(x, x+3):
+            for y_loop in range(y, y+3):
+                grid_data[y_loop, x_loop]["craft_recipe"] = recipe
     elif grid[y, x] == -15:
         #find the topleft of block to change recipe there
         if x > blocks_index[blocks_type] and y > blocks_index[blocks_type]:
@@ -1405,7 +1434,9 @@ def update_craft_recipe(grid,grid_data,recipe,x,y, blocks_index, blocks_type=15)
         x_ = dx + linksboven[1][0]
         y_ = dy + linksboven[0][0]
 
-        grid_data[y_, x_]["craft_recipe"] = recipe
+        for x_loop in range(x_, x_+3):
+            for y_loop in range(y_, y_+3):
+                grid_data[y_loop, x_loop]["craft_recipe"] = recipe
 
     return grid_data
 
