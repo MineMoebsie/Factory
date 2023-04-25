@@ -104,42 +104,43 @@ def craft_items(crafting_locations, craft_data, grid, grid_rotation, grid_data, 
     for ind in range(len(locations[1])):
         x = locations[1][ind]
         y = locations[0][ind]
-        #all the required "ingredients" for craft recipe required
-        requirements = {}
-        for item in recipes[str(grid_data[y, x]["craft_recipe"])]["recipe"]: #loops through for ex.: [1,2,2]
-            if not item in requirements: 
-                requirements[item] = 1 
-            else:
-                requirements[item] += 1
+        if str(grid_data[y, x]["craft_recipe"]) != "0":
+            #all the required "ingredients" for craft recipe required
+            requirements = {}
+            for item in recipes[str(grid_data[y, x]["craft_recipe"])]["recipe"]: #loops through for ex.: [1,2,2]
+                if not item in requirements: 
+                    requirements[item] = 1 
+                else:
+                    requirements[item] += 1
+            
+            can_craft = True # if it can craft the item
+            for req in requirements.keys():
+                if not (str(req) in list(craft_data[y, x].keys())):
+                    can_craft = False
+                elif requirements[req] > craft_data[y, x][str(req)]:
+                    can_craft = False
         
-        can_craft = True # if it can craft the item
-        for req in requirements.keys():
-            if not (str(req) in list(craft_data[y, x].keys())):
-                can_craft = False
-            elif requirements[req] > craft_data[y, x][str(req)]:
-                can_craft = False
-    
-        if can_craft:
-            # subtract items from craft_data
-            for req in requirements:
-                craft_data[y, x][str(req)] -= requirements[req]
+            if can_craft:
+                # subtract items from craft_data
+                for req in requirements:
+                    craft_data[y, x][str(req)] -= requirements[req]
 
-            # spawn crafted item
-            spawnx = -1
-            spawny = -1
-            if grid_rotation[y, x] == 0:
-                spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-                spawny = (y + 3) * grid_size + int(grid_size / 10)
-            elif grid_rotation[y, x] == 1:
-                spawnx = x * grid_size - int(grid_size / 10)
-                spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-            elif grid_rotation[y, x] == 2:
-                spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-                spawny = y * grid_size - int(grid_size / 10)
-            elif grid_rotation[y, x] == 3:
-                spawnx = (x + 3) * grid_size + int(grid_size / 10)
-                spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
-            items_list.append(Item(int(spawnx), int(spawny), int(grid_data[y, x]["craft_recipe"])))
+                # spawn crafted item
+                spawnx = -1
+                spawny = -1
+                if grid_rotation[y, x] == 0:
+                    spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
+                    spawny = (y + 3) * grid_size + int(grid_size / 10)
+                elif grid_rotation[y, x] == 1:
+                    spawnx = x * grid_size - int(grid_size / 10)
+                    spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
+                elif grid_rotation[y, x] == 2:
+                    spawnx = (x + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
+                    spawny = y * grid_size - int(grid_size / 10)
+                elif grid_rotation[y, x] == 3:
+                    spawnx = (x + 3) * grid_size + int(grid_size / 10)
+                    spawny = (y + int(0.5 * 3 - 0.5)) * grid_size + int(grid_size / 2)
+                items_list.append(Item(int(spawnx), int(spawny), int(grid_data[y, x]["craft_recipe"])))
 
     return craft_data, items_list
 

@@ -167,8 +167,8 @@ for block in tile_info.keys():
                             tile = r.choice(tile_info[block]["background_tile"])
                         else:
                             tile = tile_info[block]["background_tile"]
-                        tile_pic = import_foto(f"Blocks/{tile}.png", size, size, True)
-                        temp_pic.blit(tile_pic, (x * 50, y * 50))
+                        tile_pic = import_foto(f"Blocks/{tile}.png", grid_size, grid_size, True)
+                        temp_pic.blit(tile_pic, (x * grid_size, y * grid_size))
 
             foreground = import_foto(f'Blocks/{block}.png', size, size, convert)
             temp_pic.blit(foreground, (0,0))
@@ -274,12 +274,10 @@ crafter_picture_colors = {}
 for i in crafter_colors:
     crafter_picture_colors[i] = [pg.transform.rotate(import_foto("Blocks/base_research_"+str(i)+".png",150,150), -angle) for angle in range(0, 360, 90)]
 
-crafter_craftables = {}
+crafter_craftables = {0: ""}
 for item in recipes:
     if item != "_":
         crafter_craftables[int(item)] = recipes[item]["color"]
-
-# crafter_craftables = {'r':"dark_blue", 23: "light_green"}
 
 for color in crafter_colors:
     crafter_frames[str(color)] = {}
@@ -297,17 +295,19 @@ for craftable in crafter_craftables.keys():
     crafter_frames[craftable] = {}
     picture_random = generate_random_background(10,11,3)
     for i in range(25):
-        color = crafter_craftables[craftable]
+        if crafter_craftables[craftable] != "": # 0 is exception: it won't be drawn
+            color = crafter_craftables[craftable]
         final_picture = pg.Surface((150,150))
         final_picture.blit(picture_random,(0,0))
         final_picture.blit(research_frames["picture_15_"+str(i + 1)][0],(0,0))
-        final_picture.blit(crafter_picture_colors[color][0],(0,0))
+        if crafter_craftables[craftable] != "":
+            final_picture.blit(crafter_picture_colors[color][0],(0,0))
 
-        item_blit_size = 50
-        item_blit_picture = import_foto("Items/item"+str(craftable)+".png")
-        item_blit_picture = pg.transform.scale(item_blit_picture,(item_blit_size,item_blit_size))
+            item_blit_size = 50
+            item_blit_picture = import_foto("Items/item"+str(craftable)+".png")
+            item_blit_picture = pg.transform.scale(item_blit_picture,(item_blit_size,item_blit_size))
 
-        final_picture.blit(item_blit_picture,(int((150-item_blit_size)/2),int((150-item_blit_size)/2)))
+            final_picture.blit(item_blit_picture,(int((150-item_blit_size)/2),int((150-item_blit_size)/2)))
 
         #crafter_frames[craftable][i+1] = [pg.transform.rotate(final_picture, -angle) for angle in range(0, 360, 90)]
         research_frames["picture_15_{}_{}".format(i+1, craftable)] = [pg.transform.rotate(final_picture, -angle) for angle in range(0, 360, 90)]
@@ -770,7 +770,7 @@ def check_build_prices(b_prices, brush, storage, item_names):
 
 
 def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, storage, item_names, draw_brush=None,
-          free=False, spawn=False,crafter=0):
+          free=False, spawn=False,crafter=-100):
     if draw_brush is None:
         draw_brush = brush
     free = True
@@ -779,7 +779,7 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
         grid_rotation[ry, rx] = rr
         if not spawn:
             grid_data[ry, rx] = {}
-            if crafter != 0:
+            if crafter != -100:
                 grid_data[ry, rx]["craft_recipe"] = crafter
             if brush in [3, 4]:
                 grid_data[ry, rx]["split_side"] = 0
@@ -928,8 +928,6 @@ def add_to_grid(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, blocks_
 
             if placeable:
                 crafter = 0
-                if brush == 15:
-                    crafter = 23
                 if check_build_prices(b_prices, brush, storage, item_names) or True:
                     free_build = False
                     for x in range(rx, rx + size):

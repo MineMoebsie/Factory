@@ -155,7 +155,7 @@ open_menu = False
 bar_width = 0
 bar_height = 0
 
-menu_pictures = [[1,2,3,4,5,6,7,16,17,18],[12,13,14],[],[],[],[]]
+menu_pictures = [[1,2,3,4,5,6,7,16,17,18],[12,13,14],[],[],[15],[]]
 
 clicked_icon = -1
 icon_click_list = []
