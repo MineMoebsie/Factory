@@ -189,7 +189,7 @@ with open("Data/tile_info.json") as f:
             picture_list.append(int(block))
 
 # items
-item_count = 26
+item_count = 23
 items_pictures = list(range(0, item_count+1))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
 for x in items_pictures:
@@ -1525,6 +1525,11 @@ def draw_tile_mode_menu(screen, tile_mode):
             img = tile_info_menu_4
     margin_screen = 10
     screen.blit(img, (screen.get_width() - img.get_width() - margin_screen, margin_screen))
+    tile_mode_btns = []
+    for i, mode in enumerate(["place", "edit", "info", "view"]):
+        tile_mode_btns.append([pg.Rect((screen.get_width() - img.get_width() - margin_screen + i * 50 ,margin_screen),(50,50)), mode])
+    edit_tile_menu_rect = pg.Rect((screen.get_width() - img.get_width() - margin_screen, margin_screen), (tile_menu_w, tile_menu_h))
+    return tile_mode_btns,edit_tile_menu_rect
 
 
 def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_pictures, open_menu, clicked_icon,

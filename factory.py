@@ -184,7 +184,7 @@ r_height = [800, 2750]
 r_screen_page = 0 #which page r screen is
 r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]), pg.SRCALPHA) #entire research screen: uses scrolling (not re-rendering)
 update_r_screen = True #True when screen needs to update: only for 1 frame
-update_r_scroll = False
+update_r_scroll = True
 research_menu = False
 r_scrollx = [0,530]
 r_scrolly = [0,1060]
@@ -210,6 +210,7 @@ up_button = pg.Rect((0,0),(0,0))
 down_button = pg.Rect((0,0),(0,0))
 tile_menu_open = ""
 tile_mode = "place" # can be place, edit (=select recipe etc.), info (=name tile+description x,y etc.), view(=view, only tile mode menu visible).  
+tile_mode_btns = [] # btns of tile mode menu, used for collidepoint
 
 rect_edit_menu = pg.Rect((0,0),(0,0))
 crafter_btn_collidepoints = []
@@ -557,7 +558,7 @@ while playing and __name__ == "__main__":
                     stop_mouse_placement = False
                     if e.button == 1:#left mouse button
                         if not research_menu and not keybind_menu:#normal menu
-                            if my < screen_size[1] - bar_height:#not draw in menu
+                            if my < screen_size[1] - bar_height:#dont draw tiles under the menu
                                 mouse_down = True
                             else:
                                 stop_mouse_placement = True
@@ -602,6 +603,16 @@ while playing and __name__ == "__main__":
                                                     clicked_button = -1
                                             else: #exception
                                                 clicked_button = button
+                                                if not (clicked_icon >= len(menu_pictures)):
+                                                    if not (button >= len(menu_pictures[clicked_icon])):
+                                                        brush = menu_pictures[clicked_icon][button]
+
+                            if edit_tile_menu_rect.collidepoint(mx, my): # changing tile mode (mouse click was in the tile mode menu top right)
+                                stop_mouse_placement = True
+                                mouse_down = False
+                                for btn in tile_mode_btns:
+                                    if btn[0].collidepoint(mx, my):
+                                        tile_mode = btn[1]
 
                             if tile_mode == "info":
                                 stop_mouse_placement = True
@@ -886,8 +897,6 @@ while playing and __name__ == "__main__":
             if r_scrolly[r_screen_page] + screen_h > r_height[r_screen_page]:
                 r_scrolly[r_screen_page] = r_height[r_screen_page] - screen_h
 
-            # r_scrolly[r_screen_page] = min(max(r_scrolly[r_screen_page],0), r_max_scroll_x_y["y"][r_screen_page]) #prevents scrolling top or left out of screen
-            # r_scrollx[r_screen_page] = min(max(r_scrollx[r_screen_page],0), r_max_scroll_x_y["x"][r_screen_page])
             if max(scroll_keys_hold): #if one of these is true, update scroll
                 update_r_scroll = True
 
@@ -987,6 +996,10 @@ while playing and __name__ == "__main__":
         if not tile_mode == "view":
             if research_menu: #research menu is open
                 screen.blit(r_screen_transparent,(0,0))
+                if r_width[r_screen_page] < screen.get_width(): # total width of research screen is smaller than monitor width, so center research screen
+                    r_scrollx[r_screen_page] = -int((screen.get_width() - r_width[r_screen_page]) / 2)
+                if r_height[r_screen_page] < screen.get_height(): # same but with y/height
+                    r_scrolly[r_screen_page] = -int((screen.get_height() - r_height[r_screen_page]) / 2)
                 screen.blit(r_screen,(-r_scrollx[r_screen_page],-r_scrolly[r_screen_page]))
                 exit_corner, r_icons_click_list = draw_research_fixed(screen, screen, research_display, storage[0], r_screen_page, mx,my,r_scrollx, r_scrolly)
                 
@@ -1007,7 +1020,8 @@ while playing and __name__ == "__main__":
             if shortage_timer + 2.5 > t.perf_counter():
                 draw_shortage_notification(screen,not_enough_picture,shortage_item)
 
-        draw_tile_mode_menu(screen, tile_mode)
+        if not research_menu and not keybind_menu:
+            tile_mode_btns, edit_tile_menu_rect = draw_tile_mode_menu(screen, tile_mode)
 
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
