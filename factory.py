@@ -15,6 +15,7 @@ screen_w, screen_h = (1280, 720)
 screen = pg.display.set_mode((screen_w, screen_h) ,pg.RESIZABLE|pg.DOUBLEBUF|pg.HWSURFACE)
 
 pg.display.set_caption("Factory")
+pg.display.set_icon(pg.image.load("Assets/Blocks/11.png"))
 
 percent_vals = [0]
 load_font = pg.font.Font('Fonts/Roboto-Light.ttf', 25)
@@ -239,7 +240,7 @@ placeable = False
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
 
 #recipes
-unlocked_recipes = [21, 22, 23] # TEMP
+unlocked_recipes = [22, 23]
 
 # spawning
 cargo_spawn_list = [] #only one spawn time
@@ -305,7 +306,7 @@ ignore_click = False
 world_menu_top, world_menu_bottom = update_pictures(screen)
 world_select_scrolly = -world_menu_top.get_height() + 45
 
-grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world('~menu_world', spawn_items) # load background for title screen
+grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world('~menu_world', spawn_items) # load background for title screen
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
@@ -315,7 +316,7 @@ autoload_world = "new testing world"
 if autoload:
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
-    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world(autoload_world, spawn_items)
+    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(autoload_world, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
@@ -434,7 +435,7 @@ while playing and __name__ == "__main__":
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world...")
 
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(selected_world, spawn_items)
 
                     append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
 
@@ -445,6 +446,7 @@ while playing and __name__ == "__main__":
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
                     tile_mode = "place"
+                    update_r_screen = True
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 100, 90, "Rendering...")
 
@@ -487,7 +489,7 @@ while playing and __name__ == "__main__":
 
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(selected_world, spawn_items)
                     
                     draw_loading_screen_create_world(screen, clock, loading_surf, 100, 10, "Finishing up...")
 
@@ -495,6 +497,7 @@ while playing and __name__ == "__main__":
                     start_play_perf = t.perf_counter() + 1
                     ignore_click = True
                     tile_mode = "place"
+                    update_r_screen = True
 
             btn.draw(screen)
 
@@ -628,6 +631,8 @@ while playing and __name__ == "__main__":
                                                 hover_recipe = btn_obj[1]
                                                 update_edit_menu = True
                                                 grid_data = update_craft_recipe(grid,grid_data,hover_recipe,selected_x,selected_y, blocks_index)
+                                                selected_x, selected_y = -1, -1
+                                                edit_tile_menu_open = False
 
                                 else:
                                     if grid[mry, mrx] == 15 or grid[mry, mrx] == -15: 
@@ -679,7 +684,7 @@ while playing and __name__ == "__main__":
 
                         elif research_menu:#research menu open
                             stop_mouse_placement = True
-                            shortage_timer,shortage_item,storage[0],r_clicked_row,r_clicked_button,research_grid,update_r_screen = research_mouse_check(shortage_timer,shortage_item,storage[0],r_prices,r_scrollx[r_screen_page],r_scrolly[r_screen_page],mx,my,research_progress,r_scrollx[r_screen_page],r_scrolly[r_screen_page],research_button_clicked, r_screen_page, research_grid, r_crafter_grid)
+                            shortage_timer,shortage_item,storage[0],r_clicked_row,r_clicked_button,research_grid,update_r_screen,unlocked_recipes = research_mouse_check(shortage_timer,shortage_item,storage[0],r_prices,r_scrollx[r_screen_page],r_scrolly[r_screen_page],mx,my,research_progress,r_scrollx[r_screen_page],r_scrolly[r_screen_page],research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes)
                             if r_clicked_row != -1 and r_clicked_button != -1:
                                 unlocked_blocks,conveyor_speed,move_speed = research_clicked_item(unlocked_blocks,r_clicked_row,r_clicked_button,research_progress,conveyor_speed,move_speed)
                                 r_particles = generate_r_particles_square(r_particles,r_clicked_button*250-r_scrollx[r_screen_page],r_clicked_row*125-r_scrolly[r_screen_page],r_clicked_button*250+200-r_scrollx[r_screen_page],r_clicked_row*125+100-r_scrolly[r_screen_page],(10,50))
@@ -804,7 +809,7 @@ while playing and __name__ == "__main__":
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Saving world...")
 
-                    save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid)
+                    save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes)
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 80, 10, "Saving player data...")
 
@@ -1007,7 +1012,7 @@ while playing and __name__ == "__main__":
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
-        deltaTime = clock.tick(120)
+        deltaTime = clock.tick(150)
         angle += 1
 
         t_final = t.perf_counter()

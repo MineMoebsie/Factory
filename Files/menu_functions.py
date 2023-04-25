@@ -438,6 +438,9 @@ def read_world(world_folder, spawn_items):
     grid_data_load = json.loads(open(f'Data/Saves/{world_folder}/grid_data.json').read())    
     grid_data = np.array(grid_data_load["data"]).reshape(grid_data_load["shape"])
 
+    with open('Data/Saves/'+world_folder+'/unlocked_recipes.txt') as f:
+        unlocked_recipes = eval(f.read())
+
     f = open('Data/Saves/'+world_folder+'/research_data.txt')
     research_progress_ = eval(f.read())
     f.close()
@@ -453,7 +456,7 @@ def read_world(world_folder, spawn_items):
 
     duplicate_blocks = []
     for x in unlocked_blocks:
-        if x not in duplicate_blocks:
+        if not (x in duplicate_blocks):
             duplicate_blocks.append(x)
     unlocked_blocks = duplicate_blocks
 
@@ -472,9 +475,9 @@ def read_world(world_folder, spawn_items):
     research_grid = eval(f.read())
     f.close()
 
-    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation
+    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation, unlocked_recipes
 
-def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid):
+def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes):
     f = open('Data/Saves/'+world_folder+'/grid.txt','w')
     np.savetxt(f,grid.astype(int), fmt="%i")
     f.close()
@@ -506,6 +509,10 @@ def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_pr
     f = open('Data/Saves/'+world_folder+'/research_grid.txt','w')
     f.write("{}".format(research_grid))
     f.close()
+
+    with open('Data/Saves/'+world_folder+'/unlocked_recipes.txt','w') as f:
+        f.write(str(unlocked_recipes))
+
 
 def save_player_data(world_folder, start_play_perf):
     with open('Data/Saves/'+world_folder+'/player_data.txt','r') as f:
@@ -732,6 +739,9 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
 
         draw_loading_screen_create_world(screen, clock, loading_surf, 95, 90, "Storing player data...")
 
+        #unlocked recipes
+        with open(world_path+"/unlocked_recipes.txt", "w") as f:
+            f.write(str("[]"))
 
         #player_data
         player_data = {'playtime': '0:00:00', 'last_played': datetime.date.today().strftime("%b %d, %Y"), 'version': version, 'created': datetime.date.today().strftime("%b %d, %Y"), 'seed': world_seed, 'mode': world_options["World mode"]}

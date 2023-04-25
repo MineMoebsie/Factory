@@ -1285,7 +1285,6 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
 
             #buttons
             for n, recipe in enumerate(unlocked_recipes):
-
                 btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
                 if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
                     if recipe == hover_recipe:
@@ -1779,7 +1778,7 @@ def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_p
 
     return [width - 50 - cross_margin, cross_margin], r_icons_click_list
 
-def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_scrollx, r_scrolly, mx, my,research_progress, research_scrollx, research_scrolly, research_button_clicked, r_screen_page, research_grid, r_crafter_grid):
+def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_scrollx, r_scrolly, mx, my,research_progress, research_scrollx, research_scrolly, research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes):
     clicked_button = -1
     clicked_row = -1
     update_r_screen = False
@@ -1824,11 +1823,13 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                             for line in r_crafter_grid[row][button][0]:
                                 research_grid[line[1]][line[0]][0] = True
                             r_points -= r_crafter_grid[row][button][2]
+                            if not r_crafter_grid[row][button][1] is None:
+                                unlocked_recipes.append(r_crafter_grid[row][button][1])
                         else:  # not enough research points
                             shortage_timer = t.perf_counter()
                             shortage_item = 0
 
-    return shortage_timer, shortage_item, r_points, clicked_row, clicked_button, research_grid, update_r_screen
+    return shortage_timer, shortage_item, r_points, clicked_row, clicked_button, research_grid, update_r_screen, unlocked_recipes
 
 def draw_shortage_notification(screen, not_enough_picture, shortage_item):
     width, height = screen.get_size()
@@ -1905,4 +1906,4 @@ if __name__ == '__main__':
     pg.font.quit()
     pg.quit()
 
-#1677 lines of code!
+#1908 lines of code!
