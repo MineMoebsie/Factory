@@ -6,6 +6,7 @@
 /Data/Saves/*
 !/Data/Saves/~menu_world
 !/Data/Saves/testing world
+!/Data/Saves/crafting world
 /Files/__pycache__/*
 Files/__pycache__
 /Assets/Palettes/
