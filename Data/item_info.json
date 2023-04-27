@@ -70,5 +70,26 @@
     },
     "23": {
         "name": ["Vegetable bowl", "Vegetable bowls"]
+    },
+    "24": {
+        "name": ["Wooden plank", "Wooden planks"]
+    },
+    "25": {
+        "name": ["Omelette", "Omelettes"]
+    },
+    "26": {
+        "name": ["String", "Strings"]
+    },
+    "27": {
+        "name": ["Leash", "Leashes"]
+    },
+    "28": {
+        "name": ["Bow", "Bows"]
+    },
+    "29": {
+        "name": ["Wooden crate", "Wooden crates"]
+    },
+    "30": {
+        "name": ["Wooden block", "Wooden blocks"]
     }
 }

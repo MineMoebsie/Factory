@@ -1,6 +1,12 @@
 {
     "_": {"colors": "red orange yellow light_green dark_green light_blue dark_blue purple pink gray black"},
-    "22": {"recipe": [4, 4, 6], "color": "light_green"},
-    "23": {"recipe": [22, 1, 3], "color": "light_green"},
-    "21": {"recipe": [1,1,1], "color": "purple"}
+    "22": {"recipe": [4, 4, 6], "color": "orange"},
+    "23": {"recipe": [22, 1, 3], "color": "orange"},
+    "24": {"recipe": [4, 5], "color": "orange"},
+    "25": {"recipe": [8, 8, 7], "color": "orange"},
+    "26": {"recipe": [9], "color": "gray"},
+    "27": {"recipe": [26, 26, 26], "color": "gray"},
+    "28": {"recipe": [6, 6, 26], "color": "gray"},
+    "29": {"recipe": [24, 24, 24], "color": "orange"},
+    "30": {"recipe": [24], "color": "orange"}
 }

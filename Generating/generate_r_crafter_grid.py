@@ -17,11 +17,15 @@ def generate_r_craft_grid(grid_size=grid_size):
         for y in range(len(grid[x])):
             grid[x][y] = [grid[x][y], None, 100]
 
-    start = (xm, ym)
-    up_branch = [[22, 500], [23, 600]]
-    for i in up_branch:
-        start, grid = update_text_costs(start, grid, 'up', *i)
-    #new_loc, grid = update_text_costs(*update_text_costs(start, grid, 'up'), 'up', 'blablabla', 1000)    
+    branchup = [[[22, 5], [23, 7],[25, 10]],[[24, 20], [29, 25], [30, 30]],[[26, 50],[27, 55],[28, 60]]]
+    for n, i in enumerate(branchup):
+        start = (xm, ym - 1)
+        for _ in range(n):
+            start, grid = update_text_costs(start, grid, 'up', update_text_cost=False)
+        for sidebranch in i:
+            start, grid = update_text_costs(start, grid, 'rup', *sidebranch)
+    
+    
 
     # import pdb; pdb.set_trace()
 

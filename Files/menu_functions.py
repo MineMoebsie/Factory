@@ -460,9 +460,17 @@ def read_world(world_folder, spawn_items):
             duplicate_blocks.append(x)
     unlocked_blocks = duplicate_blocks
 
+    storage = {}
+    for i in range(1000):
+        storage[i] = 0
+
     f = open('Data/Saves/'+world_folder+'/storage.txt')
-    storage = eval(f.read())
+    storage_load = eval(f.read())
     f.close()
+
+    for key in storage_load:
+        storage[key] = storage_load[key]
+
     f = open('Data/Saves/'+world_folder+'/keybinds.txt')
     keybinds = eval(f.read())
     f.close()

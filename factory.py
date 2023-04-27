@@ -12,7 +12,7 @@ pg.font.init()
 pg.display.init()
 
 screen_w, screen_h = (1280, 720)
-screen = pg.display.set_mode((screen_w, screen_h) ,pg.RESIZABLE|pg.DOUBLEBUF|pg.HWSURFACE)
+screen = pg.display.set_mode((screen_w, screen_h) ,pg.RESIZABLE|pg.DOUBLEBUF|pg.HWSURFACE, vsync=1)
 
 pg.display.set_caption("Factory")
 pg.display.set_icon(pg.image.load("Assets/Blocks/11.png"))

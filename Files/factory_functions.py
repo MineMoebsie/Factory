@@ -189,7 +189,13 @@ with open("Data/tile_info.json") as f:
             picture_list.append(int(block))
 
 # items
-item_count = 23
+with open("Data/item_info.json") as f:
+    item_info = json.load(f)
+    largest_val = 0
+    for i in item_info:
+        if int(i) > largest_val:
+            item_count = int(i) 
+
 items_pictures = list(range(0, item_count+1))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
 for x in items_pictures:
@@ -1265,12 +1271,10 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
         text3 = i_des_font.render("Select a recipe via the Edit Mode", True, (0, 0, 0))
         text4 = i_des_font.render("(click the edit icon or press F2)", True, (0, 0, 0))
 
-
         screen.blit(text1, (int((rect_w - text1.get_size()[0]) / 2), height - rect_h + 65))
         screen.blit(text2, (int((rect_w - text2.get_size()[0]) / 2), height - rect_h + 95))
         screen.blit(text3, (int((rect_w - text3.get_size()[0]) / 2), height - rect_h + 125))
         screen.blit(text4, (int((rect_w - text4.get_size()[0]) / 2), height - rect_h + 150))
-
 
         # x,y
         text = i_des_font.render("Tile at x: " + str(mrx) + ", y: " + str(mry), True, (0, 0, 0))
