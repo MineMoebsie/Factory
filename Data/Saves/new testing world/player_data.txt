@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {'playtime': '0:30:58', 'last_played': 'Apr 27, 2023', 'version': 'pre-alpha v.1.4', 'created': 'Apr 01, 2023', 'seed': 101, 'mode': 'Default'}
+=======
+{'playtime': '0:04:52', 'last_played': 'Apr 19, 2023', 'version': 'pre-alpha v.1.4', 'created': 'Apr 01, 2023', 'seed': 101, 'mode': 'Default'}
+>>>>>>> 93207ee8a60b1511b650102e2a1f6dd71268935f

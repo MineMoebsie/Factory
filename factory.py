@@ -11,7 +11,7 @@ pg.init()
 pg.font.init()
 pg.display.init()
 
-screen_w, screen_h = (1280, 720)
+screen_w, screen_h = (1000, 563)
 screen = pg.display.set_mode((screen_w, screen_h) ,pg.RESIZABLE|pg.DOUBLEBUF|pg.HWSURFACE, vsync=1)
 
 pg.display.set_caption("Factory")
