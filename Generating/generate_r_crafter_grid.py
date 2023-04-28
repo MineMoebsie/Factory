@@ -25,10 +25,6 @@ def generate_r_craft_grid(grid_size=grid_size):
         for sidebranch in i:
             start, grid = update_text_costs(start, grid, 'rup', *sidebranch)
     
-    
-
-    # import pdb; pdb.set_trace()
-
     return grid
 
 def update_text_costs(start_loc, grid, direction, text=None, cost=100, update_text_cost=True):
