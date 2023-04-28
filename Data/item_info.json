@@ -91,5 +91,38 @@
     },
     "30": {
         "name": ["Wooden block", "Wooden blocks"]
+    },
+    "31": {
+        "name": ["Crate of vegetables", "Crates of vegetables"]
+    },
+    "32": {
+        "name": ["Chip", "Chips"]
+    },
+    "33": {
+        "name": ["Crate of gems", "Crates of gems"]
+    },
+    "34": {
+        "name": ["Golden ring", "Golden rings"]
+    },
+    "35": {
+        "name": ["Emerald ring", "Emerald rings"]
+    },
+    "36": {
+        "name": ["Amethyst ring", "Amethyst rings"]
+    },
+    "37": {
+        "name": ["Ruby ring", "Ruby rings"]
+    },
+    "38": {
+        "name": ["Topaz ring", "Topaz rings"]
+    },
+    "39": {
+        "name": ["Diamond ring", "Diamond rings"]
+    },
+    "40": {
+        "name": ["Opal ring", "Opal rings"]
+    },
+    "41": {
+        "name": ["Sapphire ring", "Sapphire rings"]
     }
 }

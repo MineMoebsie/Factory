@@ -32,8 +32,7 @@ with open("Data/r_crafter_grid.txt") as f:
 with open("Data/recipes.json") as f:
     recipes = json.load(f)
 
-conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7, 15, -15, -16, 16, -17, 17]
-# extra_conveyor_list = [12, 13, 14, 33, 34, 35]
+conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7]
 
 item_font = pg.font.Font('Fonts/Lato.ttf', 20)
 r_display_font = pg.font.Font('Fonts/Roboto-Light.ttf', 30)
@@ -47,6 +46,7 @@ i_des_font = pg.font.Font('Fonts/Roboto-Light.ttf', 17)
 
 edit_tile_font = pg.font.Font('Fonts/Roboto.ttf', 35)
 edit_tile_font_small = pg.font.Font('Fonts/Roboto.ttf', 30)
+edit_tile_font_small_small = pg.font.Font('Fonts/Roboto.ttf', 25)
 edit_tile_font_item = pg.font.Font('Fonts/Roboto.ttf', 25)
 
 picture_arrow = import_foto('Blocks/arrow-single.png', grid_size, grid_size)
@@ -1345,23 +1345,36 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
                     temp_surf.blit(item_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - item_size) / 2))
 
                     recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
-                    temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, topleft[1] + 30))
+                    if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
+                        recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+
+                    y_blit = topleft[1] + 30
+                    if len(requirements) > 4:
+                        y_blit = topleft[1] + 18
+
+                    temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, y_blit))
 
                     x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
                     y_blit = topleft[1] + 65
+                    if len(requirements) > 4:
+                        y_blit = topleft[1] + 50
+
                     for item in requirements.keys():
+                        if x_blit > (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + craft_select_btn_picture.get_width() - 30:
+                            x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
+                            y_blit += 30
                         item_pic = unsc_pics[f"item_{item}_picture"]
                         item_pic_size = 30
                         item_pic = pg.transform.scale(item_pic, (item_pic_size, item_pic_size))
 
                         temp_surf.blit(item_pic, (x_blit, y_blit))
 
-                        x_blit += item_pic_size + 7
+                        x_blit += item_pic_size + 3
 
                         req_text = edit_tile_font_item.render(str(requirements[item]), True, (0, 0, 0))
                         temp_surf.blit(req_text, (x_blit, y_blit))
 
-                        x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 10
+                        x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 7
 
                     surf_w, surf_h = edit_menu_surf.get_size()    
                     add_x, add_y = (surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)
@@ -1410,6 +1423,7 @@ def update_craft_recipe(grid,grid_data,recipe,x,y, blocks_index, blocks_type=15)
         for x_loop in range(x, x+3):
             for y_loop in range(y, y+3):
                 grid_data[y_loop, x_loop]["craft_recipe"] = recipe
+
     elif grid[y, x] == -15:
         #find the topleft of block to change recipe there
         if x > blocks_index[blocks_type] and y > blocks_index[blocks_type]:
@@ -1856,13 +1870,14 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                     distance = np.sqrt((mouse_x - mid_loc[0])**2 + (mouse_y - mid_loc[1])**2)
                     if distance <= half_size:
                         if r_crafter_grid[row][button][2] <= r_points:
-                            research_grid[row][button][1] = True
-                            update_r_screen = True
-                            for line in r_crafter_grid[row][button][0]:
-                                research_grid[line[1]][line[0]][0] = True
-                            r_points -= r_crafter_grid[row][button][2]
-                            if not r_crafter_grid[row][button][1] is None:
-                                unlocked_recipes.append(r_crafter_grid[row][button][1])
+                            if research_grid[row][button][1] != True:
+                                research_grid[row][button][1] = True
+                                update_r_screen = True
+                                for line in r_crafter_grid[row][button][0]:
+                                    research_grid[line[1]][line[0]][0] = True
+                                r_points -= r_crafter_grid[row][button][2]
+                                if not r_crafter_grid[row][button][1] is None:
+                                    unlocked_recipes.append(r_crafter_grid[row][button][1])
                         else:  # not enough research points
                             shortage_timer = t.perf_counter()
                             shortage_item = 0

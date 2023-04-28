@@ -8,5 +8,16 @@
     "27": {"recipe": [26, 26, 26], "color": "gray"},
     "28": {"recipe": [6, 6, 26], "color": "gray"},
     "29": {"recipe": [24, 24, 24], "color": "orange"},
-    "30": {"recipe": [24], "color": "orange"}
+    "30": {"recipe": [24], "color": "orange"},
+    "31": {"recipe": [29, 1, 2, 3], "color": "orange"},
+    "32": {"recipe": [2], "color": "orange"},
+    "33": {"recipe": [29, 16, 17, 18, 19, 20, 21], "color": "orange"},
+    "34": {"recipe": [14], "color": "pink"},
+    "35": {"recipe": [34, 13], "color": "pink"},
+    "36": {"recipe": [34, 16], "color": "pink"},
+    "37": {"recipe": [34, 17], "color": "pink"},
+    "38": {"recipe": [34, 18], "color": "pink"},
+    "39": {"recipe": [34, 19], "color": "pink"},
+    "40": {"recipe": [34, 20], "color": "pink"},
+    "41": {"recipe": [34, 21], "color": "pink"}
 }

@@ -721,6 +721,7 @@ while playing and __name__ == "__main__":
                 if e.button == 1:
                     mousebutton_pressed = False
                     mouse_drag_brush = False
+
                 if keybind_menu:
                     if e.button == 4:#scroll up
                         if k_scrolly < rect_keybinds.get_height()-screen_size[1]:
@@ -738,7 +739,7 @@ while playing and __name__ == "__main__":
                         craft_scrolly = min(15, craft_scrolly)
                     update_edit_menu = True
 
-                else:
+                else: # scrolling in level
                     mouse_down = False
                     if e.button == 4 and not research_menu:#scroll up
                         old_scale = scale
