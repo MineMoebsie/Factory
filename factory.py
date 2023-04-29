@@ -11,7 +11,7 @@ pg.init()
 pg.font.init()
 pg.display.init()
 
-screen_w, screen_h = (1000, 563)
+screen_w, screen_h = (1280, 720)
 screen = pg.display.set_mode((screen_w, screen_h) ,pg.RESIZABLE|pg.DOUBLEBUF|pg.HWSURFACE, vsync=1)
 
 pg.display.set_caption("Factory")
@@ -73,7 +73,7 @@ r_prices = np.array(r_prices)
 
 with open("Data/tile_info.json") as f:
     tile_info = json.load(f)
-    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters, strict_placement_tiles = convert_json(tile_info)
+    tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters, strict_placement_tiles, can_spawn_items = convert_json(tile_info)
 
 with open("Data/item_info.json") as f:
     item_info = json.load(f)
@@ -155,7 +155,7 @@ open_menu = False
 bar_width = 0
 bar_height = 0
 
-menu_pictures = [[1,2,3,4,5,6,7,16,17,18],[12,13,14],[],[],[15],[]]
+menu_pictures = [[1,2,3,4,5,6,7,16,17,18],[12,13,14],[],[33, 34, 35],[15],[]]
 
 clicked_icon = -1
 icon_click_list = []
@@ -216,7 +216,8 @@ rect_edit_menu = pg.Rect((0,0),(0,0))
 crafter_btn_collidepoints = []
 #edit tile menu
 edit_tile_menu_open = False
-tile_menu_type = "" # can be splitter, sorter, crafter 
+tile_menu_type = "" # can be splitter, sorter, crafter
+creater_type = 0 # creater type that is selected in edit tile menu. For example, the farm (13) or barn (15) etc. 
 craft_scrolly = 15
 update_edit_menu = True
 hover_recipe = -1 # which recipe is hovered
@@ -241,7 +242,11 @@ placeable = False
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
 
 #recipes
-unlocked_recipes = [22, 23]
+unlocked_recipes = []
+creater_unlocked_recipes = {12: [1, 2]} 
+#example of creater_unlocked_recipes:
+# {13: [1, 2, 3], 14: [4, 5], 15: []}
+
 
 # spawning
 cargo_spawn_list = [] #only one spawn time
@@ -610,6 +615,7 @@ while playing and __name__ == "__main__":
                             if edit_tile_menu_rect.collidepoint(mx, my): # changing tile mode (mouse click was in the tile mode menu top right)
                                 stop_mouse_placement = True
                                 mouse_down = False
+                                edit_tile_menu_open = False
                                 for btn in tile_mode_btns:
                                     if btn[0].collidepoint(mx, my):
                                         tile_mode = btn[1]
@@ -628,11 +634,11 @@ while playing and __name__ == "__main__":
                                     selected_y = mry
 
                             elif tile_mode == "edit":
-                                edit_tile_menu_open = True
                                 stop_mouse_placement = True
                                 if (not (rect_edit_menu.collidepoint(mx,my))) and selected_x == mrx and selected_y == mry:
                                     stop_mouse_placement = True
                                     selected_x, selected_y = -1, -1
+                                    edit_tile_menu_open = False
                                 elif rect_edit_menu.collidepoint(mx,my): # click in the edit menu
                                     mouse_down = False
                                     if line_1 < my < line_2:
@@ -647,10 +653,20 @@ while playing and __name__ == "__main__":
 
                                 else:
                                     if grid[mry, mrx] == 15 or grid[mry, mrx] == -15: 
-                                        mouse_down = False#no more tile placement
+                                        mouse_down = False # no more tile placement
                                         mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
                                         selected_x = mrx
                                         selected_y = mry
+                                        tile_menu_type = "crafter"
+                                        edit_tile_menu_open = True
+                                    elif -grid[mry, mrx] in can_spawn_items or grid[mry, mrx] in can_spawn_items:
+                                        mouse_down = False # no more tile placement
+                                        mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
+                                        selected_x = mrx
+                                        selected_y = mry
+                                        tile_menu_type = "creater"
+                                        creater_type = abs(grid[mry, mrx])
+                                        edit_tile_menu_open = True
 
                             elif not tile_mode == "edit":
                                 edit_tile_menu_open = False
@@ -711,7 +727,6 @@ while playing and __name__ == "__main__":
                                         r_screen_page = icon
                                         update_r_screen = True
 
-                        
                         if brush in draggable_brushes and e.button == 1 and not stop_mouse_placement:
                             mouse_drag_brush = True #mouse held down for brushes
 
@@ -730,7 +745,7 @@ while playing and __name__ == "__main__":
                         if k_scrolly >= 25:
                             k_scrolly -= 25
 
-                elif edit_tile_menu_open:
+                elif edit_tile_menu_open and tile_mode == "edit":
                     if e.button == 4:#scroll up
                         craft_scrolly -= 5 * deltaTime
                         craft_scrolly = max(-len(unlocked_recipes) * 130 + 200, craft_scrolly)
@@ -739,7 +754,7 @@ while playing and __name__ == "__main__":
                         craft_scrolly = min(15, craft_scrolly)
                     update_edit_menu = True
 
-                else: # scrolling in level
+                else: # scrolling in level -> zooming
                     mouse_down = False
                     if e.button == 4 and not research_menu:#scroll up
                         old_scale = scale
@@ -856,6 +871,7 @@ while playing and __name__ == "__main__":
                     clicked_button = -1
                     clicked_icon = -1
                     selected_x, selected_y = -1, -1
+                    edit_tile_menu_open = False
                     if e.key == pg.K_F1:
                         tile_mode = "place"
                     elif e.key == pg.K_F2:
@@ -977,7 +993,7 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu("crafter", unlocked_recipes, craft_scrolly, item_names, hover_recipe)
+                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names,creater_unlocked_recipes, creater_type, hover_recipe=hover_recipe)
                     update_edit_menu = False
                     rect_edit_menu, crafter_btn_collidepoints, line_1, line_2 = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2)
                 else:
@@ -1004,7 +1020,7 @@ while playing and __name__ == "__main__":
                 screen.blit(r_screen,(-r_scrollx[r_screen_page],-r_scrolly[r_screen_page]))
                 exit_corner, r_icons_click_list = draw_research_fixed(screen, screen, research_display, storage[0], r_screen_page, mx,my,r_scrollx, r_scrolly)
                 
-                #fix later
+                #TODO: add particles 
                 r_particles = research_particles(screen,r_particles)
             else: #r menu closed
                 icon_click_list,bar_width,bar_height,button_distance,button_click_list,button_width = teken_menu(screen,conveyor_research_progress_dict,research_progress,menu_pictures,open_menu,clicked_icon,clicked_button,menu_scrollx,scaled_pictures,b_prices)

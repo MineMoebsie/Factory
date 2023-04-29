@@ -32,7 +32,7 @@ with open("Data/r_crafter_grid.txt") as f:
 with open("Data/recipes.json") as f:
     recipes = json.load(f)
 
-conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7]
+conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7, 15, -15]
 
 item_font = pg.font.Font('Fonts/Lato.ttf', 20)
 r_display_font = pg.font.Font('Fonts/Roboto-Light.ttf', 30)
@@ -1301,100 +1301,114 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
 
     return tile_mode, up_button, down_button  # buttons = pg.Rect of buttons (collidepoint)
 
-def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, hover_recipe=-1):
+def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, creater_unlocked_recipes, creater_type, hover_recipe=-1):
     edit_menu_surf = pg.Surface(edit_mode_menu_picture.get_size(), pg.SRCALPHA)
     edit_menu_surf.blit(edit_mode_menu_picture, (0, 0))
 
     crafter_btn_collidepoints = []
 
-    match tile_menu_type:
-        case "crafter":
-            craft_buffer = 5
-            temp_surf = pg.Surface(craft_select_menu_picture.get_size(), pg.SRCALPHA)
+    craft_buffer = 5
+    temp_surf = pg.Surface(craft_select_menu_picture.get_size(), pg.SRCALPHA)
 
-            #buttons
-            for n, recipe in enumerate(unlocked_recipes):
-                btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
-                if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
-                    if recipe == hover_recipe:
-                        temp_surf.blit(craft_select_btn_hover_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
-                    else:
-                        temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
-                    
-                    color = recipes[str(recipe)]["color"]
+    #buttons
+    if tile_menu_type == "crafter":
+        loop_recipes = unlocked_recipes 
+    else:
+        loop_recipes = creater_unlocked_recipes[creater_type]
 
-                    requirements = {}
-                    for item in recipes[str(recipe)]["recipe"]: #loops through for ex.: [1,2,2]
-                        if not item in requirements: 
-                            requirements[item] = 1 
-                        else:
-                            requirements[item] += 1
-
-                    topleft = ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y)
-
-                    color_pic = crafter_picture_colors[color][0]
-                    color_size = 110
-                    color_pic = pg.transform.scale(color_pic, (color_size, color_size))
-
-                    temp_surf.blit(color_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - color_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - color_size) / 2))
-
-                    item_pic = unsc_pics[f"item_{recipe}_picture"]
-                    item_size = 50
-                    item_pic = pg.transform.scale(item_pic, (item_size, item_size))
-
-                    temp_surf.blit(item_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - item_size) / 2))
-
-                    recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
-                    if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
-                        recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
-
-                    y_blit = topleft[1] + 30
-                    if len(requirements) > 4:
-                        y_blit = topleft[1] + 18
-
-                    temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, y_blit))
-
-                    x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
-                    y_blit = topleft[1] + 65
-                    if len(requirements) > 4:
-                        y_blit = topleft[1] + 50
-
-                    for item in requirements.keys():
-                        if x_blit > (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + craft_select_btn_picture.get_width() - 30:
-                            x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
-                            y_blit += 30
-                        item_pic = unsc_pics[f"item_{item}_picture"]
-                        item_pic_size = 30
-                        item_pic = pg.transform.scale(item_pic, (item_pic_size, item_pic_size))
-
-                        temp_surf.blit(item_pic, (x_blit, y_blit))
-
-                        x_blit += item_pic_size + 3
-
-                        req_text = edit_tile_font_item.render(str(requirements[item]), True, (0, 0, 0))
-                        temp_surf.blit(req_text, (x_blit, y_blit))
-
-                        x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 7
-
-                    surf_w, surf_h = edit_menu_surf.get_size()    
-                    add_x, add_y = (surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)
-
-                    crafter_btn_collidepoints.append(
-                        [pg.Rect(((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + add_x, btn_y + add_y), (craft_select_btn_picture.get_width(),craft_select_btn_picture.get_height())),
-                         recipe])
+    for n, recipe in enumerate(loop_recipes):
+        btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
+        if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
+            if recipe == hover_recipe:
+                temp_surf.blit(craft_select_btn_hover_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
+            else:
+                temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
             
-            temp_surf.blit(craft_select_menu_border_picture, (0,0))
+            topleft = ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y)
+            color_size = 110
+ 
+            if tile_menu_type == "crafter":
+                color = recipes[str(recipe)]["color"]
+
+                requirements = {}
+                for item in recipes[str(recipe)]["recipe"]: #loops through for ex.: [1,2,2]
+                    if not item in requirements: 
+                        requirements[item] = 1 
+                    else:
+                        requirements[item] += 1
+
+                color_pic = crafter_picture_colors[color][0]
+                color_pic = pg.transform.scale(color_pic, (color_size, color_size))
+
+                temp_surf.blit(color_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - color_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - color_size) / 2))
+
+            if tile_menu_type == "crafter":
+                item_pic = unsc_pics[f"item_{recipe}_picture"]
+            elif tile_menu_type == "creater":
+                item_pic = unsc_pics[f"item_{recipe}_picture"]
+            item_size = 50
+            item_pic = pg.transform.scale(item_pic, (item_size, item_size))
+
+            temp_surf.blit(item_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - item_size) / 2))
+
             surf_w, surf_h = edit_menu_surf.get_size()    
-            edit_menu_surf.blit(temp_surf, ((surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)))
+            add_x, add_y = (surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)
+            
+            if tile_menu_type == "crafter":
+                recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+                if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
+                    recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
 
-            recipe_text = edit_tile_font.render("Select recipe", True, (0, 0, 0))
-            edit_menu_surf.blit(recipe_text, ((surf_w - recipe_text.get_width()) / 2, 45))
+                y_blit = topleft[1] + 30
+                if len(requirements) > 4:
+                    y_blit = topleft[1] + 18
 
-            line_1 =  int((surf_h - temp_surf.get_height()) / 1.5)
-            line_2 =  int((surf_h - temp_surf.get_height()) / 1.5) + temp_surf.get_height()
+                temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, y_blit))
 
-        case _:
-            raise ValueError("Unknown menu!")
+                x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
+                y_blit = topleft[1] + 65
+                if len(requirements) > 4:
+                    y_blit = topleft[1] + 50
+
+                for item in requirements.keys():
+                    if x_blit > (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + craft_select_btn_picture.get_width() - 30:
+                        x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
+                        y_blit += 30
+                    item_pic = unsc_pics[f"item_{item}_picture"]
+                    item_pic_size = 30
+                    item_pic = pg.transform.scale(item_pic, (item_pic_size, item_pic_size))
+
+                    temp_surf.blit(item_pic, (x_blit, y_blit))
+
+                    x_blit += item_pic_size + 3
+
+                    req_text = edit_tile_font_item.render(str(requirements[item]), True, (0, 0, 0))
+                    temp_surf.blit(req_text, (x_blit, y_blit))
+
+                    x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 7
+
+            elif tile_menu_type == "creater":
+                recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+                if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
+                    recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+
+                y_blit = topleft[1] + 45
+                temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, y_blit))
+
+            crafter_btn_collidepoints.append(
+                [pg.Rect(((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + add_x, btn_y + add_y), (craft_select_btn_picture.get_width(),craft_select_btn_picture.get_height())),
+                    recipe])
+
+    temp_surf.blit(craft_select_menu_border_picture, (0,0))
+    surf_w, surf_h = edit_menu_surf.get_size()    
+    edit_menu_surf.blit(temp_surf, ((surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)))
+
+    recipe_text = edit_tile_font.render("Select recipe", True, (0, 0, 0))
+    edit_menu_surf.blit(recipe_text, ((surf_w - recipe_text.get_width()) / 2, 45))
+
+    line_1 =  int((surf_h - temp_surf.get_height()) / 1.5)
+    line_2 =  int((surf_h - temp_surf.get_height()) / 1.5) + temp_surf.get_height()
+
 
     edit_menu_surf.set_alpha(230)
     return edit_menu_surf, crafter_btn_collidepoints, line_1, line_2

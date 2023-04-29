@@ -13,6 +13,7 @@ def convert_json(tile_info):
     spawn_items = {}
     spawn_perf_counters = {}
     strict_placement_tiles = [] # which tiles require strict placement (only allows 1 type of ground block)
+    can_spawn_items = [] # block numbers of which can spawn items
 
     for block in tile_info.keys():
         if block != "ground_blocks":
@@ -28,13 +29,15 @@ def convert_json(tile_info):
             b_prices[int(block)] = tile_info[block]['price'] if 'price' in tile_info[block] else {}
             if 'strict_placement' in tile_info[block] and tile_info[block]['strict_placement']:
                 strict_placement_tiles.append(int(block)) 
+            if "spawn_time" in tile_info[block] and "spawn_items" in tile_info[block]:
+                can_spawn_items.append(int(block))
         else:
             ground_blocks = tile_info['ground_blocks']
 
     for time in spawn_time.values():
         spawn_perf_counters[time] = -1
     
-    return tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters, strict_placement_tiles
+    return tile_names, tile_des, blocks_index, b_prices, big_tiles, placed_on_only, cannot_place_on, ground_blocks, spawn_time, spawn_items, spawn_perf_counters, strict_placement_tiles, can_spawn_items
 
 def convert_item_info(item_info):
     item_names = {} #should be {0: ["potato", "potatoes"] etc..}
