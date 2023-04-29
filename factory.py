@@ -218,7 +218,7 @@ crafter_btn_collidepoints = []
 edit_tile_menu_open = False
 tile_menu_type = "" # can be splitter, sorter, crafter
 creater_type = 0 # creater type that is selected in edit tile menu. For example, the farm (13) or barn (15) etc. 
-craft_scrolly = 15
+craft_scrolly = {"crafter": 15, "creater": 15}
 update_edit_menu = True
 hover_recipe = -1 # which recipe is hovered
 line_1 = 0
@@ -319,11 +319,12 @@ percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game l
 autoload = True
 autoload_world = "new testing world"
 
-if autoload:
+if autoload: # temporary for quicker testing
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(autoload_world, spawn_items)
-    append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
+    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
+    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -443,7 +444,8 @@ while playing and __name__ == "__main__":
                     scroll_keys_hold = [False, False, False, False]
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(selected_world, spawn_items)
 
-                    append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
+                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
+                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 90, 10, "Setting variables...")
 
@@ -491,7 +493,8 @@ while playing and __name__ == "__main__":
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world files...")
 
-                    append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
+                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
+                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
 
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
@@ -647,9 +650,13 @@ while playing and __name__ == "__main__":
                                             if btn.collidepoint(mx, my):
                                                 hover_recipe = btn_obj[1]
                                                 update_edit_menu = True
-                                                grid_data = update_craft_recipe(grid,grid_data,hover_recipe,selected_x,selected_y, blocks_index)
+                                                grid_data = update_recipe(grid,grid_data,hover_recipe,selected_x,selected_y, blocks_index, creater_type, update=tile_menu_type)
                                                 selected_x, selected_y = -1, -1
                                                 edit_tile_menu_open = False
+                                                if tile_menu_type == "creater":
+                                                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
+                                                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
+
 
                                 else:
                                     if grid[mry, mrx] == 15 or grid[mry, mrx] == -15: 
@@ -747,11 +754,15 @@ while playing and __name__ == "__main__":
 
                 elif edit_tile_menu_open and tile_mode == "edit":
                     if e.button == 4:#scroll up
-                        craft_scrolly -= 5 * deltaTime
-                        craft_scrolly = max(-len(unlocked_recipes) * 130 + 200, craft_scrolly)
+                        craft_scrolly[tile_menu_type] -= 5 * deltaTime
+                        if tile_menu_type == "crafter":
+                            craft_scrolly[tile_menu_type] = max(-len(unlocked_recipes) * 130 + 200, craft_scrolly[tile_menu_type])
+                        elif tile_menu_type == "creater":
+                            craft_scrolly[tile_menu_type] = max(-len(creater_unlocked_recipes[creater_type]) * 130 + 200, craft_scrolly[tile_menu_type])
+                            
                     if e.button == 5:#scroll down
-                        craft_scrolly += 5 * deltaTime
-                        craft_scrolly = min(15, craft_scrolly)
+                        craft_scrolly[tile_menu_type] += 5 * deltaTime
+                        craft_scrolly[tile_menu_type] = min(15, craft_scrolly[tile_menu_type])
                     update_edit_menu = True
 
                 else: # scrolling in level -> zooming
@@ -881,7 +892,6 @@ while playing and __name__ == "__main__":
                     elif e.key == pg.K_F4:
                         tile_mode = "view"
 
-
                 if e.key == pg.K_q:
                     if selected_world is not None:
                         in_menu = not in_menu
@@ -930,7 +940,7 @@ while playing and __name__ == "__main__":
             grid, grid_rotation, grid_data, storage, place_status = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks, grid_generation, grid_features_generation, strict_placement_tiles)
             locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
             # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
-            append_per_spawn = generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index)
+            append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
 
             mouse_down = False
         
@@ -993,7 +1003,7 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names,creater_unlocked_recipes, creater_type, hover_recipe=hover_recipe)
+                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly[tile_menu_type], item_names,creater_unlocked_recipes, creater_type, hover_recipe=hover_recipe)
                     update_edit_menu = False
                     rect_edit_menu, crafter_btn_collidepoints, line_1, line_2 = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2)
                 else:

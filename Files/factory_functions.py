@@ -790,12 +790,10 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
             if brush in [3, 4]:
                 grid_data[ry, rx]["split_side"] = 0
                 grid_data[ry, rx]["split_count"] = 2
-                print("splitttt")
             elif brush in [5, 6]:
                 grid_data[ry, rx]["sort_item"] = 0
-                print("sortttttttt")
         else:
-            grid_data[ry, rx] = {"spawn_item": brush, "spawn_perf": t.perf_counter()}
+            grid_data[ry, rx] = {"spawn_item": brush, "spawn_perf": t.perf_counter(), "selected_item": "random"}
 
         if not free:
             for item in b_prices[brush].keys():
@@ -1432,13 +1430,19 @@ def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_
     else:
         return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), crafter_btn_collidepoints
 
-def update_craft_recipe(grid,grid_data,recipe,x,y, blocks_index, blocks_type=15):
-    if grid[y, x] == 15:
-        for x_loop in range(x, x+3):
-            for y_loop in range(y, y+3):
-                grid_data[y_loop, x_loop]["craft_recipe"] = recipe
+def update_recipe(grid,grid_data,hover_recipe,x,y, blocks_index, creater_type, update=""):
+    blocks_type = 15 if update == "crafter" else creater_type
+    tile_size = blocks_index[blocks_type]
 
-    elif grid[y, x] == -15:
+    if grid[y, x] == blocks_type:
+        for x_loop in range(x, x+tile_size):
+            for y_loop in range(y, y+tile_size):
+                if update == "crafter":
+                    grid_data[y_loop, x_loop]["craft_recipe"] = hover_recipe
+                elif update == "creater":
+                    grid_data[y_loop, x_loop]["selected_item"] = hover_recipe
+
+    elif grid[y, x] == -blocks_type:
         #find the topleft of block to change recipe there
         if x > blocks_index[blocks_type] and y > blocks_index[blocks_type]:
             cut = grid[y - blocks_index[blocks_type] + 1:y + 1, x - blocks_index[blocks_type] + 1:x + 1]
@@ -1466,9 +1470,12 @@ def update_craft_recipe(grid,grid_data,recipe,x,y, blocks_index, blocks_type=15)
         x_ = dx + linksboven[1][0]
         y_ = dy + linksboven[0][0]
 
-        for x_loop in range(x_, x_+3):
-            for y_loop in range(y_, y_+3):
-                grid_data[y_loop, x_loop]["craft_recipe"] = recipe
+        for x_loop in range(x_, x_+tile_size):
+            for y_loop in range(y_, y_+tile_size):
+                if update == "crafter":
+                    grid_data[y_loop, x_loop]["craft_recipe"] = hover_recipe
+                elif update == "creater":
+                    grid_data[y_loop, x_loop]["selected_item"] = hover_recipe
 
     return grid_data
 

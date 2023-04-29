@@ -18,28 +18,20 @@ def update_locations(grid, spawn_items):
             loc_grid = np.where(loc_grid == int(item), -1, loc_grid)
     locations = np.where(loc_grid == -1)
 
-    # loc_grid = np.where(loc_grid == 12, 13, loc_grid)  # transform all 13 into 14
-    # loc13 = np.where(loc_grid == 13, 14, loc_grid)  # transform all 14 (and 13) into 15
-    # loc14 = np.where(loc13 == 14, 16, loc_grid)
-    # loc16 = np.where(loc14 == 16, 33, loc_grid)
-    # loc33 = np.where(loc16 == 33, 34, loc_grid)
-    # loc34 = np.where(loc33 == 34, 35, loc_grid)
-    # locations = np.where(loc34 == 35)
-
     crafting_locations = np.where(grid == 15)
 
     cargo_spawn_locations = np.where(grid == 16)
     cargo_locations = np.where(grid == 17)
     return locations,crafting_locations,cargo_locations,cargo_spawn_locations
 
-def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_index):
+def generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index):
     #blocks_index is for tile size
     append_per_spawn = {} # for ex.: key 1 corresponds to all the items that spawn in 1 second interval etc.
     # example of keys:
     '''
     append_per_spawn = {1: [{"spawn":[1,2,3], "loc": [[10,10], [11,10], [12,10]]}], 2: [], 3: [], 4: [], etc...}
     '''
-    spawnable_tiles = [1]
+    spawnable_tiles = [1] # items can spawn on these/this tile
     world_height, world_width = grid.shape
     for i in spawn_time.values(): # fill the dict with empty list keys for all the used seconds
         append_per_spawn[i] = []
@@ -67,7 +59,13 @@ def generate_append_per_spawn(grid, spawn_time, spawn_items, locations, blocks_i
             if x < world_width and grid[y_check, x+size] in spawnable_tiles:
                 spawn_dict["loc"].append([y_check, x+size])
         
-        spawn_dict['spawn'] = spawn_items[block]
+        if "selected_item" in grid_data[y, x]: # if the selected item is not included for some reason (for older versions of the game)
+            if grid_data[y, x]["selected_item"] == "random":
+                spawn_dict['spawn'] = spawn_items[block]
+            else:
+                spawn_dict["spawn"] = [grid_data[y, x]["selected_item"]]
+        else:
+            spawn_dict['spawn'] = spawn_items[block]
 
         append_per_spawn[spawn_time[block]].append(spawn_dict)
 
