@@ -60,7 +60,7 @@ def generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, location
                 spawn_dict["loc"].append([y_check, x+size])
         
         if "selected_item" in grid_data[y, x]: # if the selected item is not included for some reason (for older versions of the game)
-            if grid_data[y, x]["selected_item"] == "random":
+            if grid_data[y, x]["selected_item"] == "Random" or grid_data[y, x]["selected_item"] == "random":
                 spawn_dict['spawn'] = spawn_items[block]
             else:
                 spawn_dict["spawn"] = [grid_data[y, x]["selected_item"]]

@@ -198,6 +198,7 @@ with open("Data/item_info.json") as f:
 
 items_pictures = list(range(0, item_count+1))  # list of all the items (0,1,2 etc)
 items_pictures.append('c')
+items_pictures.append('random')
 for x in items_pictures:
     unsc_pics[f"item_{x}_picture"] = import_foto('Items/item{}.png'.format(x if x != 0 else 'r'), item_size, item_size)
 
@@ -1310,9 +1311,10 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
 
     #buttons
     if tile_menu_type == "crafter":
-        loop_recipes = unlocked_recipes 
+        loop_recipes = unlocked_recipes # select random as recipe 
     else:
-        loop_recipes = creater_unlocked_recipes[creater_type]
+        loop_recipes = ["Random"]
+        loop_recipes.extend(creater_unlocked_recipes[creater_type])
 
     for n, recipe in enumerate(loop_recipes):
         btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
@@ -1340,10 +1342,11 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
 
                 temp_surf.blit(color_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - color_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - color_size) / 2))
 
-            if tile_menu_type == "crafter":
+            if recipe != "Random":
                 item_pic = unsc_pics[f"item_{recipe}_picture"]
-            elif tile_menu_type == "creater":
-                item_pic = unsc_pics[f"item_{recipe}_picture"]
+            else:
+                item_pic = unsc_pics[f"item_random_picture"]
+
             item_size = 50
             item_pic = pg.transform.scale(item_pic, (item_size, item_size))
 
@@ -1386,7 +1389,11 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
                     x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 7
 
             elif tile_menu_type == "creater":
-                recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+                if recipe != "Random":
+                    recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+                else:
+                    recipe_text = edit_tile_font_small.render("Random", True, (0, 0, 0))
+
                 if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
                     recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
 
@@ -1406,7 +1413,6 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
 
     line_1 =  int((surf_h - temp_surf.get_height()) / 1.5)
     line_2 =  int((surf_h - temp_surf.get_height()) / 1.5) + temp_surf.get_height()
-
 
     edit_menu_surf.set_alpha(230)
     return edit_menu_surf, crafter_btn_collidepoints, line_1, line_2
@@ -1725,7 +1731,6 @@ def update_r_screen_func(screen, rect_ui):
 def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, research_display, research_button_clicked,
                   research_button_unclicked, research_progress, research_text, r_tile_text, research_subtext, r_prices, r_screen_page, research_grid):
     width, height = screen.get_size()
-
 
     if r_screen_page == 0:
         #screen.blit(rect_ui, (0, 0))  # background
