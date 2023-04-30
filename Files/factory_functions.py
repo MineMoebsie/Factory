@@ -100,9 +100,6 @@ icon_5 = import_foto('UI/menu_icon_5.png', 50, 50)
 icon_6 = import_foto('UI/menu_icon_6.png', 50, 50)
 icon_cross = import_foto('UI/menu_icon_cross.png', 50, 50)
 
-icon_r_1 = import_foto('UI/menu_icon_1.png', 50, 50)
-icon_r_2 = import_foto('UI/menu_icon_5.png', 50, 50)
-
 craft_select_menu_picture = import_foto("UI/craft_select_menu.png", 500, 375)
 craft_select_btn_picture = import_foto("UI/craft_select_btn.png", 375, 125)
 craft_select_btn_hover_picture = import_foto("UI/craft_select_btn_hover.png", 375, 125)
@@ -1732,7 +1729,7 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                   research_button_unclicked, research_progress, research_text, r_tile_text, research_subtext, r_prices, r_screen_page, research_grid):
     width, height = screen.get_size()
 
-    if r_screen_page == 0:
+    if r_screen_page == 0: # conveyor research menu
         #screen.blit(rect_ui, (0, 0))  # background
         button_space_x = 50
         button_space_y = 25
@@ -1776,7 +1773,7 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                             r_screen.blit(r_font.render(str(r_prices[row][button]), True, (0, 0, 0)), (
                             button * button_dist_x + button_size_x - 75 - r_scrollx, row * button_dist_y + 9 - r_scrolly))
     
-    elif r_screen_page == 1:
+    elif r_screen_page == 4: #crafting research menu
         half_size = 175/2
         for x in range(15):
             for y in range(15):#research_crafter_btn_clicked
@@ -1818,6 +1815,9 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                             pic = pg.transform.scale(pic, (half_size, half_size))
                             r_screen.blit(pic, (x_ + (175 - half_size) / 2, y_ + (175 - half_size) / 1.5))
 
+    elif r_screen_page == 2:
+        pass
+
     return r_screen
     
 def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_page, mx,my,r_scrollx, r_scrolly):
@@ -1835,7 +1835,7 @@ def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_p
     # tab buttons
     bar_width = width
     bar_height = 0
-    buttons = 2 # button count
+    buttons = 6 # button count
     button_distance = 75
     r_icons_click_list = []  # pos icons
     for icon in range(buttons):
@@ -1850,7 +1850,7 @@ def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_p
             (icon * button_distance) + int((bar_width - (buttons * button_distance)) / 2),
             height - bar_height - button_distance))
         if icon in [0, 1, 2, 3, 4, 5]:
-            screen.blit(eval("icon_r_" + str(icon + 1)), (
+            screen.blit(eval("icon_" + str(icon + 1)), (
             (icon * button_distance) + int((bar_width - (buttons * button_distance)) / 2),
             height - bar_height - button_distance))
 
@@ -1861,7 +1861,7 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
     clicked_row = -1
     update_r_screen = False
 
-    if r_screen_page == 0:
+    if r_screen_page == 0: # conveyor research menu
         button_space_x = 50
         button_space_y = 25
         button_size_x, button_size_y = research_button_clicked.get_size()
@@ -1885,7 +1885,7 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                                             shortage_timer = t.perf_counter()
                                             shortage_item = 0
 
-    elif r_screen_page == 1:
+    elif r_screen_page == 4: # crafting research menu
         mouse_x = mx + r_scrollx
         mouse_y = my + r_scrolly
         half_size = 175/2
@@ -1944,18 +1944,29 @@ def research_clicked_item(unlocked_blocks, clicked_row, clicked_button, research
 
     return unlocked_blocks, conveyor_speed, move_speed
 
+def circle_surf(radius, color):
+    temp_surf = pg.Surface((radius * 2, radius * 2))
+    pg.draw.circle(temp_surf, color, (radius, radius), radius)
+    temp_surf.set_colorkey((0,0,0))
+    return temp_surf
 
-def research_particles(screen, r_particles):
+def research_particles(screen, r_particles, deltaTime):
     # index 0=x,1=y,2=size
     particles_pop = []
     img_transformed = -1
     for p in range(len(r_particles)):
+        # draw "luminous" background 
+        radius = int(r_particles[p][2]) * 0.75
+
+        backg_circle = circle_surf(radius, (30, 3, 30))
+        screen.blit(backg_circle, (int(r_particles[p][0] - radius), int(r_particles[p][1] - radius)), special_flags=pg.BLEND_RGB_ADD)
+
         # draw
         img_transformed = pg.transform.scale(r_particle_picture, (int(r_particles[p][2]), int(r_particles[p][2])))
         screen.blit(img_transformed,
                     (int(r_particles[p][0] - r_particles[p][2] / 2), int(r_particles[p][1] - r_particles[p][2] / 2)))
         # process
-        r_particles[p][2] -= (r_particles[p][2] + 3) / 20
+        r_particles[p][2] -= 0.1 * deltaTime
         if r_particles[p][2] < 1:  # size < ...
             particles_pop.append(p)
 

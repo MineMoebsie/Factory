@@ -179,15 +179,15 @@ conveyor_research_progress_dict = {1:0,2:1,3:2,4:2,5:3,6:3,7:4,8:5,9:5,10:5}
 
 #research menu
 r_screen_transparent = update_r_screen_func(screen, rect_ui) #screen for the transparent background
-r_width = [1500, 2500]
-r_height = [800, 2750]
+r_width = [1500, 0, 0, 0, 2500, 0]
+r_height = [800, 0, 0, 0, 2750, 0]
 r_screen_page = 0 #which page r screen is
 r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]), pg.SRCALPHA) #entire research screen: uses scrolling (not re-rendering)
 update_r_screen = True #True when screen needs to update: only for 1 frame
 update_r_scroll = True
 research_menu = False
-r_scrollx = [0,530]
-r_scrolly = [0,1060]
+r_scrollx = [0,0,0,0,530,0]
+r_scrolly = [0,0,0,0,1060,0]
 r_icons_click_list = [] # click list icons research menu
 
 research_text = [["Unlock:","Savings:","Efficiency:","Savings:","Efficiency:","Savings:"]]
@@ -317,7 +317,7 @@ grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_spe
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
 autoload = True
-autoload_world = "new testing world"
+autoload_world = "research particles test"
 
 if autoload: # temporary for quicker testing
     selected_world = autoload_world
@@ -493,12 +493,13 @@ while playing and __name__ == "__main__":
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world files...")
 
-                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
-                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
 
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(selected_world, spawn_items)
+                    
+                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
+                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
                     
                     draw_loading_screen_create_world(screen, clock, loading_surf, 100, 10, "Finishing up...")
 
@@ -1031,7 +1032,7 @@ while playing and __name__ == "__main__":
                 exit_corner, r_icons_click_list = draw_research_fixed(screen, screen, research_display, storage[0], r_screen_page, mx,my,r_scrollx, r_scrolly)
                 
                 #TODO: add particles 
-                r_particles = research_particles(screen,r_particles)
+                r_particles = research_particles(screen,r_particles, deltaTime)
             else: #r menu closed
                 icon_click_list,bar_width,bar_height,button_distance,button_click_list,button_width = teken_menu(screen,conveyor_research_progress_dict,research_progress,menu_pictures,open_menu,clicked_icon,clicked_button,menu_scrollx,scaled_pictures,b_prices)
 
