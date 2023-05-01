@@ -26,11 +26,18 @@ grid_size = 50
 item_size = 15
 side_size = int(grid_size / 5)
 
+#static files: these files always stay the same (unless if there is an update or something)
 with open("Data/r_crafter_grid.txt") as f:
     r_crafter_grid = eval(f.read())
 
 with open("Data/recipes.json") as f:
     recipes = json.load(f)
+
+with open("Data/creater_btn_order.json") as f:
+    creater_btn_order = json.load(f)
+
+with open("Data/creater_prices.json") as f:
+    creater_prices = json.load(f)
 
 conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7, 15, -15]
 
@@ -71,9 +78,6 @@ icon_unclicked_picture = import_foto('UI/menu_icon_unclicked.png', 50, 50)
 button_clicked_picture = import_foto('UI/menu_button_clicked.png', 125, 125)
 button_unclicked_picture = import_foto('UI/menu_button_unclicked.png', 125, 125)
 
-research_button_clicked = import_foto('UI/research_button_clicked.png', 1000, 500)
-research_button_unclicked = import_foto('UI/research_button.png', 1000, 500)
-research_display = import_foto('UI/research_display.png', 1000, 500)
 
 info_ui = import_foto('UI/info_ui.png',600,400)
 
@@ -86,9 +90,19 @@ rect_keybinds = import_foto('UI/keybind_rect.png', 750, 2000)
 data_display = import_foto('UI/data_display.png', 250, 165)
 data_arrow = import_foto('UI/data_arrow.png', 250, 215)
 
+research_button_clicked = import_foto('UI/research_button_clicked.png', 1000, 500)
+research_button_unclicked = import_foto('UI/research_button.png', 1000, 500)
+research_display = import_foto('UI/research_display.png', 1000, 500)
+
 research_crafter_btn_clicked = import_foto("UI/research_crafter_clicked.png",175,175)
 research_crafter_btn = import_foto("UI/research_crafter.png",175,175)
 research_crafter_btn_start = import_foto("UI/research_crafter_start.png",175,175)
+
+research_creater_btn = import_foto("UI/research_creater.png", 200, 200)
+research_creater_btn_clicked = import_foto("UI/research_creater_clicked.png", 200, 200)
+
+research_creater_item_btn = import_foto("UI/research_creater.png", 150, 150)
+research_creater_item_btn_clicked = import_foto("UI/research_creater_clicked.png", 150, 150)
 
 not_enough_picture = import_foto('UI/not_enough.png', 2000, 500)
 
@@ -1726,7 +1740,7 @@ def update_r_screen_func(screen, rect_ui):
 
 
 def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, research_display, research_button_clicked,
-                  research_button_unclicked, research_progress, research_text, r_tile_text, research_subtext, r_prices, r_screen_page, research_grid):
+                  research_button_unclicked, research_progress, research_text, r_tile_text, research_subtext, r_prices, r_screen_page, research_grid, creater_unlocked_recipes):
     width, height = screen.get_size()
 
     if r_screen_page == 0: # conveyor research menu
@@ -1773,6 +1787,136 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                             r_screen.blit(r_font.render(str(r_prices[row][button]), True, (0, 0, 0)), (
                             button * button_dist_x + button_size_x - 75 - r_scrollx, row * button_dist_y + 9 - r_scrolly))
     
+    elif r_screen_page == 1: # farm research menu (creater research menu 1)
+        creater_unlocked_recipes_keys = sorted(list(creater_unlocked_recipes.keys()))
+        unlocked_creaters = [] # all of the creaters (blocks that produce items periodically) that are unlocked for the currently viewed research screen
+        for creater in creater_btn_order[str(r_screen_page)].keys():
+            if int(creater) in creater_unlocked_recipes_keys:
+                unlocked_creaters.append(int(creater))
+        unlocked_creaters = sorted(unlocked_creaters)
+        
+        topleft_margin = 10
+        #research_creater_btn_clicked
+        crtr_btn_w, crtr_btn_h = research_creater_btn.get_size()
+        item_btn_w, item_btn_h = research_creater_item_btn.get_size()
+        margin_w = 30
+        margin_h = 25
+        margin_h_creater_item = 50
+        line_width = 15
+        line_width_items = 10
+
+        creater_size = research_creater_btn.get_width() - 90
+        item_size = research_creater_item_btn.get_width() - 90
+
+        r_size = r_icon_picture.get_width() # for the cost display
+        margin_r_price = 5 # distance between r_icon and the cost text
+
+        item_btn_add_w = (crtr_btn_w - item_btn_w) / 2
+
+
+        #draw the "thicc" first line horizontally
+        pos_left = (topleft_margin + crtr_btn_w / 2, topleft_margin + crtr_btn_h / 2)
+        num_of_creaters_unlocked = len(unlocked_creaters)
+        if num_of_creaters_unlocked == len(creater_btn_order[str(r_screen_page)]): # research of items is maxed
+            num_of_creater_btns = num_of_creaters_unlocked
+        else: # research of items is not maxed so draw an additional line for purchase option next item
+            num_of_creater_btns = num_of_creaters_unlocked + 1
+        pos_right = (topleft_margin + (crtr_btn_w + margin_w) * num_of_creater_btns - crtr_btn_w / 2, topleft_margin + crtr_btn_h / 2)
+        pg.draw.line(r_screen, (40, 140, 144), pos_left, pos_right, width=line_width)
+
+        #draw the rest of the vertical lines
+        for i, unlocked_creater in enumerate(unlocked_creaters):
+            pos_top = (topleft_margin + (crtr_btn_w + margin_w) * i + (crtr_btn_w / 2), topleft_margin + (crtr_btn_h / 2))
+
+            num_of_items_unlocked = len(creater_unlocked_recipes[unlocked_creater])
+            if num_of_items_unlocked == len(creater_btn_order[str(r_screen_page)][str(unlocked_creater)]): # research of items is maxed
+                num_of_items_btns = num_of_items_unlocked
+            else: # research of items is not maxed so draw an additional line for purchase option next item
+                num_of_items_btns = num_of_items_unlocked + 1
+            pos_bottom = (topleft_margin + (crtr_btn_w + margin_w) * i + (crtr_btn_w / 2), topleft_margin + crtr_btn_h + margin_h_creater_item + num_of_items_btns * (item_btn_h + margin_h) - item_btn_h / 2)
+
+            pg.draw.line(r_screen, (40, 140, 144), pos_top, pos_bottom, width=line_width_items)
+
+        #draw the buttons
+        for i, unlocked_creater in enumerate(unlocked_creaters):
+            #draw the button
+            r_screen.blit(research_creater_btn, (topleft_margin + (crtr_btn_w + margin_w) * i, topleft_margin))
+            #draw the block on the button
+            creater_pic = unsc_pics[f"picture_{unlocked_creater}"]
+            creater_pic = pg.transform.scale(creater_pic, (creater_size, creater_size))
+            r_screen.blit(creater_pic, (topleft_margin + (crtr_btn_w + margin_w) * i + (crtr_btn_w - creater_size) / 2, topleft_margin + (crtr_btn_w - creater_size) / 2 + 10))
+            #render the "price tag" text
+            price = creater_prices[str(unlocked_creater)][0]
+            price_img = r_font.render(str(price), True, (0,0,0))
+            price_img_w, price_img_h = price_img.get_size()
+            #calculate coords for blit(s)
+            topleft = (topleft_margin + (crtr_btn_w + margin_w) * i, topleft_margin) # relative to current btn
+            blit_y = topleft[1] + 20
+            total_size = r_size + margin_r_price + price_img_w # total width of "price tag"
+            r_blit_x = (crtr_btn_w - total_size) / 2 # in the middle
+            text_blit_x = r_blit_x + r_size + margin_r_price
+            #blit research icon
+            r_screen.blit(r_icon_picture, (topleft[0] + r_blit_x, blit_y))
+            #blit text
+            r_screen.blit(price_img, (topleft[0] + text_blit_x, blit_y + 6)) # 3px offset because of font
+            #check for extra trailing item at the end (if not research maxed)
+            unlocked_items = copy.deepcopy(creater_unlocked_recipes[int(unlocked_creater)]) # items that are unlocked for this specific creater
+            num_of_items_unlocked = len(creater_unlocked_recipes[unlocked_creater])
+            if num_of_items_unlocked < len(creater_btn_order[str(r_screen_page)][str(unlocked_creater)]): # research of items is NOT maxed
+                unlocked_items.append(creater_btn_order[str(r_screen_page)][str(unlocked_creater)][num_of_items_unlocked])
+
+            for j, unlocked_item in enumerate(unlocked_items):
+                #draw btn
+                r_screen.blit(research_creater_item_btn, (topleft_margin + (crtr_btn_w + margin_w) * i + item_btn_add_w, topleft_margin + crtr_btn_h + margin_h_creater_item + j * (item_btn_h + margin_h)))
+                #draw item on btn
+                item_pic = unsc_pics[f"item_{int(unlocked_item)}_picture"]
+                item_pic = pg.transform.scale(item_pic, (item_size, item_size))
+                r_screen.blit(item_pic, (topleft_margin + (crtr_btn_w + margin_w) * i + item_btn_add_w + (item_btn_w - item_size) / 2, topleft_margin + crtr_btn_h + margin_h_creater_item + j * (item_btn_h + margin_h) + (item_btn_w - item_size) / 2 + 15))
+                #render the "price tag" text
+                price = creater_prices[str(unlocked_creater)][j+1] # see creater_prices.json
+                price_img = r_font.render(str(price), True, (0,0,0))
+                price_img_w, price_img_h = price_img.get_size()
+                #calculate coords for blit(s)
+                topleft = (topleft_margin + (crtr_btn_w + margin_w) * i + item_btn_add_w, topleft_margin + crtr_btn_h + margin_h_creater_item + j * (item_btn_h + margin_h)) # relative to current btn
+                blit_y = topleft[1] + 20
+                total_size = r_size + margin_r_price + price_img_w # total width of "price tag"
+                r_blit_x = (item_btn_w - total_size) / 2 # in the middle
+                text_blit_x = r_blit_x + r_size + margin_r_price
+                #blit research icon
+                r_screen.blit(r_icon_picture, (topleft[0] + r_blit_x, blit_y))
+                #blit text
+                r_screen.blit(price_img, (topleft[0] + text_blit_x, blit_y + 6)) # 3px offset because of font
+
+        #extra creater button at the end if research on that point is not maxed completely.
+        if num_of_creaters_unlocked < len(creater_btn_order[str(r_screen_page)]): # not maxed so draw another creater button at the end
+            r_screen.blit(research_creater_btn, (topleft_margin + (crtr_btn_w + margin_w) * len(unlocked_creaters), topleft_margin))
+
+            #find the tile that should be blit on the creater research button
+            last_unlocked_creater = unlocked_creaters[-1]
+            keys_btn_order = list(creater_btn_order[str(r_screen_page)].keys())
+            index_last_unlocked = keys_btn_order.index(str(last_unlocked_creater))
+            key_ununlocked = keys_btn_order[index_last_unlocked + 1]
+
+            #actually blit it (and transform it etc.)
+            creater_pic = unsc_pics[f"picture_{key_ununlocked}"]
+            creater_pic = pg.transform.scale(creater_pic, (creater_size, creater_size))
+            r_screen.blit(creater_pic, (topleft_margin + (crtr_btn_w + margin_w) * len(unlocked_creaters) + (crtr_btn_w - creater_size) / 2, topleft_margin + (crtr_btn_w - creater_size) / 2 + 10))
+
+            #render the "price tag" text
+            price = creater_prices[key_ununlocked][0] # see creater_prices.json
+            price_img = r_font.render(str(price), True, (0,0,0))
+            price_img_w, price_img_h = price_img.get_size()
+            #calculate coords for blit(s)
+            topleft = (topleft_margin + (crtr_btn_w + margin_w) * len(unlocked_creaters), topleft_margin) # relative to current btn
+            blit_y = topleft[1] + 20
+            total_size = r_size + margin_r_price + price_img_w # total width of "price tag"
+            r_blit_x = (crtr_btn_w - total_size) / 2 # in the middle
+            text_blit_x = r_blit_x + r_size + margin_r_price
+            #blit research icon
+            r_screen.blit(r_icon_picture, (topleft[0] + r_blit_x, blit_y))
+            #blit text
+            r_screen.blit(price_img, (topleft[0] + text_blit_x, blit_y + 6)) # 3px offset because of font
+
     elif r_screen_page == 4: #crafting research menu
         half_size = 175/2
         for x in range(15):
