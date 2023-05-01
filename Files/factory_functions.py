@@ -1787,7 +1787,7 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                             r_screen.blit(r_font.render(str(r_prices[row][button]), True, (0, 0, 0)), (
                             button * button_dist_x + button_size_x - 75 - r_scrollx, row * button_dist_y + 9 - r_scrolly))
     
-    elif r_screen_page == 1: # farm research menu (creater research menu 1)
+    elif r_screen_page in [1,2,3]: # creater research menu (creater research menus farm, water and mining)
         creater_unlocked_recipes_keys = sorted(list(creater_unlocked_recipes.keys()))
         unlocked_creaters = [] # all of the creaters (blocks that produce items periodically) that are unlocked for the currently viewed research screen
         for creater in creater_btn_order[str(r_screen_page)].keys():
@@ -1812,7 +1812,6 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
         margin_r_price = 5 # distance between r_icon and the cost text
 
         item_btn_add_w = (crtr_btn_w - item_btn_w) / 2
-
 
         #draw the "thicc" first line horizontally
         pos_left = (topleft_margin + crtr_btn_w / 2, topleft_margin + crtr_btn_h / 2)

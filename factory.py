@@ -179,8 +179,8 @@ conveyor_research_progress_dict = {1:0,2:1,3:2,4:2,5:3,6:3,7:4,8:5,9:5,10:5}
 
 #research menu
 r_screen_transparent = update_r_screen_func(screen, rect_ui) #screen for the transparent background
-r_width = [1500, 1500, 0, 0, 2500, 0]
-r_height = [800, 1500, 0, 0, 2750, 0]
+r_width = [1500, 1500, 1500, 1500, 2500, 0]
+r_height = [800, 1500, 1500, 1500, 2750, 0]
 r_screen_page = 0 #which page r screen is
 r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]), pg.SRCALPHA) #entire research screen: uses scrolling (not re-rendering)
 update_r_screen = True #True when screen needs to update: only for 1 frame
@@ -243,7 +243,7 @@ storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, et
 
 #recipes
 unlocked_recipes = []
-creater_unlocked_recipes = {12: [], 13: [4], 33: [10, 11]} 
+creater_unlocked_recipes = {12: [], 13: [4], 33: [10]} 
 #example of creater_unlocked_recipes:
 # {13: [1, 2, 3], 14: [4, 5], 15: []}
 
