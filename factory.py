@@ -179,8 +179,8 @@ conveyor_research_progress_dict = {1:0,2:1,3:2,4:2,5:3,6:3,7:4,8:5,9:5,10:5}
 
 #research menu
 r_screen_transparent = update_r_screen_func(screen, rect_ui) #screen for the transparent background
-r_width = [1500, 1500, 1500, 1500, 2500, 0]
-r_height = [800, 1500, 1500, 1500, 2750, 0]
+r_width = [1500, 680, 0, 680, 2500, 0]
+r_height = [800, 800, 0, 1350, 2750, 0]
 r_screen_page = 0 #which page r screen is
 r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]), pg.SRCALPHA) #entire research screen: uses scrolling (not re-rendering)
 update_r_screen = True #True when screen needs to update: only for 1 frame
@@ -246,7 +246,7 @@ unlocked_recipes = []
 creater_unlocked_recipes = {12: [], 13: [4], 33: [10]} 
 #example of creater_unlocked_recipes:
 # {13: [1, 2, 3], 14: [4, 5], 15: []}
-
+creater_menu_collidepoints = [] # creater menu collidepoints go in here
 
 # spawning
 cargo_spawn_list = [] #only one spawn time
@@ -719,10 +719,23 @@ while playing and __name__ == "__main__":
 
                         elif research_menu:#research menu open
                             stop_mouse_placement = True
-                            shortage_timer,shortage_item,storage[0],r_clicked_row,r_clicked_button,research_grid,update_r_screen,unlocked_recipes = research_mouse_check(shortage_timer,shortage_item,storage[0],r_prices,r_scrollx[r_screen_page],r_scrolly[r_screen_page],mx,my,research_progress,r_scrollx[r_screen_page],r_scrolly[r_screen_page],research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes)
-                            if r_clicked_row != -1 and r_clicked_button != -1:
-                                unlocked_blocks,conveyor_speed,move_speed = research_clicked_item(unlocked_blocks,r_clicked_row,r_clicked_button,research_progress,conveyor_speed,move_speed)
-                                r_particles = generate_r_particles_square(r_particles,r_clicked_button*250-r_scrollx[r_screen_page],r_clicked_row*125-r_scrolly[r_screen_page],r_clicked_button*250+200-r_scrollx[r_screen_page],r_clicked_row*125+100-r_scrolly[r_screen_page],(10,50))
+                            shortage_timer,shortage_item,storage[0],r_clicked_row,r_clicked_button,research_grid,update_r_screen,unlocked_recipes,creater_unlocked_recipes,creater_clicked_btn = research_mouse_check(shortage_timer,shortage_item,storage[0],r_prices,r_scrollx[r_screen_page],r_scrolly[r_screen_page],mx,my,research_progress,r_scrollx[r_screen_page],r_scrolly[r_screen_page],research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes,creater_menu_collidepoints,creater_unlocked_recipes)
+                            if r_screen_page == 0: #conveyor/transport research screen
+                                if r_clicked_row != -1 and r_clicked_button != -1:
+                                    unlocked_blocks,conveyor_speed,move_speed = research_clicked_item(unlocked_blocks,r_clicked_row,r_clicked_button,research_progress,conveyor_speed,move_speed)
+                                    r_particles = generate_r_particles_square(r_particles,r_clicked_button*250-r_scrollx[r_screen_page],r_clicked_row*125-r_scrolly[r_screen_page],r_clicked_button*250+200-r_scrollx[r_screen_page],r_clicked_row*125+100-r_scrolly[r_screen_page],(10,50))
+                            elif r_screen_page in [1,2,3]: #creater research screen
+                                if creater_clicked_btn is not None:
+                                    x, y, w, h = creater_clicked_btn[0]
+                                    x -= r_scrollx[r_screen_page]
+                                    y -= r_scrolly[r_screen_page]
+                                    unlocked_creater = creater_clicked_btn[1] == "creater"
+                                    if unlocked_creater:
+                                        r_particles = generate_r_particles_square(r_particles, x, y, x+w, y+h, (30,80),spawn_rate=10)
+                                    else: # unlocked an item
+                                        r_particles = generate_r_particles_square(r_particles, x, y, x+w, y+h, (10,50))
+
+
 
                             if mx > exit_corner[0] and mx < exit_corner[0]+50 and my > exit_corner[1] and my < exit_corner[1]+50:#exit button
                                 research_menu = False
@@ -1018,7 +1031,7 @@ while playing and __name__ == "__main__":
 
         if research_menu and update_r_screen: #update r_screen once (for 1 frame)
             r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]),pg.SRCALPHA)
-            r_screen = draw_research(screen,storage[0],r_screen,rect_ui,0,0,research_display,research_button_clicked,research_button_unclicked,research_progress,research_text,r_tile_text,research_subtext,r_prices,r_screen_page, research_grid,creater_unlocked_recipes)
+            r_screen, creater_menu_collidepoints = draw_research(screen,storage[0],r_screen,rect_ui,0,0,research_display,research_button_clicked,research_button_unclicked,research_progress,research_text,r_tile_text,research_subtext,r_prices,r_screen_page, research_grid,creater_unlocked_recipes)
             update_r_screen = False
 
         if not tile_mode == "view":

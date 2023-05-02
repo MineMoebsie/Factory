@@ -1742,6 +1742,7 @@ def update_r_screen_func(screen, rect_ui):
 def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, research_display, research_button_clicked,
                   research_button_unclicked, research_progress, research_text, r_tile_text, research_subtext, r_prices, r_screen_page, research_grid, creater_unlocked_recipes):
     width, height = screen.get_size()
+    creater_menu_collidepoints = [] # creater menu button collidepoints are stored here
 
     if r_screen_page == 0: # conveyor research menu
         #screen.blit(rect_ui, (0, 0))  # background
@@ -1839,7 +1840,7 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
         #draw the buttons
         for i, unlocked_creater in enumerate(unlocked_creaters):
             #draw the button
-            r_screen.blit(research_creater_btn, (topleft_margin + (crtr_btn_w + margin_w) * i, topleft_margin))
+            btn_rect = r_screen.blit(research_creater_btn_clicked, (topleft_margin + (crtr_btn_w + margin_w) * i, topleft_margin))
             #draw the block on the button
             creater_pic = unsc_pics[f"picture_{unlocked_creater}"]
             creater_pic = pg.transform.scale(creater_pic, (creater_size, creater_size))
@@ -1861,12 +1862,21 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
             #check for extra trailing item at the end (if not research maxed)
             unlocked_items = copy.deepcopy(creater_unlocked_recipes[int(unlocked_creater)]) # items that are unlocked for this specific creater
             num_of_items_unlocked = len(creater_unlocked_recipes[unlocked_creater])
+            #add to list of collidepoints so its easier to handle clicks in main loop
+            creater_menu_collidepoints.append([btn_rect, "creater", unlocked_creater, True, int(price)])
+            
             if num_of_items_unlocked < len(creater_btn_order[str(r_screen_page)][str(unlocked_creater)]): # research of items is NOT maxed
                 unlocked_items.append(creater_btn_order[str(r_screen_page)][str(unlocked_creater)][num_of_items_unlocked])
 
             for j, unlocked_item in enumerate(unlocked_items):
                 #draw btn
-                r_screen.blit(research_creater_item_btn, (topleft_margin + (crtr_btn_w + margin_w) * i + item_btn_add_w, topleft_margin + crtr_btn_h + margin_h_creater_item + j * (item_btn_h + margin_h)))
+                locked = j == len(creater_unlocked_recipes[int(unlocked_creater)])
+
+                if locked:
+                    btn_rect = r_screen.blit(research_creater_item_btn, (topleft_margin + (crtr_btn_w + margin_w) * i + item_btn_add_w, topleft_margin + crtr_btn_h + margin_h_creater_item + j * (item_btn_h + margin_h)))
+                else:
+                    btn_rect = r_screen.blit(research_creater_item_btn_clicked, (topleft_margin + (crtr_btn_w + margin_w) * i + item_btn_add_w, topleft_margin + crtr_btn_h + margin_h_creater_item + j * (item_btn_h + margin_h)))
+
                 #draw item on btn
                 item_pic = unsc_pics[f"item_{int(unlocked_item)}_picture"]
                 item_pic = pg.transform.scale(item_pic, (item_size, item_size))
@@ -1885,10 +1895,12 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
                 r_screen.blit(r_icon_picture, (topleft[0] + r_blit_x, blit_y))
                 #blit text
                 r_screen.blit(price_img, (topleft[0] + text_blit_x, blit_y + 6)) # 3px offset because of font
+                #add to collidepoints and data for handeling clicks
+                creater_menu_collidepoints.append([btn_rect, "item", unlocked_item, not locked, int(price), unlocked_creater])
 
         #extra creater button at the end if research on that point is not maxed completely.
         if num_of_creaters_unlocked < len(creater_btn_order[str(r_screen_page)]): # not maxed so draw another creater button at the end
-            r_screen.blit(research_creater_btn, (topleft_margin + (crtr_btn_w + margin_w) * len(unlocked_creaters), topleft_margin))
+            btn_rect = r_screen.blit(research_creater_btn, (topleft_margin + (crtr_btn_w + margin_w) * len(unlocked_creaters), topleft_margin))
 
             #find the tile that should be blit on the creater research button
             last_unlocked_creater = unlocked_creaters[-1]
@@ -1915,6 +1927,8 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
             r_screen.blit(r_icon_picture, (topleft[0] + r_blit_x, blit_y))
             #blit text
             r_screen.blit(price_img, (topleft[0] + text_blit_x, blit_y + 6)) # 3px offset because of font
+
+            creater_menu_collidepoints.append([btn_rect, "creater", key_ununlocked, False, price])
 
     elif r_screen_page == 4: #crafting research menu
         half_size = 175/2
@@ -1961,7 +1975,7 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
     elif r_screen_page == 2:
         pass
 
-    return r_screen
+    return r_screen, creater_menu_collidepoints
     
 def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_page, mx,my,r_scrollx, r_scrolly):
     width, height = screen.get_size()
@@ -1999,10 +2013,11 @@ def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_p
 
     return [width - 50 - cross_margin, cross_margin], r_icons_click_list
 
-def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_scrollx, r_scrolly, mx, my,research_progress, research_scrollx, research_scrolly, research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes):
+def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_scrollx, r_scrolly, mx, my,research_progress, research_scrollx, research_scrolly, research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes,creater_menu_collidepoints,creater_unlocked_recipes):
     clicked_button = -1
     clicked_row = -1
     update_r_screen = False
+    creater_clicked_btn = None
 
     if r_screen_page == 0: # conveyor research menu
         button_space_x = 50
@@ -2028,6 +2043,27 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                                             shortage_timer = t.perf_counter()
                                             shortage_item = 0
 
+    elif r_screen_page in [1,2,3]: #creater research menu
+        for btn in creater_menu_collidepoints:
+            btn_x = btn[0].x - r_scrollx
+            btn_y = btn[0].y - r_scrolly
+            btn_rect = pg.Rect((btn_x, btn_y),(btn[0].w, btn[0].h))
+            if btn_rect.collidepoint(mx, my):
+                if btn[3] == False: # not unlocked yet
+                    if btn[4] <= r_points: # enough r_points to buy it
+                        update_r_screen = True
+                        unlock_type = btn[1] # can be "item" or "creater"
+                        unlocked = btn[2] # what item/creater is unlocked
+                        if unlock_type == "creater":
+                            creater_unlocked_recipes[int(unlocked)] = []
+                        elif unlock_type == "item":
+                            creater_unlocked_recipes[btn[5]].append(unlocked)
+                        r_points -= btn[4]
+                        creater_clicked_btn = btn #store btn for later particle gen
+                    else:  # not enough research points
+                        shortage_timer = t.perf_counter()
+                        shortage_item = 0
+
     elif r_screen_page == 4: # crafting research menu
         mouse_x = mx + r_scrollx
         mouse_y = my + r_scrolly
@@ -2051,7 +2087,7 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                             shortage_timer = t.perf_counter()
                             shortage_item = 0
 
-    return shortage_timer, shortage_item, r_points, clicked_row, clicked_button, research_grid, update_r_screen, unlocked_recipes
+    return shortage_timer, shortage_item, r_points, clicked_row, clicked_button, research_grid, update_r_screen, unlocked_recipes, creater_unlocked_recipes, creater_clicked_btn
 
 def draw_shortage_notification(screen, not_enough_picture, shortage_item):
     width, height = screen.get_size()
@@ -2118,8 +2154,7 @@ def research_particles(screen, r_particles, deltaTime):
     return r_particles
 
 
-def generate_r_particles_square(r_particles, x0, y0, x1, y1, size_range):
-    spawn_rate = 25
+def generate_r_particles_square(r_particles, x0, y0, x1, y1, size_range,spawn_rate=25):
     for x in range(x0, x1):  # top,bottom row
         size = r.randint(size_range[0], size_range[1])
         offset = r.randint(-15, 15)
