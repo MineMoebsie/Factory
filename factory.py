@@ -243,7 +243,7 @@ storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, et
 
 #recipes
 unlocked_recipes = []
-creater_unlocked_recipes = {12: [], 13: [4], 33: [10]} 
+creater_unlocked_recipes = {} 
 #example of creater_unlocked_recipes:
 # {13: [1, 2, 3], 14: [4, 5], 15: []}
 creater_menu_collidepoints = [] # creater menu collidepoints go in here
@@ -312,7 +312,7 @@ ignore_click = False
 world_menu_top, world_menu_bottom = update_pictures(screen)
 world_select_scrolly = -world_menu_top.get_height() + 45
 
-grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world('~menu_world', spawn_items) # load background for title screen
+grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world('~menu_world', spawn_items) # load background for title screen
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
@@ -322,7 +322,7 @@ autoload_world = "research particles test"
 if autoload: # temporary for quicker testing
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
-    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(autoload_world, spawn_items)
+    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(autoload_world, spawn_items)
     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
     in_menu = False
@@ -442,7 +442,7 @@ while playing and __name__ == "__main__":
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world...")
 
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(selected_world, spawn_items)
 
                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
                     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
@@ -496,7 +496,7 @@ while playing and __name__ == "__main__":
 
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(selected_world, spawn_items)
                     
                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
                     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
@@ -861,7 +861,7 @@ while playing and __name__ == "__main__":
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Saving world...")
 
-                    save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes)
+                    save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes)
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 80, 10, "Saving player data...")
 

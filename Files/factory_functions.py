@@ -1903,10 +1903,14 @@ def draw_research(screen, r_points, r_screen, rect_ui, r_scrollx, r_scrolly, res
             btn_rect = r_screen.blit(research_creater_btn, (topleft_margin + (crtr_btn_w + margin_w) * len(unlocked_creaters), topleft_margin))
 
             #find the tile that should be blit on the creater research button
-            last_unlocked_creater = unlocked_creaters[-1]
-            keys_btn_order = list(creater_btn_order[str(r_screen_page)].keys())
-            index_last_unlocked = keys_btn_order.index(str(last_unlocked_creater))
-            key_ununlocked = keys_btn_order[index_last_unlocked + 1]
+            if unlocked_creaters == []:
+                keys_btn_order = list(creater_btn_order[str(r_screen_page)].keys())
+                key_ununlocked = keys_btn_order[0]
+            else:
+                last_unlocked_creater = unlocked_creaters[-1]
+                keys_btn_order = list(creater_btn_order[str(r_screen_page)].keys())
+                index_last_unlocked = keys_btn_order.index(str(last_unlocked_creater))
+                key_ununlocked = keys_btn_order[index_last_unlocked + 1]
 
             #actually blit it (and transform it etc.)
             creater_pic = unsc_pics[f"picture_{key_ununlocked}"]

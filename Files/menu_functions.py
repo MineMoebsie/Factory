@@ -441,6 +441,9 @@ def read_world(world_folder, spawn_items):
     with open('Data/Saves/'+world_folder+'/unlocked_recipes.txt') as f:
         unlocked_recipes = eval(f.read())
 
+    with open('Data/Saves/'+world_folder+'/creater_unlocked_recipes.json') as f:
+        creater_unlocked_recipes = json.load(f)
+
     f = open('Data/Saves/'+world_folder+'/research_data.txt')
     research_progress_ = eval(f.read())
     f.close()
@@ -483,9 +486,9 @@ def read_world(world_folder, spawn_items):
     research_grid = eval(f.read())
     f.close()
 
-    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation, unlocked_recipes
+    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation, unlocked_recipes, creater_unlocked_recipes
 
-def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes):
+def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes):
     f = open('Data/Saves/'+world_folder+'/grid.txt','w')
     np.savetxt(f,grid.astype(int), fmt="%i")
     f.close()
@@ -520,6 +523,9 @@ def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_pr
 
     with open('Data/Saves/'+world_folder+'/unlocked_recipes.txt','w') as f:
         f.write(str(unlocked_recipes))
+
+    with open('Data/Saves/'+world_folder+'/creater_unlocked_recipes.json','w') as f:
+        json.dump(creater_unlocked_recipes, f)
 
 
 def save_player_data(world_folder, start_play_perf):
@@ -750,6 +756,9 @@ def create_world(screen, loading_surf, clock, world_name, world_seed, world_opti
         #unlocked recipes
         with open(world_path+"/unlocked_recipes.txt", "w") as f:
             f.write(str("[]"))
+
+        with open(world_path+"/creater_unlocked_recipes.json", "w") as f:
+            json.dump({}, f)
 
         #player_data
         player_data = {'playtime': '0:00:00', 'last_played': datetime.date.today().strftime("%b %d, %Y"), 'version': version, 'created': datetime.date.today().strftime("%b %d, %Y"), 'seed': world_seed, 'mode': world_options["World mode"]}
