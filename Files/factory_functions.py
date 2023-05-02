@@ -1102,8 +1102,6 @@ class Item:
                         craft_data[max(0,ry - 2) + r_corner[0][0]][max(0,rx - 2) + r_corner[1][0]][str(self.item_type)] += 1
                     else:
                         craft_data[max(0,ry - 2) + r_corner[0][0]][max(0,rx - 2) + r_corner[1][0]][str(self.item_type)] = 1
-                    #print(max(0,ry - 2) + r_corner[0][0],max(0,rx - 2) + r_corner[1][0],craft_data[max(0,ry - 2) + r_corner[0][0]][max(0,rx - 2) + r_corner[1][0]])
-                    #print(80,30,craft_data[80,30])
                 else:
                     storage[self.item_type] -= 1
                 self.vx = self.vy = 0
@@ -1594,7 +1592,6 @@ def draw_info_popup(screen,mx,my,menu_pictures,clicked_icon,clicked_button,tile_
         x_start += width_text + 10
     
     #draw description
-    #print(pg.Rect(blit_x,blit_y,w,h),(blit_x + 10, b_price_blit_y + height_text + 10),blit_y)
     blit_text(screen,blit_x + w,tile_des[menu_pictures[clicked_icon][clicked_button]],(blit_x + 10, b_price_blit_y + height_text + 10),i_text_font,(0,0,0))
 
 
@@ -1618,7 +1615,7 @@ def draw_tile_mode_menu(screen, tile_mode):
 
 
 def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_pictures, open_menu, clicked_icon,
-               clicked_button, menu_scrollx, scaled_pictures, b_prices):
+               clicked_button, menu_scrollx, scaled_pictures, b_prices,creater_unlocked_recipes):
     # bar
     width, height = screen.get_size()
     if open_menu:
@@ -1686,6 +1683,15 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
                                 button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
                                 height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
 
+            elif clicked_icon in [1,2,3]: #creater research icons, draw lock when not unlocked yet
+                if not scaled_picture in creater_unlocked_recipes: #locked 
+                    screen.blit(pg.transform.scale(lock_picture, (
+                    int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
+                                button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
+                                height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
+            
+            
+            
             button += 1
 
     # tab buttons
@@ -2017,7 +2023,7 @@ def draw_research_fixed(screen, r_screen, research_display, r_points, r_screen_p
 
     return [width - 50 - cross_margin, cross_margin], r_icons_click_list
 
-def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_scrollx, r_scrolly, mx, my,research_progress, research_scrollx, research_scrolly, research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes,creater_menu_collidepoints,creater_unlocked_recipes):
+def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_scrollx, r_scrolly, mx, my,research_progress, research_scrollx, research_scrolly, research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes,creater_menu_collidepoints,creater_unlocked_recipes,unlocked_blocks):
     clicked_button = -1
     clicked_row = -1
     update_r_screen = False
@@ -2060,6 +2066,8 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                         unlocked = btn[2] # what item/creater is unlocked
                         if unlock_type == "creater":
                             creater_unlocked_recipes[int(unlocked)] = []
+                            unlocked_blocks.append(int(unlocked))
+                            unlocked_blocks = sorted(unlocked_blocks)
                         elif unlock_type == "item":
                             creater_unlocked_recipes[btn[5]].append(unlocked)
                         r_points -= btn[4]
@@ -2091,7 +2099,7 @@ def research_mouse_check(shortage_timer, shortage_item, r_points, r_prices, r_sc
                             shortage_timer = t.perf_counter()
                             shortage_item = 0
 
-    return shortage_timer, shortage_item, r_points, clicked_row, clicked_button, research_grid, update_r_screen, unlocked_recipes, creater_unlocked_recipes, creater_clicked_btn
+    return shortage_timer, shortage_item, r_points, clicked_row, clicked_button, research_grid, update_r_screen, unlocked_recipes, creater_unlocked_recipes, creater_clicked_btn,unlocked_blocks
 
 def draw_shortage_notification(screen, not_enough_picture, shortage_item):
     width, height = screen.get_size()

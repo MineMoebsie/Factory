@@ -317,7 +317,7 @@ grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_spe
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
 autoload = True
-autoload_world = "research particles test"
+autoload_world = "new testing world"
 
 if autoload: # temporary for quicker testing
     selected_world = autoload_world
@@ -610,6 +610,10 @@ while playing and __name__ == "__main__":
                                                     brush = menu_pictures[clicked_icon][clicked_button]
                                                 else:
                                                     clicked_button = -1
+                                            elif clicked_icon in [1,2,3]: #researched creaters
+                                                if menu_pictures[clicked_icon][clicked_button] in creater_unlocked_recipes:
+                                                    brush = menu_pictures[clicked_icon][clicked_button]
+
                                             else: #exception
                                                 clicked_button = button
                                                 if not (clicked_icon >= len(menu_pictures)):
@@ -719,7 +723,7 @@ while playing and __name__ == "__main__":
 
                         elif research_menu:#research menu open
                             stop_mouse_placement = True
-                            shortage_timer,shortage_item,storage[0],r_clicked_row,r_clicked_button,research_grid,update_r_screen,unlocked_recipes,creater_unlocked_recipes,creater_clicked_btn = research_mouse_check(shortage_timer,shortage_item,storage[0],r_prices,r_scrollx[r_screen_page],r_scrolly[r_screen_page],mx,my,research_progress,r_scrollx[r_screen_page],r_scrolly[r_screen_page],research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes,creater_menu_collidepoints,creater_unlocked_recipes)
+                            shortage_timer,shortage_item,storage[0],r_clicked_row,r_clicked_button,research_grid,update_r_screen,unlocked_recipes,creater_unlocked_recipes,creater_clicked_btn,unlocked_blocks = research_mouse_check(shortage_timer,shortage_item,storage[0],r_prices,r_scrollx[r_screen_page],r_scrolly[r_screen_page],mx,my,research_progress,r_scrollx[r_screen_page],r_scrolly[r_screen_page],research_button_clicked, r_screen_page, research_grid, r_crafter_grid, unlocked_recipes,creater_menu_collidepoints,creater_unlocked_recipes,unlocked_blocks)
                             if r_screen_page == 0: #conveyor/transport research screen
                                 if r_clicked_row != -1 and r_clicked_button != -1:
                                     unlocked_blocks,conveyor_speed,move_speed = research_clicked_item(unlocked_blocks,r_clicked_row,r_clicked_button,research_progress,conveyor_speed,move_speed)
@@ -1047,7 +1051,7 @@ while playing and __name__ == "__main__":
                 #TODO: add particles 
                 r_particles = research_particles(screen,r_particles, deltaTime)
             else: #r menu closed
-                icon_click_list,bar_width,bar_height,button_distance,button_click_list,button_width = teken_menu(screen,conveyor_research_progress_dict,research_progress,menu_pictures,open_menu,clicked_icon,clicked_button,menu_scrollx,scaled_pictures,b_prices)
+                icon_click_list,bar_width,bar_height,button_distance,button_click_list,button_width = teken_menu(screen,conveyor_research_progress_dict,research_progress,menu_pictures,open_menu,clicked_icon,clicked_button,menu_scrollx,scaled_pictures,b_prices,creater_unlocked_recipes)
 
             if keybind_menu:
                 keyb_up_buttons,keyb_down_buttons = draw_keybind_menu(screen,k_scrolly,unlocked_blocks,data_display,data_arrow,rect_keybinds,keybinds)

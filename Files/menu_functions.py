@@ -417,7 +417,8 @@ def update_pictures(screen):
 
 def read_world(world_folder, spawn_items):
     breedte, hoogte = 500,500
-    unlocked_blocks = [0,1,12,13,14,15,20,23, 24, 25,33,34,35,36,37]
+
+    unlocked_blocks = [0, 1, 15, 20, 36, 37]
     conveyor_speed = [25.0,25.0,25.0,25.0,12.5,5]
     
     move_speed = [1.0,1.0,1.0,1.0,2.0]
@@ -441,9 +442,6 @@ def read_world(world_folder, spawn_items):
     with open('Data/Saves/'+world_folder+'/unlocked_recipes.txt') as f:
         unlocked_recipes = eval(f.read())
 
-    with open('Data/Saves/'+world_folder+'/creater_unlocked_recipes.json') as f:
-        creater_unlocked_recipes = json.load(f)
-
     f = open('Data/Saves/'+world_folder+'/research_data.txt')
     research_progress_ = eval(f.read())
     f.close()
@@ -457,6 +455,16 @@ def read_world(world_folder, spawn_items):
             for j in range(0, research_progress_[0][i] + 1):
                 unlocked_blocks, conveyor_speed, move_speed = research_clicked_item(unlocked_blocks,i,j,research_progress_,conveyor_speed,move_speed)
 
+    with open('Data/Saves/'+world_folder+'/creater_unlocked_recipes.json') as f:
+        creater_unlocked_recipes_strings = json.load(f) # has strings as keys, change strings to ints in the loop and also add them to the unlocked blocks
+        creater_unlocked_recipes = {}
+        for creater in creater_unlocked_recipes_strings.keys():
+            unlocked_blocks.append(int(creater))
+            creater_unlocked_recipes[int(creater)] = creater_unlocked_recipes_strings[creater]
+
+    unlocked_blocks = sorted(unlocked_blocks)
+
+    #eliminate duplicates in unlocked_blocks list
     duplicate_blocks = []
     for x in unlocked_blocks:
         if not (x in duplicate_blocks):
