@@ -317,8 +317,8 @@ grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_spe
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
-autosave_perf = 1
-autosave_interval = 10
+autosave_perf = 30
+autosave_interval = 60 * 3
 autosave_active = False
 autosave_stage = 0 # goes up 1 every time it is active. When it reaches certain num, autosave is deactivated
 
@@ -815,8 +815,8 @@ while playing and __name__ == "__main__":
                         old_scale = scale
                         scale -= 0.1
                         scale = int(scale*10)/10
-                        if scale <= 0.5:
-                            scale = 0.5
+                        if scale <= 0.1:
+                            scale = 0.1
                         scrollx = int(round(scrollx*scale/old_scale - mx*(1-old_scale/scale),0))
                         if scrollx > 0:
                             scrollx = 0
@@ -867,6 +867,8 @@ while playing and __name__ == "__main__":
                     scroll_keys_hold[3] = True
 
                 if e.key == pg.K_ESCAPE:
+                    autosave_active = False
+
                     backg_surf = pg.Surface(screen.get_size())
                     grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
                     loading_surf = setup_loading_screen(screen, backg_img)
@@ -1094,7 +1096,7 @@ while playing and __name__ == "__main__":
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
         deltaTime = clock.tick(150)
-        deltaTime = min(deltaTime, 100)
+        deltaTime = min(deltaTime, 15)
         angle += 1
 
         t_final = t.perf_counter()

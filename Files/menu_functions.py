@@ -553,9 +553,11 @@ def save_player_data(world_folder, start_play_perf):
                 break
         day_count = int(day_count)
 
-        time_part = in_string[-8:]
-        x = t.strptime(time_part,'%H:%M:%S')
-        sec = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
+        time_part = in_string[-7:]
+
+        print(in_string)
+        x = datetime.datetime.strptime(time_part,'%H:%M:%S')
+        sec = datetime.timedelta(hours=x.hour,minutes=x.minute,seconds=x.second).total_seconds()
         sec += day_count * 86400
 
         player_data["playtime"] = str(datetime.timedelta(seconds=int(t.perf_counter() - start_play_perf + sec)))

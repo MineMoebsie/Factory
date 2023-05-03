@@ -339,7 +339,7 @@ for craftable in crafter_craftables.keys():
                 int(np.ceil(pictures_scales["picture_15_{}_{}".format(i+1, craftable)][int(angle/90)] * 1 * grid_size)))) for angle in range(0, 360, 90)] 
 
 scaled_pictures_scales = {} #all the images with all the scales preloaded so faster when zooming in or out
-min_scale = 0.5
+min_scale = 0.1
 max_scale = 2
 
 for scale_int in range(int(min_scale * 10), int((max_scale + 0.1) * 10), 1):
@@ -366,8 +366,6 @@ for scale_int in range(int(min_scale * 10), int((max_scale + 0.1) * 10), 1):
             scaled_pictures_scales[scale][key] = [pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
-
-    print(scale)
 
 def scale_pictures(scale, grid_size=grid_size, item_size=item_size, scaled_pictures=scaled_pictures, scaled_pictures_scales=scaled_pictures_scales):
     for key in scaled_pictures.keys():
