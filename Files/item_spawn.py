@@ -61,12 +61,12 @@ def generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, location
         
         if "selected_item" in grid_data[y, x]: # if the selected item is not included for some reason (for older versions of the game)
             if grid_data[y, x]["selected_item"] == "Random" or grid_data[y, x]["selected_item"] == "random":
-                if creater_unlocked_recipes[block] != []:
+                if block in creater_unlocked_recipes and creater_unlocked_recipes[block] != []:
                     spawn_dict['spawn'] = creater_unlocked_recipes[block]
             else:
                 spawn_dict["spawn"] = [grid_data[y, x]["selected_item"]]
         else:
-            if creater_unlocked_recipes[block] != []:
+            if block in creater_unlocked_recipes and creater_unlocked_recipes[block] != []:
                 spawn_dict['spawn'] = creater_unlocked_recipes[block]
 
         append_per_spawn[spawn_time[block]].append(spawn_dict)

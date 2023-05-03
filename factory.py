@@ -4,7 +4,13 @@
 import pygame as pg
 import sys
 
-# sys.path.append('Files/')
+#########
+#Version#
+#########
+
+with open("Data/ver.txt") as f:
+    version = f.read()
+
 from Files.loading_screen import *
 
 pg.init()
@@ -14,7 +20,7 @@ pg.display.init()
 screen_w, screen_h = (1280, 720)
 screen = pg.display.set_mode((screen_w, screen_h) ,pg.RESIZABLE|pg.DOUBLEBUF|pg.HWSURFACE, vsync=1)
 
-pg.display.set_caption("Factory")
+pg.display.set_caption(f"Factory {version}")
 pg.display.set_icon(pg.image.load("Assets/Blocks/11.png"))
 
 percent_vals = [0]
@@ -24,12 +30,6 @@ percent_vals = loading_screen(screen,percent_vals,10,load_font,"Importing module
 screen_info = pg.display.Info()
 screen_size = pg.display.get_surface().get_size()
 
-#########
-#Version#
-#########
-
-with open("Data/ver.txt") as f:
-    version = f.read()
 
 ################
 #Import modules#
@@ -318,7 +318,7 @@ grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_spe
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
 autosave_perf = 1
-autosave_interval = 60 * 5
+autosave_interval = 10
 autosave_active = False
 autosave_stage = 0 # goes up 1 every time it is active. When it reaches certain num, autosave is deactivated
 
@@ -1097,8 +1097,6 @@ while playing and __name__ == "__main__":
         angle += 1
 
         t_final = t.perf_counter()
-
-
 
         if print_timing:
             print(f"Timing: {t_mouse_and_locations - t_event} {t_teken-t_mouse_and_locations} {t_items_cargo - t_teken} {t_items - t_items_cargo} {t_research - t_items} {t_pop_items - t_research} {t_teken_menu - t_pop_items} {t_final - t_teken_menu}")
