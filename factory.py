@@ -1094,6 +1094,7 @@ while playing and __name__ == "__main__":
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
         deltaTime = clock.tick(150)
+        deltaTime = min(deltaTime, 100)
         angle += 1
 
         t_final = t.perf_counter()
