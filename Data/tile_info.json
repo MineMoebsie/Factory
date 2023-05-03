@@ -124,7 +124,8 @@
         "description": "Transports packages containing items efficiently. Cable track starts at cable sender and ends at the reciever.",
         "size": 1,
         "convert_alpha": true,
-        "background_tile": [0]
+        "background_tile": [0],
+        "placed_on_only": [10, 11, 18]
     },
     "20": {
         "name": "Storage",

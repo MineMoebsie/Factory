@@ -273,7 +273,7 @@ print_timing = False
 clock = pg.time.Clock()
 deltaTime = 0.0
 render_distance = 1
-max_scale = 1.5
+max_scale = 2
 
 not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui = render_images(screen,True)
 

@@ -214,8 +214,12 @@ for x in items_pictures:
     unsc_pics[f"item_{x}_picture"] = import_foto('Items/item{}.png'.format(x if x != 0 else 'r'), item_size, item_size)
 
 # add to scale lists
+
 scaled_pictures = {}
 pictures_scales = {}
+
+
+
 for i in range(len(picture_list)):
     scaled_pictures[str('picture_' + str(picture_list[i]))] = [pg.transform.rotate(
         unsc_pics['picture_' + str(picture_list[i])], -angle) for angle in range(0, 360, 90)]
@@ -334,28 +338,78 @@ for craftable in crafter_craftables.keys():
                 int(np.ceil(pictures_scales["picture_15_{}_{}".format(i+1, craftable)][int(angle/90)] * 1 * grid_size)),
                 int(np.ceil(pictures_scales["picture_15_{}_{}".format(i+1, craftable)][int(angle/90)] * 1 * grid_size)))) for angle in range(0, 360, 90)] 
 
-def scale_pictures(scale, grid_size=grid_size, item_size=item_size, scaled_pictures=scaled_pictures):
+scaled_pictures_scales = {} #all the images with all the scales preloaded so faster when zooming in or out
+min_scale = 0.5
+max_scale = 2
+
+for scale_int in range(int(min_scale * 10), int((max_scale + 0.1) * 10), 1):
+    scale = scale_int / 10
+    scaled_pictures_scales[scale] = {}
     for key in scaled_pictures.keys():
         if 'item' in key:  # item
-            scaled_pictures[key] =[pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
+            scaled_pictures_scales[scale][key] = [pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * item_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * item_size)))), -angle) for angle in range(0, 360, 90)]
         elif 'picture_1_' in key:  # animated conveyor
-            scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(conveyor_frames[key][int(angle/90)], (
+            scaled_pictures_scales[scale][key] = [pg.transform.rotate(pg.transform.scale(conveyor_frames[key][int(angle/90)], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
         elif 'picture_15_' in key:
-            scaled_pictures[key] = [pg.transform.scale(research_frames[key][int(angle/90)], (
+            scaled_pictures_scales[scale][key] = [pg.transform.scale(research_frames[key][int(angle/90)], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))) for angle in range(0, 360, 90)]   
         elif 'picture_arrow' in key or 'picture_cable' in key:
-            scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(eval(key), (
+            scaled_pictures_scales[scale][key] = [pg.transform.rotate(pg.transform.scale(eval(key), (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
         else:
-            scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
+            scaled_pictures_scales[scale][key] = [pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
                 int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
+
+    print(scale)
+
+def scale_pictures(scale, grid_size=grid_size, item_size=item_size, scaled_pictures=scaled_pictures, scaled_pictures_scales=scaled_pictures_scales):
+    for key in scaled_pictures.keys():
+        scaled_pictures[key] = scaled_pictures_scales[scale][key]
+        # if 'item' in key:  # item
+        # elif 'picture_1_' in key:  # animated conveyor
+        #     scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(conveyor_frames[key][int(angle/90)], (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
+        # elif 'picture_15_' in key:
+        #     scaled_pictures[key] = [pg.transform.scale(research_frames[key][int(angle/90)], (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))) for angle in range(0, 360, 90)]   
+        # elif 'picture_arrow' in key or 'picture_cable' in key:
+        #     scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(eval(key), (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
+        # else:
+        #     scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
+
+        # if 'item' in key:  # item
+        #     scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * item_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * item_size)))), -angle) for angle in range(0, 360, 90)]
+        # elif 'picture_1_' in key:  # animated conveyor
+        #     scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(conveyor_frames[key][int(angle/90)], (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
+        # elif 'picture_15_' in key:
+        #     scaled_pictures[key] = [pg.transform.scale(research_frames[key][int(angle/90)], (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))) for angle in range(0, 360, 90)]   
+        # elif 'picture_arrow' in key or 'picture_cable' in key:
+        #     scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(eval(key), (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
+        # else:
+        #     scaled_pictures[key] = [pg.transform.rotate(pg.transform.scale(unsc_pics[key], (
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)),
+        #         int(np.ceil(pictures_scales[key][int(angle/90)] * scale * grid_size)))), -angle) for angle in range(0, 360, 90)]
     return scaled_pictures
 
 def teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move, scrollx, scrolly, screen_size,
