@@ -317,8 +317,8 @@ grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_spe
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
-autosave_perf = 10
-autosave_interval = 60 * 1.5
+autosave_perf = 1
+autosave_interval = 60 * 5
 autosave_active = False
 autosave_stage = 0 # goes up 1 every time it is active. When it reaches certain num, autosave is deactivated
 
@@ -330,7 +330,7 @@ if autoload: # temporary for quicker testing
     scroll_keys_hold = [False, False, False, False]
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(autoload_world, spawn_items)
     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
-    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
+    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -451,7 +451,7 @@ while playing and __name__ == "__main__":
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(selected_world, spawn_items)
 
                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
-                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
+                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
 
                     draw_loading_screen_create_world(screen, clock, loading_surf, 90, 10, "Setting variables...")
 
@@ -505,7 +505,7 @@ while playing and __name__ == "__main__":
                     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(selected_world, spawn_items)
                     
                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
-                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
+                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
                     
                     draw_loading_screen_create_world(screen, clock, loading_surf, 100, 10, "Finishing up...")
 
@@ -617,8 +617,10 @@ while playing and __name__ == "__main__":
                                                 else:
                                                     clicked_button = -1
                                             elif clicked_icon in [1,2,3]: #researched creaters
-                                                if menu_pictures[clicked_icon][clicked_button] in creater_unlocked_recipes:
+                                                if menu_pictures[clicked_icon][button] in unlocked_blocks:
+                                                    clicked_button = button
                                                     brush = menu_pictures[clicked_icon][clicked_button]
+
 
                                             else: #exception
                                                 clicked_button = button
@@ -666,7 +668,7 @@ while playing and __name__ == "__main__":
                                                 edit_tile_menu_open = False
                                                 if tile_menu_type == "creater":
                                                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
-                                                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
+                                                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index, creater_unlocked_recipes)
 
 
                                 else:
@@ -964,7 +966,7 @@ while playing and __name__ == "__main__":
             grid, grid_rotation, grid_data, storage, place_status = add_to_grid(mrx,mry,mrr,grid,grid_rotation,grid_data,brush,blocks_index[brush],blocks_index,storage,item_names,b_prices, grid_cables, big_tiles, placed_on_only,cannot_place_on, ground_blocks, grid_generation, grid_features_generation, strict_placement_tiles)
             locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
             # craft_data, item_spawn_dict, item_perf_time,cargo_spawn_list = update_item_spawn(grid,grid_rotation,item_spawn_dict,item_spawn_time,item_perf_time,locations,craft_data,cargo_spawn_list)
-            append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index)
+            append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
 
             mouse_down = False
         
@@ -1078,6 +1080,7 @@ while playing and __name__ == "__main__":
         if t.perf_counter() > autosave_perf + autosave_interval and autosave_active == False:
             autosave_active = True
             autosave_state = 0
+            print("starting autosave")
 
         if autosave_active:
             autosave_state += 1
@@ -1085,6 +1088,7 @@ while playing and __name__ == "__main__":
             if autosave_state > 16:
                 autosave_active = False
                 autosave_perf = t.perf_counter()
+                print("finished autosave")
         
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))

@@ -1684,12 +1684,15 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
                                 height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
 
             elif clicked_icon in [1,2,3]: #creater research icons, draw lock when not unlocked yet
-                if not scaled_picture in creater_unlocked_recipes: #locked 
-                    screen.blit(pg.transform.scale(lock_picture, (
-                    int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
-                                button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
-                                height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
-            
+                block = scaled_picture[8:]
+                try:
+                    if not int(block) in creater_unlocked_recipes: #locked 
+                        screen.blit(pg.transform.scale(lock_picture, (
+                        int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
+                                    button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
+                                    height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
+                except Exception as e:
+                    print(e)
             
             
             button += 1

@@ -24,7 +24,7 @@ def update_locations(grid, spawn_items):
     cargo_locations = np.where(grid == 17)
     return locations,crafting_locations,cargo_locations,cargo_spawn_locations
 
-def generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index):
+def generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index, creater_unlocked_recipes):
     #blocks_index is for tile size
     append_per_spawn = {} # for ex.: key 1 corresponds to all the items that spawn in 1 second interval etc.
     # example of keys:
@@ -61,11 +61,13 @@ def generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, location
         
         if "selected_item" in grid_data[y, x]: # if the selected item is not included for some reason (for older versions of the game)
             if grid_data[y, x]["selected_item"] == "Random" or grid_data[y, x]["selected_item"] == "random":
-                spawn_dict['spawn'] = spawn_items[block]
+                if creater_unlocked_recipes[block] != []:
+                    spawn_dict['spawn'] = creater_unlocked_recipes[block]
             else:
                 spawn_dict["spawn"] = [grid_data[y, x]["selected_item"]]
         else:
-            spawn_dict['spawn'] = spawn_items[block]
+            if creater_unlocked_recipes[block] != []:
+                spawn_dict['spawn'] = creater_unlocked_recipes[block]
 
         append_per_spawn[spawn_time[block]].append(spawn_dict)
 
@@ -76,7 +78,7 @@ def spawn_pregenerated_items(items_list, craft_data, append_per_spawn, spawn_per
         if time != -1:
             if t.perf_counter() > spawn_perf_counters[time] + time: # spawn items
                 for item in append_per_spawn[time]:
-                    if len(item["loc"]) > 0:
+                    if len(item["loc"]) > 0 and len(item["spawn"]) > 0: # if these conditions are not met, the spawning is skipped
                         spawn_loc = r.choice(item["loc"])
                         spawn_item = r.choice(item["spawn"])
                         items_list.append(Item(spawn_loc[1] * grid_size + int(grid_size / 2), spawn_loc[0] * grid_size + int(grid_size / 2), spawn_item))
