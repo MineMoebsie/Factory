@@ -52,6 +52,7 @@ from Files.factory_functions import *
 from Files.menu_functions import *
 from Files.loading_functions import *
 from Files.item_spawn import *
+from Files.save_world import *
 
 percent_vals = loading_screen(screen,percent_vals,70,load_font,"Reading save files")
 
@@ -181,7 +182,7 @@ conveyor_research_progress_dict = {1:0,2:1,3:2,4:2,5:3,6:3,7:4,8:5,9:5,10:5}
 r_screen_transparent = update_r_screen_func(screen, rect_ui) #screen for the transparent background
 r_width = [1500, 680, 0, 680, 2500, 0]
 r_height = [800, 800, 0, 1350, 2750, 0]
-r_screen_page = 0 #which page r screen is
+r_screen_page = 5 #which page r screen is
 r_screen = pg.Surface((r_width[r_screen_page], r_height[r_screen_page]), pg.SRCALPHA) #entire research screen: uses scrolling (not re-rendering)
 update_r_screen = True #True when screen needs to update: only for 1 frame
 update_r_scroll = True
@@ -315,6 +316,11 @@ world_select_scrolly = -world_menu_top.get_height() + 45
 grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world('~menu_world', spawn_items) # load background for title screen
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
+
+autosave_perf = 10
+autosave_interval = 60 * 1.5
+autosave_active = False
+autosave_stage = 0 # goes up 1 every time it is active. When it reaches certain num, autosave is deactivated
 
 autoload = True
 autoload_world = "new testing world"
@@ -1068,6 +1074,18 @@ while playing and __name__ == "__main__":
         if not research_menu and not keybind_menu:
             tile_mode_btns, edit_tile_menu_rect = draw_tile_mode_menu(screen, tile_mode)
 
+
+        if t.perf_counter() > autosave_perf + autosave_interval and autosave_active == False:
+            autosave_active = True
+            autosave_state = 0
+
+        if autosave_active:
+            autosave_state += 1
+            autosave_part(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes, autosave_state)
+            if autosave_state > 16:
+                autosave_active = False
+                autosave_perf = t.perf_counter()
+        
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()
@@ -1075,6 +1093,8 @@ while playing and __name__ == "__main__":
         angle += 1
 
         t_final = t.perf_counter()
+
+
 
         if print_timing:
             print(f"Timing: {t_mouse_and_locations - t_event} {t_teken-t_mouse_and_locations} {t_items_cargo - t_teken} {t_items - t_items_cargo} {t_research - t_items} {t_pop_items - t_research} {t_teken_menu - t_pop_items} {t_final - t_teken_menu}")
