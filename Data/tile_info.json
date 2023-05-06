@@ -229,6 +229,14 @@
         "convert_alpha": true,
         "strict_placement": true
     },
+    "38": {
+        "name": "Delivery Station",
+        "description": "Not done yet...",
+        "size": 8,
+        "placed_on_only": [10 , 11],
+        "convert_alpha": true,
+        "background_tile": [10, 11]
+    },
 
     "ground_blocks": [10, 11, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
 }

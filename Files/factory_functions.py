@@ -290,6 +290,12 @@ pictures_scales['picture_cable_in'] = [3 for angle in range(0, 360, 90)]
 scaled_pictures['picture_cable_out'] = [pg.transform.rotate(picture_cable_out, -angle) for angle in range(0, 360, 90)]
 pictures_scales['picture_cable_out'] = [3 for angle in range(0, 360, 90)]
 
+picture_plane_1 = import_foto("Other/plane.png", 2 * grid_size, 2 * grid_size)
+unsc_pics["plane_1"] = picture_plane_1
+
+scaled_pictures['plane_1'] = [pg.transform.rotate(picture_plane_1, -angle) for angle in range(0, 360, 90)]
+pictures_scales['plane_1'] = [2 for angle in range(0, 360, 90)]
+
 crafter_frames = {}
 crafter_colors = ["black","dark_blue","dark_green","dark_red","gray","light_blue","light_green","orange","pink","purple","red","yellow"]
 crafter_picture_colors = {}
@@ -340,7 +346,7 @@ for craftable in crafter_craftables.keys():
 
 scaled_pictures_scales = {} #all the images with all the scales preloaded so faster when zooming in or out
 min_scale = 0.1
-max_scale = 2
+max_scale = 1.5
 
 for scale_int in range(int(min_scale * 10), int((max_scale + 0.1) * 10), 1):
     scale = scale_int / 10

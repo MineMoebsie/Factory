@@ -53,6 +53,7 @@ from Files.menu_functions import *
 from Files.loading_functions import *
 from Files.item_spawn import *
 from Files.save_world import *
+from Files.plane_functions import *
 
 percent_vals = loading_screen(screen,percent_vals,70,load_font,"Reading save files")
 
@@ -242,6 +243,10 @@ placeable = False
 
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
 
+#plane things & delivery for coins/r_points
+plane_list = []
+# plane_list.append(Plane(10, 10, 1))
+
 #recipes
 unlocked_recipes = []
 creater_unlocked_recipes = {} 
@@ -273,7 +278,7 @@ print_timing = False
 clock = pg.time.Clock()
 deltaTime = 0.0
 render_distance = 1
-max_scale = 2
+max_scale = 1.5
 
 not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui = render_images(screen,True)
 
@@ -331,6 +336,7 @@ if autoload: # temporary for quicker testing
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(autoload_world, spawn_items)
     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
+    plane_list = generate_plane_list(grid, 1)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -1022,6 +1028,9 @@ while playing and __name__ == "__main__":
                 pop_index.append(index)
         for index in list(sorted(pop_index))[::-1]:
             items_list.pop(index)
+
+        for plane in plane_list:
+            plane.draw(screen, scrollx, scrolly, scale, scaled_pictures)
 
         t_teken_menu = t.perf_counter()
 
