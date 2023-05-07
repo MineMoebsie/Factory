@@ -245,6 +245,7 @@ storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, et
 
 #plane things & delivery for coins/r_points
 plane_list = []
+plane_particles = []
 # plane_list.append(Plane(10, 10, 1))
 
 #recipes
@@ -1038,10 +1039,10 @@ while playing and __name__ == "__main__":
         for index in list(sorted(pop_index))[::-1]:
             items_list.pop(index)
 
+        plane_particles = update_and_draw_plane_particles(screen, plane_particles, deltaTime, scale, scrollx, scrolly)
         for plane in plane_list:
-            plane.update(deltaTime, grid.shape[0])
+            plane_particles = plane.update(deltaTime, grid.shape[1], plane_particles)
             plane.draw(screen, scrollx, scrolly, scale, scaled_pictures)
-
 
         t_teken_menu = t.perf_counter()
 

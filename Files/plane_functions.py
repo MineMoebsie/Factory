@@ -23,6 +23,8 @@ class Plane:
         self.y = self.ry * grid_size + self.landing_strip_height * self.plane_num - 10
         self.pic = "plane_1"
 
+        self.width, self.height = scaled_pictures["plane_1"][1].get_size()
+
         self.shadow = pg.mask.from_surface(scaled_pictures["plane_1"][1])
         self.alpha_shadow_start = 130
         self.alpha_shadow_end = 60
@@ -66,7 +68,7 @@ class Plane:
         screen.blit(self.shadow, (self.x * scale + scrollx, (self.y + self.shadow_dist) * scale + scrolly))
         screen.blit(scaled_pictures[self.pic][1], (self.x * scale + scrollx, self.y * scale + scrolly))
 
-    def update(self, dT, grid_wh):
+    def update(self, dT, grid_wh, plane_particles):
         if self.in_flight:
             if self.taking_off:
                 self.flight_time = t.perf_counter() - self.start_flight_time
@@ -78,14 +80,15 @@ class Plane:
                         self.speed = 1 - math.pow(-2 * x + 2, 2) / 2
 
                     self.shadow_dist = (x**2 * (self.shadow_dist_end - self.shadow_dist_start)) + self.shadow_dist_start 
-                    self.alpha_shadow = (x**2 * (self.alpha_shadow_end - self.alpha_shadow_start)) + self.alpha_shadow_start                      
+                    self.alpha_shadow = (x**2 * (self.alpha_shadow_end - self.alpha_shadow_start)) + self.alpha_shadow_start
+                    if x > 0.1:
+                        plane_particles.append([self.x, self.y + self.height / 2 - 10, self.speed * self.speed_plane_num_dict[self.plane_num] * dT, r.uniform(-1,1), 20])
                 else:
                     self.speed = 1
                     self.taking_off = False
                     self.shadow_dist = self.shadow_dist_end
 
                     self.measure_dist_take_off = self.x - self.measure_dist_point
-                    print(self.measure_dist_take_off)
 
             if self.landing:
                 self.flight_time = t.perf_counter() - self.start_landing_time
@@ -97,8 +100,8 @@ class Plane:
                     else:
                         self.speed = 1 - math.pow(-2 * x + 2, 2) / 2
 
-                    self.shadow_dist = (self.speed * (self.shadow_dist_end - self.shadow_dist_start)) + self.shadow_dist_start  
-                    self.alpha_shadow = (self.speed * (self.alpha_shadow_end - self.alpha_shadow_start)) + self.alpha_shadow_start 
+                    self.shadow_dist = (x**4 * (self.shadow_dist_end - self.shadow_dist_start)) + self.shadow_dist_start  
+                    self.alpha_shadow = (x**4 * (self.alpha_shadow_end - self.alpha_shadow_start)) + self.alpha_shadow_start 
                 else:
                     self.in_flight = False
                     self.landing = True
@@ -131,7 +134,6 @@ class Plane:
                         self.landing = False
                 
             self.speed *= self.speed_plane_num_dict[self.plane_num]
-            # print("VELOCITY", self.speed)
             self.x_flight += self.speed * dT
             self.x = self.rx * grid_size + 85 + self.x_flight
 
@@ -145,3 +147,36 @@ class Plane:
                 self.x = self.rx * grid_size + 85 + self.x_flight
             else:
                 self.x = self.rx * grid_size + 85 + self.x_flight
+
+        return plane_particles
+
+def update_and_draw_plane_particles(screen, plane_particles, dT, scale, scrollx, scrolly):
+    for i, particle in sorted(enumerate(plane_particles), reverse=True):
+        particle_x = particle[0]
+        particle_y = particle[1]
+        particle_vx = particle[2]
+        particle_vy = particle[3]
+        particle_size = particle[4]
+
+        if particle_size < 0.1:
+            plane_particles.pop(i)
+
+        particle[0] += particle_vx / 10 * dT
+        particle[1] += particle_vy / 10 * dT
+
+        particle[2] = particle_vx * 0.9
+        particle[3] = particle_vy * 0.9
+
+        particle[4] = particle_size * 0.98
+
+
+        particle_surf = pg.Surface((particle_size, particle_size), pg.SRCALPHA)
+        pg.draw.circle(particle_surf, (100, 100, 100  ), (particle_size / 2, particle_size / 2), particle_size / 2)
+        particle_surf.set_alpha(200)
+        screen.blit(particle_surf, (particle_x * scale + scrollx, particle_y * scale + scrolly))
+
+    return plane_particles
+
+
+
+
