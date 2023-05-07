@@ -278,6 +278,7 @@ print_timing = False
 clock = pg.time.Clock()
 deltaTime = 0.0
 render_distance = 1
+min_scale = 0.1
 max_scale = 1.5
 
 not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui = render_images(screen,True)
@@ -336,7 +337,7 @@ if autoload: # temporary for quicker testing
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(autoload_world, spawn_items)
     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
-    plane_list = generate_plane_list(grid, 1)
+    plane_list = generate_plane_list(grid, 5)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -821,8 +822,8 @@ while playing and __name__ == "__main__":
                         old_scale = scale
                         scale -= 0.1
                         scale = int(scale*10)/10
-                        if scale <= 0.1:
-                            scale = 0.1
+                        if scale <= min_scale:
+                            scale = min_scale
                         scrollx = int(round(scrollx*scale/old_scale - mx*(1-old_scale/scale),0))
                         if scrollx > 0:
                             scrollx = 0
@@ -929,6 +930,14 @@ while playing and __name__ == "__main__":
                 if e.key == pg.K_q:
                     if selected_world is not None:
                         in_menu = not in_menu
+                
+                if e.key == pg.K_SPACE:
+                    for plane in plane_list:
+                        plane.taking_off = True
+                        plane.in_flight = True
+                        plane.start_flight_time = t.perf_counter()
+                        plane.measure_dist_point = plane.x
+                        plane.goal = "taking off"
 
         if not research_menu:#normal scrolling in level
             if scroll_keys_hold[3] and abs(scrollx-scroll_speed) <= round((grid.shape[1])*50*scale-screen_size[0], 3):
@@ -1030,7 +1039,9 @@ while playing and __name__ == "__main__":
             items_list.pop(index)
 
         for plane in plane_list:
+            plane.update(deltaTime, grid.shape[0])
             plane.draw(screen, scrollx, scrolly, scale, scaled_pictures)
+
 
         t_teken_menu = t.perf_counter()
 

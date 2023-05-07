@@ -347,6 +347,8 @@ for craftable in crafter_craftables.keys():
 scaled_pictures_scales = {} #all the images with all the scales preloaded so faster when zooming in or out
 min_scale = 0.1
 max_scale = 1.5
+# min_scale = 1
+# max_scale = 1
 
 for scale_int in range(int(min_scale * 10), int((max_scale + 0.1) * 10), 1):
     scale = scale_int / 10
