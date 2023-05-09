@@ -60,6 +60,8 @@ class Plane:
         self.taxiing = False #taxiing to default pos
         self.start_taxiing_perf = 0
 
+        self.particle_perf = 0 #t perf for when to start spawn particles
+
     def draw(self, screen, scrollx, scrolly, scale, scaled_pictures):
         if self.shadow_scale != scale or self.alpha_shadow != self.prev_alpha_shadow:
             self.shadow = pg.mask.from_surface(scaled_pictures["plane_1"][1])
@@ -102,6 +104,10 @@ class Plane:
 
                     self.shadow_dist = (x**4 * (self.shadow_dist_end - self.shadow_dist_start)) + self.shadow_dist_start  
                     self.alpha_shadow = (x**4 * (self.alpha_shadow_end - self.alpha_shadow_start)) + self.alpha_shadow_start 
+
+                    if x > 0.1:
+                        plane_particles.append([self.x, self.y + self.height / 2 - 10, self.speed * self.speed_plane_num_dict[self.plane_num] * dT, r.uniform(-1,1), 20])
+
                 else:
                     self.in_flight = False
                     self.landing = True
@@ -132,6 +138,10 @@ class Plane:
                         self.x_flight = -5000
                         self.taking_off = False
                         self.landing = False
+
+                if t.perf_counter() > self.particle_perf + 0.1:
+                    plane_particles.append([self.x, self.y + self.height / 2 - 10, (self.speed * self.speed_plane_num_dict[self.plane_num] * dT) / 1.5, r.uniform(-1,1), r.randint(10, 20)])
+                    self.particle_perf = t.perf_counter()
                 
             self.speed *= self.speed_plane_num_dict[self.plane_num]
             self.x_flight += self.speed * dT
@@ -164,10 +174,10 @@ def update_and_draw_plane_particles(screen, plane_particles, dT, scale, scrollx,
         particle[0] += particle_vx / 10 * dT
         particle[1] += particle_vy / 10 * dT
 
-        particle[2] = particle_vx * 0.9
-        particle[3] = particle_vy * 0.9
+        particle[2] = particle_vx * 0.95
+        particle[3] = particle_vy * 0.95
 
-        particle[4] = particle_size * 0.98
+        particle[4] = particle_size * 0.97
 
 
         particle_surf = pg.Surface((particle_size, particle_size), pg.SRCALPHA)
