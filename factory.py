@@ -338,7 +338,7 @@ if autoload: # temporary for quicker testing
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(autoload_world, spawn_items)
     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
-    plane_list = generate_plane_list(grid, 5)
+    # plane_list = generate_plane_list(grid, 5)
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -939,6 +939,10 @@ while playing and __name__ == "__main__":
                         plane.start_flight_time = t.perf_counter()
                         plane.measure_dist_point = plane.x
                         plane.goal = "taking off"
+                
+                if e.key == pg.K_o:
+                    plane_list = generate_plane_list(grid, 5)
+
 
         if not research_menu:#normal scrolling in level
             if scroll_keys_hold[3] and abs(scrollx-scroll_speed) <= round((grid.shape[1])*50*scale-screen_size[0], 3):

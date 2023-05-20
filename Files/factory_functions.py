@@ -144,12 +144,37 @@ unsc_pics['picture_7'] = import_foto('Blocks/01.png', grid_size, grid_size, True
 
 exclude = [1,2,3,4,5,6,7]
 
+#load blocks accordingly with tile_info.json
 for block in tile_info.keys():
     if not int(block) in exclude:
         convert = True
         if "convert_alpha" in tile_info[block]:
             convert = False
         size = int(grid_size * tile_info[block]["size"])
+
+        if "levels" in tile_info[block]:
+            if "background_tile" in tile_info[block]:
+                temp_pic = pg.Surface((size, size), pg.SRCALPHA)
+
+                if tile_info[block]["background_tile"] != [0]:
+                    for x in range(tile_info[block]["size"]):
+                        for y in range(tile_info[block]["size"]):
+                            if type(tile_info[block]["background_tile"]) is list:
+                                tile = r.choice(tile_info[block]["background_tile"])
+                            else:
+                                tile = tile_info[block]["background_tile"]
+                            tile_pic = import_foto(f"Blocks/{tile}.png", grid_size, grid_size, True)
+                            temp_pic.blit(tile_pic, (x * grid_size, y * grid_size))
+
+            for level in tile_info[block]["levels"]:
+                if "background_tile" not in tile_info[block]:
+                    unsc_pics[f'picture_{block}_level_{level}'] = import_foto(f'Blocks/{block}-{level}.png', size, size, convert)
+                else:
+                    tile_pic = pg.Surface((size, size))
+                    tile_pic.blit(temp_pic, (0,0))
+                    tile_pic.blit(import_foto(f'Blocks/{block}-{level}.png', size, size, convert), (0,0))
+                    unsc_pics[f'picture_{block}_level_{level}'] = tile_pic 
+
         if "varients" in tile_info[block]: # background tiles varients
             unsc_pics[f'picture_{block}'] = import_foto(f'Blocks/{block}.png', size, size, convert)
 
@@ -191,7 +216,6 @@ for block in tile_info.keys():
 
 # # picture_25 = import_foto('Blocks/25_base.png', grid_size, grid_size, True)
 # # picture_26 = import_foto('Blocks/25_arm.png', grid_size * 3, grid_size * 3) legacy code
-
 picture_list = []
 with open("Data/tile_info.json") as f:
     tile_info = json.load(f)
@@ -218,7 +242,12 @@ for x in items_pictures:
 scaled_pictures = {}
 pictures_scales = {}
 
-
+for tile in tile_info.keys():
+    if tile != "ground_blocks":
+        if "levels" in tile_info[tile]:
+            for level in tile_info[tile]['levels']:
+                scaled_pictures[f"picture_{tile}_level_{level}"] = [pg.transform.rotate(unsc_pics[f"picture_{tile}_level_{level}"], -angle) for angle in range(0, 360, 90)]
+                pictures_scales[f"picture_{tile}_level_{level}"] = [round(float(unsc_pics[f"picture_{tile}_level_{level}"].get_size()[0] / grid_size)) for angle in range(0, 360, 90)]
 
 for i in range(len(picture_list)):
     scaled_pictures[str('picture_' + str(picture_list[i]))] = [pg.transform.rotate(
@@ -575,6 +604,9 @@ def render_building(built,x,y,orientation,drawn_xy,main_screen,scale,grid,grid_r
             if built == 15:
                 main_screen.blit(scaled_pictures["picture_15_" + str(int(move[0]+1)) + "_" + str(grid_data[y,x]["craft_recipe"] if grid_data[y, x]["craft_recipe"] != -1 else "r")][orientation],
                                 (x_grid_scale, y_grid_scale))
+            elif built == 38: #delivery building thing
+                main_screen.blit(scaled_pictures[f"picture_38_level_{grid_data[y,x]['level']}"][orientation],
+                                (x_grid_scale, y_grid_scale))
 
             else:
                 main_screen.blit(scaled_pictures["picture_"+str(abs(built))][orientation],
@@ -591,6 +623,9 @@ def render_building(built,x,y,orientation,drawn_xy,main_screen,scale,grid,grid_r
 
                 else:
                     main_screen.blit(scaled_pictures["picture_15_" + str(int(move[0]+1))][orientation],
+                                (round(x_ * grid_size * scale)+scrollx, round(y_ * grid_size * scale)+scrolly))
+            elif built == -38: #delivery building thing
+                main_screen.blit(scaled_pictures[f"picture_38_level_{grid_data[y_,x_]['level']}"][orientation],
                                 (round(x_ * grid_size * scale)+scrollx, round(y_ * grid_size * scale)+scrolly))
             else:
                 main_screen.blit(scaled_pictures["picture_"+str(abs(built))][grid_rotation[y_, x_]],
@@ -870,6 +905,10 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
         if not free:
             for item in b_prices[brush].keys():
                 storage[item_names[0].index(item)] -= b_prices[brush][item]
+        
+        if draw_brush == 38:
+            grid_data[ry, rx]["level"] = 1 # set level for delivery station thing
+
     else:
         print("not enough resources!")
     return grid, grid_rotation, grid_data, storage
