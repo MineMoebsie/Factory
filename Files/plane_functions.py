@@ -52,7 +52,6 @@ class Plane:
         self.landing_dist = -1 # distance from place to land (where plane comes to standstill) to the point where it needs to start decelerating to line up with the landing spot
         self.start_landing_x = 0 # absolute point from whereon the plane needs to decelerate calculated with prev. var
         self.speed_plane_num_dict = {0: 1.6, 1: 1.2, 2: 0.75, 3: 1, 4: 1.4}
-        # self.speed_plane_num_dict = {0: 1, 1: 1, 2: 1, 3: 1, 4: 1}
 
         self.measure_dist_take_off = 0 # distance measured required to take off and reach constant speed
         self.measure_dist_point = 0 #point measured before take off where the plane is/was
@@ -179,9 +178,8 @@ def update_and_draw_plane_particles(screen, plane_particles, dT, scale, scrollx,
 
         particle[4] = particle_size * 0.97
 
-
         particle_surf = pg.Surface((particle_size, particle_size), pg.SRCALPHA)
-        pg.draw.circle(particle_surf, (100, 100, 100  ), (particle_size / 2, particle_size / 2), particle_size / 2)
+        pg.draw.circle(particle_surf, (100, 100, 100), (particle_size / 2, particle_size / 2), particle_size / 2)
         particle_surf.set_alpha(200)
         screen.blit(particle_surf, (particle_x * scale + scrollx, particle_y * scale + scrolly))
 

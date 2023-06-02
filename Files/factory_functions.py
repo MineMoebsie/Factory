@@ -39,7 +39,7 @@ with open("Data/creater_btn_order.json") as f:
 with open("Data/creater_prices.json") as f:
     creater_prices = json.load(f)
 
-conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7, 15, -15]
+conveyor_connect_list = [1, 2, 3, 4, 5, 6, 7, 15, -15, -38]
 
 item_font = pg.font.Font('Fonts/Lato.ttf', 20)
 r_display_font = pg.font.Font('Fonts/Roboto-Light.ttf', 30)
@@ -103,6 +103,14 @@ research_creater_btn_clicked = import_foto("UI/research_creater_clicked.png", 20
 
 research_creater_item_btn = import_foto("UI/research_creater.png", 150, 150)
 research_creater_item_btn_clicked = import_foto("UI/research_creater_clicked.png", 150, 150)
+
+# delivery_backg
+
+
+
+
+
+
 
 not_enough_picture = import_foto('UI/not_enough.png', 2000, 500)
 
@@ -907,7 +915,7 @@ def build(rx, ry, rr, grid, grid_rotation, grid_data, brush, size, b_prices, sto
                 storage[item_names[0].index(item)] -= b_prices[brush][item]
         
         if draw_brush == 38:
-            grid_data[ry, rx]["level"] = 1 # set level for delivery station thing
+            grid_data[ry, rx]["level"] = 5 # set level for delivery station thing
 
     else:
         print("not enough resources!")
@@ -1420,109 +1428,120 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
     #buttons
     if tile_menu_type == "crafter":
         loop_recipes = unlocked_recipes # select random as recipe 
+    elif tile_menu_type == "delivery":
+        pass
     else:
         loop_recipes = ["Random"]
         loop_recipes.extend(creater_unlocked_recipes[creater_type])
 
-    for n, recipe in enumerate(loop_recipes):
-        btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
-        if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
-            if recipe == hover_recipe:
-                temp_surf.blit(craft_select_btn_hover_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
-            else:
-                temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
-            
-            topleft = ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y)
-            color_size = 110
- 
-            if tile_menu_type == "crafter":
-                color = recipes[str(recipe)]["color"]
+    line_1 = 0
+    line_2 = 0
 
-                requirements = {}
-                for item in recipes[str(recipe)]["recipe"]: #loops through for ex.: [1,2,2]
-                    if not item in requirements: 
-                        requirements[item] = 1 
-                    else:
-                        requirements[item] += 1
-
-                color_pic = crafter_picture_colors[color][0]
-                color_pic = pg.transform.scale(color_pic, (color_size, color_size))
-
-                temp_surf.blit(color_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - color_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - color_size) / 2))
-
-            if recipe != "Random":
-                item_pic = unsc_pics[f"item_{recipe}_picture"]
-            else:
-                item_pic = unsc_pics[f"item_random_picture"]
-
-            item_size = 50
-            item_pic = pg.transform.scale(item_pic, (item_size, item_size))
-
-            temp_surf.blit(item_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - item_size) / 2))
-
-            surf_w, surf_h = edit_menu_surf.get_size()    
-            add_x, add_y = (surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)
-            
-            if tile_menu_type == "crafter":
-                recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
-                if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
-                    recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
-
-                y_blit = topleft[1] + 30
-                if len(requirements) > 4:
-                    y_blit = topleft[1] + 18
-
-                temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, y_blit))
-
-                x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
-                y_blit = topleft[1] + 65
-                if len(requirements) > 4:
-                    y_blit = topleft[1] + 50
-
-                for item in requirements.keys():
-                    if x_blit > (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + craft_select_btn_picture.get_width() - 30:
-                        x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
-                        y_blit += 30
-                    item_pic = unsc_pics[f"item_{item}_picture"]
-                    item_pic_size = 30
-                    item_pic = pg.transform.scale(item_pic, (item_pic_size, item_pic_size))
-
-                    temp_surf.blit(item_pic, (x_blit, y_blit))
-
-                    x_blit += item_pic_size + 3
-
-                    req_text = edit_tile_font_item.render(str(requirements[item]), True, (0, 0, 0))
-                    temp_surf.blit(req_text, (x_blit, y_blit))
-
-                    x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 7
-
-            elif tile_menu_type == "creater":
-                if recipe != "Random":
-                    recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+    if tile_menu_type != "delivery":
+        for n, recipe in enumerate(loop_recipes):
+            btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
+            if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
+                if recipe == hover_recipe:
+                    temp_surf.blit(craft_select_btn_hover_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
                 else:
-                    recipe_text = edit_tile_font_small.render("Random", True, (0, 0, 0))
+                    temp_surf.blit(craft_select_btn_picture, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y))
+                
+                topleft = ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2, btn_y)
+                color_size = 110
+    
+                if tile_menu_type == "crafter":
+                    color = recipes[str(recipe)]["color"]
 
-                if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
-                    recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+                    requirements = {}
+                    for item in recipes[str(recipe)]["recipe"]: #loops through for ex.: [1,2,2]
+                        if not item in requirements: 
+                            requirements[item] = 1 
+                        else:
+                            requirements[item] += 1
 
-                y_blit = topleft[1] + 45
-                temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, y_blit))
+                    color_pic = crafter_picture_colors[color][0]
+                    color_pic = pg.transform.scale(color_pic, (color_size, color_size))
 
-            crafter_btn_collidepoints.append(
-                [pg.Rect(((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + add_x, btn_y + add_y), (craft_select_btn_picture.get_width(),craft_select_btn_picture.get_height())),
-                    recipe])
+                    temp_surf.blit(color_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - color_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - color_size) / 2))
 
-    temp_surf.blit(craft_select_menu_border_picture, (0,0))
-    surf_w, surf_h = edit_menu_surf.get_size()    
-    edit_menu_surf.blit(temp_surf, ((surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)))
+                if recipe != "Random":
+                    item_pic = unsc_pics[f"item_{recipe}_picture"]
+                else:
+                    item_pic = unsc_pics[f"item_random_picture"]
 
-    recipe_text = edit_tile_font.render("Select recipe", True, (0, 0, 0))
-    edit_menu_surf.blit(recipe_text, ((surf_w - recipe_text.get_width()) / 2, 45))
+                item_size = 50
+                item_pic = pg.transform.scale(item_pic, (item_size, item_size))
 
-    line_1 =  int((surf_h - temp_surf.get_height()) / 1.5)
-    line_2 =  int((surf_h - temp_surf.get_height()) / 1.5) + temp_surf.get_height()
+                temp_surf.blit(item_pic, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + 10, topleft[1] + (craft_select_btn_picture.get_height() - item_size) / 2))
 
-    edit_menu_surf.set_alpha(230)
+                surf_w, surf_h = edit_menu_surf.get_size()    
+                add_x, add_y = (surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)
+                
+                if tile_menu_type == "crafter":
+                    recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+                    if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
+                        recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+
+                    y_blit = topleft[1] + 30
+                    if len(requirements) > 4:
+                        y_blit = topleft[1] + 18
+
+                    temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, y_blit))
+
+                    x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
+                    y_blit = topleft[1] + 65
+                    if len(requirements) > 4:
+                        y_blit = topleft[1] + 50
+
+                    for item in requirements.keys():
+                        if x_blit > (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + craft_select_btn_picture.get_width() - 30:
+                            x_blit = (temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15
+                            y_blit += 30
+                        item_pic = unsc_pics[f"item_{item}_picture"]
+                        item_pic_size = 30
+                        item_pic = pg.transform.scale(item_pic, (item_pic_size, item_pic_size))
+
+                        temp_surf.blit(item_pic, (x_blit, y_blit))
+
+                        x_blit += item_pic_size + 3
+
+                        req_text = edit_tile_font_item.render(str(requirements[item]), True, (0, 0, 0))
+                        temp_surf.blit(req_text, (x_blit, y_blit))
+
+                        x_blit += edit_tile_font_item.size(str(requirements[item]))[0] + 7
+
+                elif tile_menu_type == "creater":
+                    if recipe != "Random":
+                        recipe_text = edit_tile_font_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+                    else:
+                        recipe_text = edit_tile_font_small.render("Random", True, (0, 0, 0))
+
+                    if recipe_text.get_width() > craft_select_btn_picture.get_width() - 70 - item_size:
+                        recipe_text = edit_tile_font_small_small.render(str(item_names[recipe][0]), True, (0, 0, 0))
+
+                    y_blit = topleft[1] + 45
+                    temp_surf.blit(recipe_text, ((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + (craft_select_btn_picture.get_height() - item_size) / 2 + color_size - 15, y_blit))
+
+                crafter_btn_collidepoints.append(
+                    [pg.Rect(((temp_surf.get_width() - craft_select_btn_picture.get_width()) / 2 + add_x, btn_y + add_y), (craft_select_btn_picture.get_width(),craft_select_btn_picture.get_height())),
+                        recipe])
+
+        temp_surf.blit(craft_select_menu_border_picture, (0,0))
+        surf_w, surf_h = edit_menu_surf.get_size()    
+        edit_menu_surf.blit(temp_surf, ((surf_w - temp_surf.get_width()) / 2, int((surf_h - temp_surf.get_height()) / 1.5)))
+
+        recipe_text = edit_tile_font.render("Select recipe", True, (0, 0, 0))
+        edit_menu_surf.blit(recipe_text, ((surf_w - recipe_text.get_width()) / 2, 45))
+
+        line_1 =  int((surf_h - temp_surf.get_height()) / 1.5)
+        line_2 =  int((surf_h - temp_surf.get_height()) / 1.5) + temp_surf.get_height()
+
+        edit_menu_surf.set_alpha(230)
+
+    elif tile_menu_type == "delivery":
+        pass
+
+
     return edit_menu_surf, crafter_btn_collidepoints, line_1, line_2
 
 def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1_basis, line_2_basis, update=True):
@@ -1736,6 +1755,7 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
                                'picture_3': 'picture_arrow_split_r', 'picture_4': 'picture_arrow_split_l',
                                'picture_5': 'picture_arrow_sort_r', 'picture_6': 'picture_arrow_sort_l',
                                'picture_7': 'picture_arrow_highway'}
+        
         index_for_research_progress_dict = {1:1,2:2,3:3,4:4,5:5,6:6,7:7,16:8,17:8,18:8}
         
         for button in range(len(menu_pictures[clicked_icon])):
@@ -1769,13 +1789,14 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
                             button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
                             height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
             
-            if clicked_icon == 0:
+            if clicked_icon == 0: # conveyor menu things
                 if scaled_picture in conveyor_arrow_dict:
                     screen.blit(pg.transform.scale(eval(conveyor_arrow_dict[scaled_picture]), (
                     int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
                                 button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
                                 height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
 
+                print(index_for_research_progress_dict)
                 if research_progress[clicked_icon][conveyor_research_progress_dict[index_for_research_progress_dict[index]]] < 0:
                     screen.blit(pg.transform.scale(lock_picture, (
                     int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (

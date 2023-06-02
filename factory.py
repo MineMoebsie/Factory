@@ -220,7 +220,7 @@ crafter_btn_collidepoints = []
 edit_tile_menu_open = False
 tile_menu_type = "" # can be splitter, sorter, crafter
 creater_type = 0 # creater type that is selected in edit tile menu. For example, the farm (13) or barn (15) etc. 
-craft_scrolly = {"crafter": 15, "creater": 15}
+craft_scrolly = {"crafter": 15, "creater": 15, "delivery": 15}
 update_edit_menu = True
 hover_recipe = -1 # which recipe is hovered
 line_1 = 0
@@ -695,6 +695,15 @@ while playing and __name__ == "__main__":
                                         tile_menu_type = "creater"
                                         creater_type = abs(grid[mry, mrx])
                                         edit_tile_menu_open = True
+                                    elif grid[mry, mrx] in [-38, 38]: # for delivery menu
+                                        mouse_down = False # no more tile placement
+                                        mrx, mry = bereken_muis_pos(mx,my,scrollx,scrolly,scale)
+                                        selected_x = mrx
+                                        selected_y = mry
+                                        tile_menu_type = "delivery"
+                                        edit_tile_menu_open = True
+
+                                    print(tile_menu_type)
 
                             elif not tile_mode == "edit":
                                 edit_tile_menu_open = False
@@ -793,7 +802,7 @@ while playing and __name__ == "__main__":
                             craft_scrolly[tile_menu_type] = max(-len(unlocked_recipes) * 130 + 200, craft_scrolly[tile_menu_type])
                         elif tile_menu_type == "creater":
                             craft_scrolly[tile_menu_type] = max(-len(creater_unlocked_recipes[creater_type]) * 130 + 200, craft_scrolly[tile_menu_type])
-                            
+
                     if e.button == 5:#scroll down
                         craft_scrolly[tile_menu_type] += 5 * deltaTime
                         craft_scrolly[tile_menu_type] = min(15, craft_scrolly[tile_menu_type])
@@ -940,7 +949,7 @@ while playing and __name__ == "__main__":
                         plane.measure_dist_point = plane.x
                         plane.goal = "taking off"
                 
-                if e.key == pg.K_o:
+                if e.key == pg.K_u:
                     plane_list = generate_plane_list(grid, 5)
 
 
