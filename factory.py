@@ -282,7 +282,7 @@ render_distance = 1
 min_scale = 0.1
 max_scale = 1.5
 
-not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui = render_images(screen,True)
+not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui,delivery_backg = render_images(screen,True)
 
 pg.event.set_allowed([pg.MOUSEMOTION,pg.MOUSEBUTTONDOWN,pg.MOUSEBUTTONUP,pg.QUIT,pg.VIDEORESIZE,pg.KEYUP,pg.KEYDOWN, pg.MOUSEWHEEL])
 
@@ -372,7 +372,7 @@ while playing and __name__ == "__main__":
                 screen_info = pg.display.Info()
                 screen_size = pg.display.get_surface().get_size()
                 screen_w, screen_h = screen_size
-                not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui = render_images(screen,True)
+                not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui,delivery_backg = render_images(screen,True)
                 r_screen_transparent = update_r_screen_func(screen, rect_ui)
                 if k_scrolly < rect_keybinds.get_height()-screen_size[1]:
                     k_scrolly = 0
@@ -571,10 +571,11 @@ while playing and __name__ == "__main__":
                     if rect_edit_menu.collidepoint(mx,my): # in the edit menu
                         update_edit_menu = True
                         mouse_down = False
-                        for btn_obj in crafter_btn_collidepoints:
+                        for btn_obj in crafter_btn_collidepoints:                            
                             btn = btn_obj[0]
                             if btn.collidepoint(mx, my):
                                 hover_recipe = btn_obj[1]
+                                print(hover_recipe)
                                 
             if e.type == pg.MOUSEBUTTONDOWN:
                 if mousebutton_pressed == False:
@@ -854,7 +855,7 @@ while playing and __name__ == "__main__":
                 screen_info = pg.display.Info()
                 screen_size = pg.display.get_surface().get_size()
                 screen_w, screen_h = screen_size
-                not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui = render_images(screen,True)
+                not_enough_picture,rect_keybinds,data_display,data_arrow,rect_info,rect_ui,research_button_clicked,research_button_unclicked,research_display,info_ui,delivery_backg = render_images(screen,True)
                 r_screen_transparent = update_r_screen_func(screen, rect_ui)
 
                 if k_scrolly < rect_keybinds.get_height()-screen_size[1]:
@@ -862,6 +863,8 @@ while playing and __name__ == "__main__":
 
                 backg_surf, backg_img = create_backg_surf(screen_w, screen_h)
                 world_menu_top, world_menu_bottom = update_pictures(screen)
+
+                update_edit_menu = True
 
             if e.type == pg.KEYUP:
                 if e.key == pg.K_w or e.key == pg.K_UP:
@@ -884,29 +887,39 @@ while playing and __name__ == "__main__":
                     scroll_keys_hold[3] = True
 
                 if e.key == pg.K_ESCAPE:
-                    autosave_active = False
+                    escaped = False
+                    if tile_mode == "edit":
+                        if edit_tile_menu_open:
+                            edit_tile_menu_open = False
+                            update_edit_menu = True
+                            selected_x, selected_y = -1, -1
+                            escaped = True
+                    
+                    if not escaped:
+                        autosave_active = False
 
-                    backg_surf = pg.Surface(screen.get_size())
-                    grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
-                    loading_surf = setup_loading_screen(screen, backg_img)
+                        backg_surf = pg.Surface(screen.get_size())
+                        grid_cables = teken_grid(screen, grid, grid_rotation, selected_x, selected_y, move_animation, scrollx, scrolly, screen_size,render_distance,storage,scale,scaled_pictures,blocks_index, grid_cables, brush, angle, grid_data)
+                        loading_surf = setup_loading_screen(screen, backg_img)
 
-                    draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Saving world...")
+                        draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Saving world...")
 
-                    save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes)
+                        save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes)
 
-                    draw_loading_screen_create_world(screen, clock, loading_surf, 80, 10, "Saving player data...")
+                        draw_loading_screen_create_world(screen, clock, loading_surf, 80, 10, "Saving player data...")
 
-                    save_player_data(selected_world, start_play_perf)
-                    in_menu = True
-                    switch_menu_trigger = True
+                        save_player_data(selected_world, start_play_perf)
+                        in_menu = True
+                        switch_menu_trigger = True
 
-                    draw_loading_screen_create_world(screen, clock, loading_surf, 100, 80, "Returning to menu screen...")
+                        draw_loading_screen_create_world(screen, clock, loading_surf, 100, 80, "Returning to menu screen...")
 
                 if e.key == pg.K_r:
                     mrr = (mrr - 1) % 4
 
                 if e.key in [pg.K_0,pg.K_1,pg.K_2,pg.K_3,pg.K_4,pg.K_5,pg.K_6,pg.K_7,pg.K_8,pg.K_9]:
                     brush = keybinds[e.key-48]
+                    tile_mode = "place"
 
                 #debug keys
                 if e.key == pg.K_k:
@@ -1065,11 +1078,11 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly[tile_menu_type], item_names,creater_unlocked_recipes, creater_type, hover_recipe=hover_recipe)
+                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly[tile_menu_type], item_names,creater_unlocked_recipes, creater_type, delivery_backg, hover_recipe=hover_recipe)
                     update_edit_menu = False
-                    rect_edit_menu, crafter_btn_collidepoints, line_1, line_2 = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2)
+                    rect_edit_menu, crafter_btn_collidepoints, line_1, line_2 = blit_tile_edit_menu(screen, tile_menu_type, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2)
                 else:
-                    rect_edit_menu, crafter_btn_collidepoints = blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2, False)
+                    rect_edit_menu, crafter_btn_collidepoints = blit_tile_edit_menu(screen, tile_menu_type, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2, False)
 
             else: 
                 selected_x = -1
@@ -1126,6 +1139,10 @@ while playing and __name__ == "__main__":
                 autosave_perf = t.perf_counter()
                 print("finished autosave")
         
+        # for btn in crafter_btn_collidepoints:
+        #     btn = btn[0]
+        #     pg.draw.rect(screen, (255, 0, 0), btn)
+
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()

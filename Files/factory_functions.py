@@ -104,13 +104,11 @@ research_creater_btn_clicked = import_foto("UI/research_creater_clicked.png", 20
 research_creater_item_btn = import_foto("UI/research_creater.png", 150, 150)
 research_creater_item_btn_clicked = import_foto("UI/research_creater_clicked.png", 150, 150)
 
-# delivery_backg
-
-
-
-
-
-
+delivery_backg = import_foto("UI/delivery_backg.png", 1000, 2000)
+delivery_btn_pic = import_foto("UI/delivery_btn.png", 750, 400)
+delivery_btn_clicked_pic = import_foto("UI/delivery_btn_clicked.png", 750, 400)
+delivery_upgrade_btn_pic = import_foto("UI/delivery_upgrade_btn.png", 500, 500)
+delivery_upgrade_btn_clicked_pic = import_foto("UI/delivery_upgrade_btn_clicked.png", 500, 500)
 
 not_enough_picture = import_foto('UI/not_enough.png', 2000, 500)
 
@@ -1416,10 +1414,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
 
     return tile_mode, up_button, down_button  # buttons = pg.Rect of buttons (collidepoint)
 
-def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, creater_unlocked_recipes, creater_type, hover_recipe=-1):
-    edit_menu_surf = pg.Surface(edit_mode_menu_picture.get_size(), pg.SRCALPHA)
-    edit_menu_surf.blit(edit_mode_menu_picture, (0, 0))
-
+def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, creater_unlocked_recipes, creater_type, delivery_backg, hover_recipe=-1):
     crafter_btn_collidepoints = []
 
     craft_buffer = 5
@@ -1438,6 +1433,8 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
     line_2 = 0
 
     if tile_menu_type != "delivery":
+        edit_menu_surf = pg.Surface(edit_mode_menu_picture.get_size(), pg.SRCALPHA)
+        edit_menu_surf.blit(edit_mode_menu_picture, (0, 0))
         for n, recipe in enumerate(loop_recipes):
             btn_y = craft_scrolly + n * (craft_select_btn_picture.get_height() + craft_buffer)
             if temp_surf.get_height() >= btn_y >= -craft_select_btn_picture.get_height():
@@ -1539,29 +1536,58 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
         edit_menu_surf.set_alpha(230)
 
     elif tile_menu_type == "delivery":
-        pass
+        # make bar on left (transparent)
+        edit_menu_surf = pg.Surface(delivery_backg.get_size(), pg.SRCALPHA)   
+        delivery_backg_surf = pg.Surface(delivery_backg.get_size(), pg.SRCALPHA)
+        delivery_backg_surf.blit(delivery_backg, (0, 0))
+        delivery_backg_surf.set_alpha(210)     
+        edit_menu_surf.blit(delivery_backg_surf, (0,0))
 
+        menu_surf_w, menu_surf_h = edit_menu_surf.get_size()
+
+        #title
+        title_text = edit_tile_font.render("Deliveries", True, (0, 0, 0))
+        edit_menu_surf.blit(title_text, ((menu_surf_w - title_text.get_width()) / 2, 30))
+
+        # W I P: add buttons
 
     return edit_menu_surf, crafter_btn_collidepoints, line_1, line_2
 
-def blit_tile_edit_menu(screen, edit_menu_surf, crafter_btn_collidepoints, line_1_basis, line_2_basis, update=True):
+def blit_tile_edit_menu(screen, tile_menu_type, edit_menu_surf, crafter_btn_collidepoints, line_1_basis, line_2_basis, update=True):
     scr_w, scr_h = screen.get_size()
-    screen.blit(edit_menu_surf, ((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2))
+    edit_menu_rect = pg.Rect((0,0),(0,0))
+    line_1 = 0
+    line_2 = 0
+    new_list = [] # for btn collidepoints for crafter
+    
+    if tile_menu_type != "delivery":
+        screen.blit(edit_menu_surf, ((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2))
 
-    x_add, y_add = (scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2
+        x_add, y_add = (scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2
+
+        if update:
+            new_list = []
+            for i, btn_obj in enumerate(crafter_btn_collidepoints):
+                btn = btn_obj[0]
+                new_list.append([pg.Rect((btn.x + x_add, btn.y + y_add),(btn.w, btn.h)), btn_obj[1]])
+
+            line_1 = line_1_basis + (scr_h - edit_menu_surf.get_height()) / 2
+            line_2 = line_2_basis + (scr_h - edit_menu_surf.get_height()) / 2
+            
+        edit_menu_rect = pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height()))
+        #     return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), new_list, line_1, line_2
+        # else:
+        #     return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), new_list
+
+    else:
+        screen.blit(edit_menu_surf, (0,0))
 
     if update:
-        new_list = []
-        for i, btn_obj in enumerate(crafter_btn_collidepoints):
-            btn = btn_obj[0]
-            new_list.append([pg.Rect((btn.x + x_add, btn.y + y_add),(btn.w, btn.h)), btn_obj[1]])
-
-        line_1 = line_1_basis + (scr_h - edit_menu_surf.get_height()) / 2
-        line_2 = line_2_basis + (scr_h - edit_menu_surf.get_height()) / 2
-        
-        return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), new_list, line_1, line_2
+        return edit_menu_rect, new_list, line_1, line_2
     else:
-        return pg.Rect(((scr_w - edit_menu_surf.get_width()) / 2, (scr_h - edit_menu_surf.get_height()) / 2), (edit_menu_surf.get_width(), edit_menu_surf.get_height())), crafter_btn_collidepoints
+        return edit_menu_rect, crafter_btn_collidepoints
+
+
 
 def update_recipe(grid,grid_data,hover_recipe,x,y, blocks_index, creater_type, update=""):
     blocks_type = 15 if update == "crafter" else creater_type
@@ -1796,7 +1822,6 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
                                 button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
                                 height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
 
-                print(index_for_research_progress_dict)
                 if research_progress[clicked_icon][conveyor_research_progress_dict[index_for_research_progress_dict[index]]] < 0:
                     screen.blit(pg.transform.scale(lock_picture, (
                     int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
@@ -1839,7 +1864,7 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
     return icon_click_list, bar_width, bar_height, button_distance, button_click_list, button_width
 
 
-def render_images(screen, new, not_enough_picture=not_enough_picture, rect_keybinds=rect_keybinds, data_display=data_display, data_arrow=data_arrow, rect_info=rect_info, rect_ui=rect_ui, research_button_clicked=research_button_clicked, research_button_unclicked=research_button_unclicked, research_display=research_display,info_ui=info_ui):
+def render_images(screen, new, not_enough_picture=not_enough_picture, rect_keybinds=rect_keybinds, data_display=data_display, data_arrow=data_arrow, rect_info=rect_info, rect_ui=rect_ui, research_button_clicked=research_button_clicked, research_button_unclicked=research_button_unclicked, research_display=research_display,info_ui=info_ui,delivery_backg=delivery_backg):
     width, height = screen.get_size()
     rect_info = pg.transform.scale(rect_info, (300, 400))
     rect_info.set_alpha(235)
@@ -1858,7 +1883,10 @@ def render_images(screen, new, not_enough_picture=not_enough_picture, rect_keybi
         data_arrow = pg.transform.scale(data_arrow,
                                         (int(data_arrow.get_size()[0] / 7), int(data_arrow.get_size()[1] / 7)))
     info_ui = pg.transform.scale(info_ui,(300,200))
-    return not_enough_picture, rect_keybinds, data_display, data_arrow, rect_info, rect_ui, research_button_clicked, research_button_unclicked, research_display,info_ui
+    
+    delivery_backg = pg.transform.scale(delivery_backg, (int(height * 0.5), height))
+
+    return not_enough_picture, rect_keybinds, data_display, data_arrow, rect_info, rect_ui, research_button_clicked, research_button_unclicked, research_display,info_ui,delivery_backg
 
 
 def update_r_screen_func(screen, rect_ui):
