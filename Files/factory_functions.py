@@ -3,11 +3,12 @@ import time as t
 import numpy as np
 import pygame as pg
 import pdb
-import matplotlib.pyplot as plt
 import json
+import copy
+import cv2
+import matplotlib.pyplot as plt
 from perlin_noise import PerlinNoise
 from Files.loading_functions import generate_block
-import copy
 
 pg.init()
 pg.font.init()
@@ -105,8 +106,9 @@ research_creater_item_btn = import_foto("UI/research_creater.png", 150, 150)
 research_creater_item_btn_clicked = import_foto("UI/research_creater_clicked.png", 150, 150)
 
 delivery_backg = import_foto("UI/delivery_backg.png", 1000, 2000)
-delivery_btn_pic = import_foto("UI/delivery_btn.png", 750, 400)
-delivery_btn_clicked_pic = import_foto("UI/delivery_btn_clicked.png", 750, 400)
+delivery_w, delivery_h = (300, 160)
+delivery_btn_pic = import_foto("UI/delivery_btn.png", delivery_w, delivery_h)
+delivery_btn_clicked_pic = import_foto("UI/delivery_btn_clicked.png", delivery_w, delivery_h)
 delivery_upgrade_btn_pic = import_foto("UI/delivery_upgrade_btn.png", 500, 500)
 delivery_upgrade_btn_clicked_pic = import_foto("UI/delivery_upgrade_btn_clicked.png", 500, 500)
 
@@ -1414,7 +1416,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
 
     return tile_mode, up_button, down_button  # buttons = pg.Rect of buttons (collidepoint)
 
-def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, creater_unlocked_recipes, creater_type, delivery_backg, hover_recipe=-1):
+def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, creater_unlocked_recipes, creater_type, delivery_backg, to_deliver_list, hover_recipe=-1):
     crafter_btn_collidepoints = []
 
     craft_buffer = 5
@@ -1549,9 +1551,61 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
         title_text = edit_tile_font.render("Deliveries", True, (0, 0, 0))
         edit_menu_surf.blit(title_text, ((menu_surf_w - title_text.get_width()) / 2, 30))
 
-        # W I P: add buttons
+        blit_x_center = (edit_menu_surf.get_width() - delivery_btn_pic.get_width()) / 2
+
+        item_size = 50
+
+        i = 0
+        for delivery_btn in to_deliver_list:
+            if delivery_btn is not None: # if not unlocked, skip
+                btn_x, btn_y = (blit_x_center, i * (delivery_btn_pic.get_height() + 10) + 100)
+                edit_menu_surf.blit(delivery_btn_pic, (btn_x, btn_y))
+
+                runway_text = edit_tile_font_small_small.render(f"Runway {i + 1}:", True, (0, 0, 0))
+                edit_menu_surf.blit(runway_text, (btn_x + 25, btn_y + 20))
+
+                if delivery_btn != []:
+                    order_text = edit_tile_font_small.render(f"{delivery_btn[0] - delivery_btn[2]}", True, (0, 0, 0))
+                    edit_menu_surf.blit(order_text, (btn_x + 25, btn_y + 75))
+
+                    item_pic = unsc_pics[f"item_{delivery_btn[1]}_picture"]
+                    item_pic = pg.transform.scale(item_pic, (item_size, item_size))
+                    edit_menu_surf.blit(item_pic, (btn_x + 65, btn_y + 70))
+
+                    p1, p2 = (btn_x + 140, btn_y + 90), (btn_x + 260, btn_y + 90)
+                    draw_line_round_corners_cv(edit_menu_surf, p1, p2, (40, 140, 144), 40)
+                    draw_line_round_corners_cv(edit_menu_surf, p1, p2, (255, 255, 255), 30)
+
+                    part_filled = delivery_btn[2] / delivery_btn[0] # 0-1 how much it is filled. 0 empty, 1 is full
+                    p3 = (btn_x + 140 + part_filled * 120, btn_y + 90)
+                    draw_line_round_corners_cv(edit_menu_surf, p1, p3, (40, 140, 144), 20)
+
+                else: # waiting on order to load
+                    order_text = edit_tile_font_small.render(f"Waiting on order...", True, (0, 0, 0))
+                    edit_menu_surf.blit(order_text, (btn_x + 25, btn_y + 75))
+                i += 1
+            
+
+        '''
+        edit_tile_font = pg.font.Font('Fonts/Roboto.ttf', 35)
+        edit_tile_font_small = pg.font.Font('Fonts/Roboto.ttf', 30)
+        edit_tile_font_small_small = pg.font.Font('Fonts/Roboto.ttf', 25)
+        edit_tile_font_item = pg.font.Font('Fonts/Roboto.ttf', 25)
+        '''
+
 
     return edit_menu_surf, crafter_btn_collidepoints, line_1, line_2
+
+def draw_line_round_corners_cv(surf, p1, p2, color, w):
+    rect = pg.Rect(*p1, p2[0]-p1[0], p2[1]-p1[1])
+    rect.normalize()
+    rect.inflate_ip(w, w)
+    line_image = np.zeros((rect.height, rect.width, 4), dtype = np.uint8)
+    c = pg.Color(color)
+    line_image = cv2.line(line_image, (w//2, w//2), (int(p2[0]-p1[0]+w//2), int(p2[1]-p1[1]+w//2)), (c.r, c.g, c.b, c.a), thickness=w)
+    line_surface = pg.image.frombuffer(line_image.flatten(), rect.size, 'RGBA')
+    surf.blit(line_surface, line_surface.get_rect(center = rect.center))
+
 
 def blit_tile_edit_menu(screen, tile_menu_type, edit_menu_surf, crafter_btn_collidepoints, line_1_basis, line_2_basis, update=True):
     scr_w, scr_h = screen.get_size()

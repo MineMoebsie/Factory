@@ -3,3 +3,4 @@ pygame
 numpy
 easing-functions
 matplotlib
+opencv-python
