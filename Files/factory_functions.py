@@ -1877,7 +1877,6 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
         button = 0
         picture_margin = 20
 
-        print(list(sorted(enumerate(list(scaled_pictures.keys())))))
         for index, scaled_picture in list(sorted(enumerate(list(scaled_pictures.keys())))):
             do_continue = True
             for i in range(len(menu_pictures[clicked_icon])):
