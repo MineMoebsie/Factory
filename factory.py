@@ -247,10 +247,14 @@ storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, et
 plane_list = []
 plane_particles = []
 
-to_deliver_list = [None, [], [50, 22, 0], None, [50, 22, 25]] # orders that need to be fulfilled by the player
+to_deliver_list = [None, [50, 22, 0], None] # orders that need to be fulfilled by the player
 # if None, no order yet (waiting on order)
 # if []: [50, 22, 0] 50: item quantity, 22: item to deliver (item id), 0: items delivered (will increase to 50 if player delivers correct item)
 # if []: waiting on order
+
+delivery_upgrade_cost = [[[50, 23], [60, 24], [70, 25]], [], [], []] # when upgrading delivery thing, cost
+# ind. 0: from 1 to 2 etc.
+# cost: quantity, item id
 
 # plane_list.append(Plane(10, 10, 1))
 
@@ -1084,7 +1088,7 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly[tile_menu_type], item_names,creater_unlocked_recipes, creater_type, delivery_backg, to_deliver_list, hover_recipe=hover_recipe)
+                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly[tile_menu_type], item_names,creater_unlocked_recipes, creater_type, delivery_backg, to_deliver_list, delivery_upgrade_cost, storage, hover_recipe=hover_recipe)
                     update_edit_menu = False
                     rect_edit_menu, crafter_btn_collidepoints, line_1, line_2 = blit_tile_edit_menu(screen, tile_menu_type, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2)
                 else:

@@ -55,6 +55,7 @@ i_des_font = pg.font.Font('Fonts/Roboto-Light.ttf', 17)
 edit_tile_font = pg.font.Font('Fonts/Roboto.ttf', 35)
 edit_tile_font_small = pg.font.Font('Fonts/Roboto.ttf', 30)
 edit_tile_font_small_small = pg.font.Font('Fonts/Roboto.ttf', 25)
+edit_tile_font_small_small_small = pg.font.Font('Fonts/Roboto.ttf', 20)
 edit_tile_font_item = pg.font.Font('Fonts/Roboto.ttf', 25)
 
 picture_arrow = import_foto('Blocks/arrow-single.png', grid_size, grid_size)
@@ -109,8 +110,10 @@ delivery_backg = import_foto("UI/delivery_backg.png", 1000, 2000)
 delivery_w, delivery_h = (300, 160)
 delivery_btn_pic = import_foto("UI/delivery_btn.png", delivery_w, delivery_h)
 delivery_btn_clicked_pic = import_foto("UI/delivery_btn_clicked.png", delivery_w, delivery_h)
-delivery_upgrade_btn_pic = import_foto("UI/delivery_upgrade_btn.png", 500, 500)
-delivery_upgrade_btn_clicked_pic = import_foto("UI/delivery_upgrade_btn_clicked.png", 500, 500)
+
+upgrade_btn_size = 150
+delivery_upgrade_btn_pic = import_foto("UI/delivery_upgrade_btn.png", upgrade_btn_size, upgrade_btn_size)
+delivery_upgrade_btn_clicked_pic = import_foto("UI/delivery_upgrade_btn_clicked.png", upgrade_btn_size, upgrade_btn_size)
 
 not_enough_picture = import_foto('UI/not_enough.png', 2000, 500)
 
@@ -1416,7 +1419,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
 
     return tile_mode, up_button, down_button  # buttons = pg.Rect of buttons (collidepoint)
 
-def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, creater_unlocked_recipes, creater_type, delivery_backg, to_deliver_list, hover_recipe=-1):
+def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, creater_unlocked_recipes, creater_type, delivery_backg, to_deliver_list, delivery_upgrade_cost, storage, hover_recipe=-1):
     crafter_btn_collidepoints = []
 
     craft_buffer = 5
@@ -1585,6 +1588,24 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
                     edit_menu_surf.blit(order_text, (btn_x + 25, btn_y + 75))
                 i += 1
             
+        btn_x, btn_y = (blit_x_center, i * (delivery_btn_pic.get_height() + 10) + 100)
+        edit_menu_surf.blit(delivery_upgrade_btn_pic, (btn_x, btn_y))
+        upgrade_text = edit_tile_font_small_small_small.render(f"Upgrade: lvl. {i + 1}", True, (0, 0, 0))
+        edit_menu_surf.blit(upgrade_text, (btn_x + 161, btn_y + 10))
+
+        item_size = 30
+        for j, item_cost in enumerate(delivery_upgrade_cost[i-1]):
+            item_pic = unsc_pics[f"item_{item_cost[1]}_picture"]
+            item_pic = pg.transform.scale(item_pic, (item_size, item_size))
+            edit_menu_surf.blit(item_pic, (btn_x + 160, btn_y + 35 + j * (item_size + 5)))
+
+            if storage[item_cost[1]] >= item_cost[0]: # enough items for the x's items slot to upgrade
+                price_text = edit_tile_font_small_small_small.render(f"{item_cost[0]}", True, (18, 161, 56))            
+            else:
+                price_text = edit_tile_font_small_small_small.render(f"{item_cost[0]}", True, (0, 0, 0))
+            edit_menu_surf.blit(price_text, (btn_x + 165 + item_size, btn_y + 37 + j * (item_size + 5)))
+
+                
 
         '''
         edit_tile_font = pg.font.Font('Fonts/Roboto.ttf', 35)
