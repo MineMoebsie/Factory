@@ -253,12 +253,6 @@ for x in items_pictures:
 scaled_pictures = {}
 pictures_scales = {}
 
-for tile in tile_info.keys():
-    if tile != "ground_blocks":
-        if "levels" in tile_info[tile]:
-            for level in tile_info[tile]['levels']:
-                scaled_pictures[f"picture_{tile}_level_{level}"] = [pg.transform.rotate(unsc_pics[f"picture_{tile}_level_{level}"], -angle) for angle in range(0, 360, 90)]
-                pictures_scales[f"picture_{tile}_level_{level}"] = [round(float(unsc_pics[f"picture_{tile}_level_{level}"].get_size()[0] / grid_size)) for angle in range(0, 360, 90)]
 
 for i in range(len(picture_list)):
     scaled_pictures[str('picture_' + str(picture_list[i]))] = [pg.transform.rotate(
@@ -266,6 +260,13 @@ for i in range(len(picture_list)):
     pictures_scales[str('picture_' + str(picture_list[i]))] = [round(
         float(unsc_pics['picture_' + str(picture_list[i])].get_size()[0] / grid_size)) for angle in range(0, 360, 90)]
     
+for tile in tile_info.keys():
+    if tile != "ground_blocks":
+        if "levels" in tile_info[tile]:
+            for level in tile_info[tile]['levels']:
+                scaled_pictures[f"picture_{tile}_level_{level}"] = [pg.transform.rotate(unsc_pics[f"picture_{tile}_level_{level}"], -angle) for angle in range(0, 360, 90)]
+                pictures_scales[f"picture_{tile}_level_{level}"] = [round(float(unsc_pics[f"picture_{tile}_level_{level}"].get_size()[0] / grid_size)) for angle in range(0, 360, 90)]
+                
 for i in range(len(items_pictures)):
     scaled_pictures[str('item_' + str(items_pictures[i]) + '_picture')] = [pg.transform.rotate(unsc_pics[
         'item_' + str(items_pictures[i]) + '_picture'], -angle) for angle in range(0, 360, 90)]
@@ -1875,6 +1876,8 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
 
         button = 0
         picture_margin = 20
+
+        print(list(sorted(enumerate(list(scaled_pictures.keys())))))
         for index, scaled_picture in list(sorted(enumerate(list(scaled_pictures.keys())))):
             do_continue = True
             for i in range(len(menu_pictures[clicked_icon])):
@@ -1897,6 +1900,7 @@ def teken_menu(screen, conveyor_research_progress_dict, research_progress, menu_
                                 button_distance * button + int(button_margin / 2) - menu_scrollx + int(picture_margin / 2),
                                 height - bar_height + int(button_margin / 2) + int(picture_margin / 2)))
 
+                #if this line ever stops working: check the order of scaled_pictures and make sure that picture_0, picture_1, picture_2 through the last one are first
                 if research_progress[clicked_icon][conveyor_research_progress_dict[index_for_research_progress_dict[index]]] < 0:
                     screen.blit(pg.transform.scale(lock_picture, (
                     int(bar_height - button_margin - picture_margin), int(bar_height - button_margin - picture_margin))), (
