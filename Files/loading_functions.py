@@ -1,4 +1,5 @@
 import random as r
+import os
 
 def convert_json(tile_info):
     tile_names = {}
@@ -45,6 +46,19 @@ def convert_item_info(item_info):
         item_names[int(item)] = item_info[item]["name"]
 
     return item_names
+
+def load_deliver_list(world_path):
+    fpath = "Data/Saves/"+world_path+"deliver_list.txt"
+    if os.path.isfile(fpath):
+        with open(fpath, "r") as f:
+            to_deliver_list = eval(f.read())
+            delivery_level = 1
+            for delivery in to_deliver_list:
+                if delivery is not None:
+                    delivery_level += 1
+            return to_deliver_list, delivery_level
+    else:
+        return [[],[],None,[],[]], 1
 
 def generate_block(x, y, grid, grid_rotation, grid_generation, grid_generation_features):
         grid_rotation[y, x] = int(grid_generation[y][x] * 1000) % 4

@@ -1,1 +1,1 @@
-{'playtime': '0:52:56', 'last_played': 'Aug 09, 2023', 'version': 'v.1.6-pre-alpha', 'created': 'Apr 01, 2023', 'seed': 101, 'mode': 'Default'}
+{'playtime': '1 day, 1:07:41', 'last_played': 'Aug 10, 2023', 'version': 'v.1.6-pre-alpha', 'created': 'Apr 01, 2023', 'seed': 101, 'mode': 'Default'}

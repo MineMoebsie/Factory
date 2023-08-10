@@ -243,11 +243,12 @@ placeable = False
 
 storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
 
-#plane things & delivery for coins/r_points
+#plane things & delivery for r_points
 plane_list = []
 plane_particles = []
+delivery_level = 1
 
-to_deliver_list = [None, [50, 22, 0], None] # orders that need to be fulfilled by the player
+to_deliver_list = [[], [], None, [], []] # orders that need to be fulfilled by the player
 # if None, no order yet (waiting on order)
 # if []: [50, 22, 0] 50: item quantity, 22: item to deliver (item id), 0: items delivered (will increase to 50 if player delivers correct item)
 # if []: waiting on order
@@ -255,8 +256,6 @@ to_deliver_list = [None, [50, 22, 0], None] # orders that need to be fulfilled b
 delivery_upgrade_cost = [[[50, 23], [60, 24], [70, 25]], [], [], []] # when upgrading delivery thing, cost
 # ind. 0: from 1 to 2 etc.
 # cost: quantity, item id
-
-# plane_list.append(Plane(10, 10, 1))
 
 #recipes
 unlocked_recipes = []
@@ -348,7 +347,10 @@ if autoload: # temporary for quicker testing
     grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(autoload_world, spawn_items)
     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
-    # plane_list = generate_plane_list(grid, 5)
+
+    to_deliver_list, delivery_level = load_deliver_list(selected_world)
+    plane_list = generate_plane_list(grid, delivery_level)
+    
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -585,7 +587,6 @@ while playing and __name__ == "__main__":
                             btn = btn_obj[0]
                             if btn.collidepoint(mx, my):
                                 hover_recipe = btn_obj[1]
-                                print(hover_recipe)
                                 
             if e.type == pg.MOUSEBUTTONDOWN:
                 if mousebutton_pressed == False:
@@ -713,8 +714,6 @@ while playing and __name__ == "__main__":
                                         selected_y = mry
                                         tile_menu_type = "delivery"
                                         edit_tile_menu_open = True
-
-                                    print(tile_menu_type)
 
                             elif not tile_mode == "edit":
                                 edit_tile_menu_open = False
@@ -905,6 +904,23 @@ while playing and __name__ == "__main__":
                             selected_x, selected_y = -1, -1
                             escaped = True
                     
+                    if tile_mode == "info":
+                        if selected_x > -1 and selected_y > -1:
+                            selected_x, selected_y = -1, -1
+                            escaped = True
+                    
+                    if tile_mode == "view":
+                        tile_mode = "place"
+                        escaped = True
+
+                    if research_menu:
+                        research_menu = False
+                        escaped = True
+                    
+                    if keybind_menu:
+                        keybind_menu = False
+                        escaped = True
+                    
                     if not escaped:
                         autosave_active = False
 
@@ -1065,9 +1081,10 @@ while playing and __name__ == "__main__":
         t_pop_items = t.perf_counter()
 
         pop_index = []
+
         for index, item in enumerate(items_list):
             if not item.kapot:
-                storage,craft_data,grid_data,cargo_data = item.bepaal_richting(grid,grid_rotation,grid_data,storage,craft_data,conveyor_speed,deltaTime,grid_cables,cargo_data)
+                storage,craft_data,grid_data,cargo_data,to_deliver_list,update_edit_menu = item.bepaal_richting(grid,grid_rotation,grid_data,storage,craft_data,conveyor_speed,deltaTime,grid_cables,cargo_data,to_deliver_list,update_edit_menu)
                 item.beweeg(deltaTime)
                 item.teken(screen,scale,scaled_pictures,scrollx,scrolly)
             else:
@@ -1143,7 +1160,7 @@ while playing and __name__ == "__main__":
 
         if autosave_active:
             autosave_state += 1
-            autosave_part(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes, autosave_state)
+            autosave_part(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,autosave_state)
             if autosave_state > 16:
                 autosave_active = False
                 autosave_perf = t.perf_counter()

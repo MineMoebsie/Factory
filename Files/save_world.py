@@ -48,8 +48,11 @@ def save_world_recipes(world_folder, unlocked_recipes, creater_unlocked_recipes)
     with open('Data/Saves/'+world_folder+'/creater_unlocked_recipes.json','w') as f:
         json.dump(creater_unlocked_recipes, f)
 
+def save_world_delivery(world_folder, to_deliver_list):
+   with open('Data/Saves/'+world_folder+'/deliver_list.txt','w') as f:
+       f.write(str(to_deliver_list))
 
-def autosave_part(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes,autosave_state):
+def autosave_part(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,autosave_state):
     match autosave_state:
         case 2:
             save_world_grid(selected_world, grid)
@@ -67,4 +70,6 @@ def autosave_part(selected_world,grid,grid_rotation,grid_data,grid_cables,resear
             save_world_research_grid(selected_world, research_grid)
         case 16:
             save_world_recipes(selected_world, unlocked_recipes, creater_unlocked_recipes)
+        case 18:
+            save_world_delivery(selected_world, to_deliver_list)
 

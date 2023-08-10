@@ -8,9 +8,14 @@ from Files.factory_functions import *
 
 def generate_plane_list(grid, delivery_level):
     plane_list = []
-    delivery_locations = np.where(grid==38)
+    delivery_locations = np.where(grid==38) # only one delivery thing
     for i in range(delivery_level):
         plane_list.append(Plane(delivery_locations[1][0], delivery_locations[0][0], i))
+    return plane_list
+
+def spawn_plane(grid, delivery_level, plane_list):
+    delivery_locations = np.where(grid==38) # only one delivery thing
+    plane_list.append(Plane(delivery_locations[1][0], delivery_locations[0][0], delivery_level-1))
     return plane_list
 
 class Plane:

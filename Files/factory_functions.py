@@ -1137,7 +1137,7 @@ class Item:
         self.x = round(self.floatx)
         self.y = round(self.floaty)
 
-    def bepaal_richting(self, grid, grid_rotation, grid_data, storage, craft_data, conveyor_speed, deltaTime,grid_cables,cargo_data,
+    def bepaal_richting(self, grid, grid_rotation, grid_data, storage, craft_data, conveyor_speed, deltaTime,grid_cables,cargo_data,to_deliver_list,update_edit_menu,
                         grid_size=grid_size):
         rx_ = self.x / grid_size  # int((self.x+self.vx-grid_size*self.vx-grid_size/20*9*np.sign(self.vx))/grid_size)
         ry_ = self.y / grid_size  # int((self.y+self.vy-grid_size*self.vy-grid_size/20*9*np.sign(self.vy))/grid_size)
@@ -1213,12 +1213,18 @@ class Item:
                         craft_data[max(0,ry - 2) + r_corner[0][0]][max(0,rx - 2) + r_corner[1][0]][str(self.item_type)] += 1
                     else:
                         craft_data[max(0,ry - 2) + r_corner[0][0]][max(0,rx - 2) + r_corner[1][0]][str(self.item_type)] = 1
+                elif volgend_blokje in [38, -38]:
+                    for i, delivery in enumerate(to_deliver_list):
+                        if delivery is not None and delivery != []:
+                            if delivery[1] == self.item_type:
+                                to_deliver_list[i][2] = to_deliver_list[i][2] + 1 if to_deliver_list[i][2] != to_deliver_list[i][0] else to_deliver_list[i][2]
+                                update_edit_menu = True
                 else:
                     storage[self.item_type] -= 1
                 self.vx = self.vy = 0
                 self.kapot = True
 
-        return storage, craft_data, grid_data, cargo_data
+        return storage, craft_data, grid_data, cargo_data, to_deliver_list, update_edit_menu
 
     def teken(self, screen, scale, scaled_pictures, scrollx, scrolly):
         item_margin = 10
@@ -1248,7 +1254,7 @@ class Cargo(Item):
         self.floaty = self.y
         self.cargo_storage = cargo_storage
 
-    def bepaal_richting(self, grid, grid_rotation, grid_data, storage, craft_data, conveyor_speed, deltaTime, grid_cables, cargo_data,
+    def bepaal_richting(self, grid, grid_rotation, grid_data, storage, craft_data, conveyor_speed, deltaTime, grid_cables, cargo_data,to_deliver_list,update_edit_menu,
                         grid_size=grid_size):
         rx_ = self.x / grid_size
         ry_ = self.y / grid_size
@@ -1302,7 +1308,7 @@ class Cargo(Item):
                 self.vx = self.vy = 0
                 self.kapot = True
 
-        return storage, craft_data, grid_data, cargo_data
+        return storage, craft_data, grid_data, cargo_data, to_deliver_list, update_edit_menu
             
 def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, tile_des, rect_info, grid, mrx, mry,
                    grid_data, craft_data):
@@ -1569,21 +1575,26 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
                 edit_menu_surf.blit(runway_text, (btn_x + 25, btn_y + 20))
 
                 if delivery_btn != []:
-                    order_text = edit_tile_font_small.render(f"{delivery_btn[0] - delivery_btn[2]}", True, (0, 0, 0))
-                    edit_menu_surf.blit(order_text, (btn_x + 25, btn_y + 75))
+                    if delivery_btn[0] != delivery_btn[2]:
+                        order_text = edit_tile_font_small.render(f"{delivery_btn[0] - delivery_btn[2]}", True, (0, 0, 0))
+                        edit_menu_surf.blit(order_text, (btn_x + 25, btn_y + 75))
 
-                    item_pic = unsc_pics[f"item_{delivery_btn[1]}_picture"]
-                    item_pic = pg.transform.scale(item_pic, (item_size, item_size))
-                    edit_menu_surf.blit(item_pic, (btn_x + 65, btn_y + 70))
+                        item_pic = unsc_pics[f"item_{delivery_btn[1]}_picture"]
+                        item_pic = pg.transform.scale(item_pic, (item_size, item_size))
+                        edit_menu_surf.blit(item_pic, (btn_x + 65, btn_y + 70))
 
-                    p1, p2 = (btn_x + 140, btn_y + 90), (btn_x + 260, btn_y + 90)
-                    draw_line_round_corners_cv(edit_menu_surf, p1, p2, (40, 140, 144), 40)
-                    draw_line_round_corners_cv(edit_menu_surf, p1, p2, (255, 255, 255), 30)
+                        p1, p2 = (btn_x + 140, btn_y + 90), (btn_x + 260, btn_y + 90)
+                        draw_line_round_corners_cv(edit_menu_surf, p1, p2, (40, 140, 144), 40)
+                        draw_line_round_corners_cv(edit_menu_surf, p1, p2, (255, 255, 255), 30)
 
-                    part_filled = delivery_btn[2] / delivery_btn[0] # 0-1 how much it is filled. 0 empty, 1 is full
-                    p3 = (btn_x + 140 + part_filled * 120, btn_y + 90)
-                    draw_line_round_corners_cv(edit_menu_surf, p1, p3, (40, 140, 144), 20)
+                        part_filled = delivery_btn[2] / delivery_btn[0] # 0-1 how much it is filled. 0 empty, 1 is full
+                        p3 = (btn_x + 140 + part_filled * 120, btn_y + 90)
+                        draw_line_round_corners_cv(edit_menu_surf, p1, p3, (40, 140, 144), 20)
 
+                    elif delivery_btn[0] == delivery_btn[2]: # delivery is complete, now call plane
+                        order_text = edit_tile_font_small.render(f"Waiting for plane...", True, (0, 0, 0))
+                        edit_menu_surf.blit(order_text, (btn_x + 20, btn_y + 75))
+                
                 else: # waiting on order to load
                     order_text = edit_tile_font_small.render(f"Waiting on order...", True, (0, 0, 0))
                     edit_menu_surf.blit(order_text, (btn_x + 25, btn_y + 75))
@@ -2415,4 +2426,4 @@ if __name__ == '__main__':
     pg.font.quit()
     pg.quit()
 
-#1908 lines of code!
+#2429 lines of code!
