@@ -110,10 +110,13 @@ delivery_backg = import_foto("UI/delivery_backg.png", 1000, 2000)
 delivery_w, delivery_h = (300, 160)
 delivery_btn_pic = import_foto("UI/delivery_btn.png", delivery_w, delivery_h)
 delivery_btn_clicked_pic = import_foto("UI/delivery_btn_clicked.png", delivery_w, delivery_h)
+delivery_btn_sent_pic = import_foto("UI/delivery_btn_sent.png", delivery_w, delivery_h)
 
 upgrade_btn_size = 150
 delivery_upgrade_btn_pic = import_foto("UI/delivery_upgrade_btn.png", upgrade_btn_size, upgrade_btn_size)
 delivery_upgrade_btn_clicked_pic = import_foto("UI/delivery_upgrade_btn_clicked.png", upgrade_btn_size, upgrade_btn_size)
+delivery_upgrade_btn_normal_pic = import_foto("UI/delivery_upgrade_btn_normal.png", upgrade_btn_size, upgrade_btn_size)
+
 
 not_enough_picture = import_foto('UI/not_enough.png', 2000, 500)
 
@@ -1428,6 +1431,7 @@ def draw_tile_menu(screen, data_display, data_arrow, item_names, tile_names, til
 
 def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, creater_unlocked_recipes, creater_type, delivery_backg, to_deliver_list, delivery_upgrade_cost, storage, hover_recipe=-1):
     crafter_btn_collidepoints = []
+    delivery_btn_collidepoints = []
 
     craft_buffer = 5
     temp_surf = pg.Surface(craft_select_menu_picture.get_size(), pg.SRCALPHA)
@@ -1569,12 +1573,18 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
         for delivery_btn in to_deliver_list:
             if delivery_btn is not None: # if not unlocked, skip
                 btn_x, btn_y = (blit_x_center, i * (delivery_btn_pic.get_height() + 10) + 100)
-                edit_menu_surf.blit(delivery_btn_pic, (btn_x, btn_y))
+                
+                if delivery_btn == "READY":
+                    edit_menu_surf.blit(delivery_btn_clicked_pic, (btn_x, btn_y))       
+                elif delivery_btn == "SENDING":
+                    edit_menu_surf.blit(delivery_btn_sent_pic, (btn_x, btn_y))     
+                else:
+                    edit_menu_surf.blit(delivery_btn_pic, (btn_x, btn_y))
 
                 runway_text = edit_tile_font_small_small.render(f"Runway {i + 1}:", True, (0, 0, 0))
                 edit_menu_surf.blit(runway_text, (btn_x + 25, btn_y + 20))
 
-                if delivery_btn != []:
+                if delivery_btn != [] and delivery_btn not in  ["READY", "SENDING"]:
                     if delivery_btn[0] != delivery_btn[2]:
                         order_text = edit_tile_font_small.render(f"{delivery_btn[0] - delivery_btn[2]}", True, (0, 0, 0))
                         edit_menu_surf.blit(order_text, (btn_x + 25, btn_y + 75))
@@ -1588,46 +1598,59 @@ def draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly, item_names, 
                         draw_line_round_corners_cv(edit_menu_surf, p1, p2, (255, 255, 255), 30)
 
                         part_filled = delivery_btn[2] / delivery_btn[0] # 0-1 how much it is filled. 0 empty, 1 is full
-                        p3 = (btn_x + 140 + part_filled * 120, btn_y + 90)
+                        p3 = (p1[0] + part_filled * 120, p1[1])
                         draw_line_round_corners_cv(edit_menu_surf, p1, p3, (40, 140, 144), 20)
 
-                    elif delivery_btn[0] == delivery_btn[2]: # delivery is complete, now call plane
-                        order_text = edit_tile_font_small.render(f"Waiting for plane...", True, (0, 0, 0))
-                        edit_menu_surf.blit(order_text, (btn_x + 20, btn_y + 75))
+                    elif delivery_btn[0] == delivery_btn[2]: # delivery is complete, now wait a little then get btn ready
+                        order_text = edit_tile_font_small.render(f"Packing order...", True, (0, 0, 0))
+                        edit_menu_surf.blit(order_text, (btn_x + 45, btn_y + 75))
                 
-                else: # waiting on order to load
+                elif delivery_btn == "READY": # ready to send! just waiting on player input
+                    order_text = edit_tile_font_small.render(f"Send package!", True, (0, 0, 0))
+                    edit_menu_surf.blit(order_text, (btn_x + 50, btn_y + 75))
+                    delivery_btn_collidepoints.append([pg.Rect((btn_x, btn_y), delivery_btn_pic.get_size()), i])
+
+                elif delivery_btn == "SENDING": # plane taking off and waiting for it to return...
+                    order_text = edit_tile_font_small.render(f"Sending order...", True, (0, 0, 0))
+                    edit_menu_surf.blit(order_text, (btn_x + 45, btn_y + 75))
+
+                elif delivery_btn == []: # waiting on order to load
                     order_text = edit_tile_font_small.render(f"Waiting on order...", True, (0, 0, 0))
                     edit_menu_surf.blit(order_text, (btn_x + 25, btn_y + 75))
-                i += 1
-            
-        btn_x, btn_y = (blit_x_center, i * (delivery_btn_pic.get_height() + 10) + 100)
-        edit_menu_surf.blit(delivery_upgrade_btn_pic, (btn_x, btn_y))
-        upgrade_text = edit_tile_font_small_small_small.render(f"Upgrade: lvl. {i + 1}", True, (0, 0, 0))
-        edit_menu_surf.blit(upgrade_text, (btn_x + 161, btn_y + 10))
-
-        item_size = 30
-        for j, item_cost in enumerate(delivery_upgrade_cost[i-1]):
-            item_pic = unsc_pics[f"item_{item_cost[1]}_picture"]
-            item_pic = pg.transform.scale(item_pic, (item_size, item_size))
-            edit_menu_surf.blit(item_pic, (btn_x + 160, btn_y + 35 + j * (item_size + 5)))
-
-            if storage[item_cost[1]] >= item_cost[0]: # enough items for the x's items slot to upgrade
-                price_text = edit_tile_font_small_small_small.render(f"{item_cost[0]}", True, (18, 161, 56))            
-            else:
-                price_text = edit_tile_font_small_small_small.render(f"{item_cost[0]}", True, (0, 0, 0))
-            edit_menu_surf.blit(price_text, (btn_x + 165 + item_size, btn_y + 37 + j * (item_size + 5)))
-
                 
+                i += 1
 
-        '''
-        edit_tile_font = pg.font.Font('Fonts/Roboto.ttf', 35)
-        edit_tile_font_small = pg.font.Font('Fonts/Roboto.ttf', 30)
-        edit_tile_font_small_small = pg.font.Font('Fonts/Roboto.ttf', 25)
-        edit_tile_font_item = pg.font.Font('Fonts/Roboto.ttf', 25)
-        '''
+        if i < 5:
+            btn_x, btn_y = (blit_x_center, i * (delivery_btn_pic.get_height() + 10) + 100)
+            
+            enough_resources = True
+            for j, item_cost in enumerate(delivery_upgrade_cost[i-1]):
+                if storage[item_cost[1]] < item_cost[0]: # enough items for the x's items slot to upgrade
+                    enough_resources = False
+
+            if not enough_resources:
+                edit_menu_surf.blit(delivery_upgrade_btn_normal_pic, (btn_x, btn_y))
+            else:
+                edit_menu_surf.blit(delivery_upgrade_btn_pic, (btn_x, btn_y))
+            upgrade_text = edit_tile_font_small_small_small.render(f"Upgrade: lvl. {i + 1}", True, (0, 0, 0))
+            edit_menu_surf.blit(upgrade_text, (btn_x + 161, btn_y + 10))
+
+            item_size = 30
+            for j, item_cost in enumerate(delivery_upgrade_cost[i-1]):
+                item_pic = unsc_pics[f"item_{item_cost[1]}_picture"]
+                item_pic = pg.transform.scale(item_pic, (item_size, item_size))
+                edit_menu_surf.blit(item_pic, (btn_x + 160, btn_y + 35 + j * (item_size + 5)))
+
+                if storage[item_cost[1]] >= item_cost[0]: # enough items for the x's items slot to upgrade
+                    price_text = edit_tile_font_small_small_small.render(f"{item_cost[0]}", True, (18, 161, 56))            
+                else:
+                    price_text = edit_tile_font_small_small_small.render(f"{item_cost[0]}", True, (0, 0, 0))
+                edit_menu_surf.blit(price_text, (btn_x + 165 + item_size, btn_y + 37 + j * (item_size + 5)))
+
+            delivery_btn_collidepoints.append([pg.Rect((btn_x, btn_y), delivery_upgrade_btn_pic.get_size()), "upgrade"])
 
 
-    return edit_menu_surf, crafter_btn_collidepoints, line_1, line_2
+    return edit_menu_surf, crafter_btn_collidepoints, line_1, line_2, delivery_btn_collidepoints
 
 def draw_line_round_corners_cv(surf, p1, p2, color, w):
     rect = pg.Rect(*p1, p2[0]-p1[0], p2[1]-p1[1])

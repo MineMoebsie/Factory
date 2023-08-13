@@ -494,9 +494,22 @@ def read_world(world_folder, spawn_items):
     research_grid = eval(f.read())
     f.close()
 
-    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation, unlocked_recipes, creater_unlocked_recipes
+    fpath = os.path.join("Data/Saves", world_folder, "deliver_list.txt")
+    if os.path.isfile(fpath):
+        with open(fpath, "r") as f:
+            to_deliver_list = eval(f.read())
+            delivery_level = 0
+            for delivery in to_deliver_list:
+                if delivery is not None:
+                    delivery_level += 1
+    else:
+        to_deliver_list, delivery_level = [None,None,[],None,None], 1    
 
-def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes):
+    print(to_deliver_list, delivery_level)
+
+    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation, unlocked_recipes, creater_unlocked_recipes,to_deliver_list,delivery_level
+
+def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes,to_deliver_list):
     f = open('Data/Saves/'+world_folder+'/grid.txt','w')
     np.savetxt(f,grid.astype(int), fmt="%i")
     f.close()
@@ -535,6 +548,9 @@ def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_pr
     with open('Data/Saves/'+world_folder+'/creater_unlocked_recipes.json','w') as f:
         json.dump(creater_unlocked_recipes, f)
 
+    with open('Data/Saves/'+world_folder+'/deliver_list.txt','w') as f:
+       f.write(str(to_deliver_list))
+
 
 def save_player_data(world_folder, start_play_perf):
     with open('Data/Saves/'+world_folder+'/player_data.txt','r') as f:
@@ -555,7 +571,6 @@ def save_player_data(world_folder, start_play_perf):
 
         time_part = in_string[-7:]
 
-        print(in_string)
         x = datetime.datetime.strptime(time_part,'%H:%M:%S')
         sec = datetime.timedelta(hours=x.hour,minutes=x.minute,seconds=x.second).total_seconds()
         sec += day_count * 86400

@@ -216,6 +216,7 @@ tile_mode_btns = [] # btns of tile mode menu, used for collidepoint
 
 rect_edit_menu = pg.Rect((0,0),(0,0))
 crafter_btn_collidepoints = []
+delivery_btn_collidepoints = []
 #edit tile menu
 edit_tile_menu_open = False
 tile_menu_type = "" # can be splitter, sorter, crafter
@@ -253,9 +254,13 @@ to_deliver_list = [[], [], None, [], []] # orders that need to be fulfilled by t
 # if []: [50, 22, 0] 50: item quantity, 22: item to deliver (item id), 0: items delivered (will increase to 50 if player delivers correct item)
 # if []: waiting on order
 
-delivery_upgrade_cost = [[[50, 23], [60, 24], [70, 25]], [], [], []] # when upgrading delivery thing, cost
+packing_perf_list = [-1, -1, -1, -1, -1] # when order is ready, perf_counter is stored in according index and when ready send btn is displayed
+
+delivery_upgrade_cost = [[[1, 1], [2, 2], [3, 3]], [[1, 1], [2, 2], [3, 3]], [[1, 1], [2, 2], [3, 3]], [[1, 1], [2, 2], [3, 3]]] # when upgrading delivery thing, cost
 # ind. 0: from 1 to 2 etc.
 # cost: quantity, item id
+
+flying_planes = [False, False, False, False, False] # which planes are in air
 
 #recipes
 unlocked_recipes = []
@@ -329,7 +334,7 @@ ignore_click = False
 world_menu_top, world_menu_bottom = update_pictures(screen)
 world_select_scrolly = -world_menu_top.get_height() + 45
 
-grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world('~menu_world', spawn_items) # load background for title screen
+grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level = read_world('~menu_world', spawn_items) # load background for title screen
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
@@ -344,11 +349,10 @@ autoload_world = "new testing world"
 if autoload: # temporary for quicker testing
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
-    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(autoload_world, spawn_items)
+    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level = read_world(autoload_world, spawn_items)
     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
 
-    to_deliver_list, delivery_level = load_deliver_list(selected_world)
     plane_list = generate_plane_list(grid, delivery_level)
     
     in_menu = False
@@ -468,7 +472,7 @@ while playing and __name__ == "__main__":
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world...")
 
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level = read_world(selected_world, spawn_items)
 
                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
                     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
@@ -522,7 +526,7 @@ while playing and __name__ == "__main__":
 
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level = read_world(selected_world, spawn_items)
                     
                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
                     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
@@ -677,18 +681,42 @@ while playing and __name__ == "__main__":
                                     edit_tile_menu_open = False
                                 elif rect_edit_menu.collidepoint(mx,my): # click in the edit menu
                                     mouse_down = False
-                                    if line_1 < my < line_2:
-                                        for btn_obj in crafter_btn_collidepoints:
-                                            btn = btn_obj[0]
-                                            if btn.collidepoint(mx, my):
-                                                hover_recipe = btn_obj[1]
-                                                update_edit_menu = True
-                                                grid_data = update_recipe(grid,grid_data,hover_recipe,selected_x,selected_y, blocks_index, creater_type, update=tile_menu_type)
-                                                selected_x, selected_y = -1, -1
-                                                edit_tile_menu_open = False
-                                                if tile_menu_type == "creater":
-                                                    locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
-                                                    append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index, creater_unlocked_recipes)
+                                    if tile_menu_type in ["crafter", "creater"]:
+                                        if line_1 < my < line_2:
+                                            for btn_obj in crafter_btn_collidepoints:
+                                                btn = btn_obj[0]
+                                                if btn.collidepoint(mx, my):
+                                                    hover_recipe = btn_obj[1]
+                                                    update_edit_menu = True
+                                                    grid_data = update_recipe(grid,grid_data,hover_recipe,selected_x,selected_y, blocks_index, creater_type, update=tile_menu_type)
+                                                    selected_x, selected_y = -1, -1
+                                                    edit_tile_menu_open = False
+                                                    if tile_menu_type == "creater":
+                                                        locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
+                                                        append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index, creater_unlocked_recipes)
+                                    
+                                elif tile_menu_type == "delivery" and mx < edit_menu_surf.get_width():
+                                    for delivery_btn in delivery_btn_collidepoints:
+                                        if delivery_btn[0].collidepoint(mx, my):
+                                            if delivery_btn[1] == "upgrade":
+                                                # check if all resources required are in storage
+                                                enough_resources = True
+                                                for j, item_cost in enumerate(delivery_upgrade_cost[delivery_level-1]):
+                                                    if storage[item_cost[1]] < item_cost[0]:
+                                                        enough_resources = False
+                                                if enough_resources:
+                                                    print("upgraded delivery thing!!!")
+
+                                            else: # a ready to send package btn
+                                                plane_index = determine_which_plane(delivery_level, delivery_btn[1] + 1)
+                                                for plane in plane_list:
+                                                    if plane.plane_num == plane_index:
+                                                        plane.taking_off = True
+                                                        plane.in_flight = True
+                                                        plane.start_flight_time = t.perf_counter()
+                                                        plane.measure_dist_point = plane.x
+                                                        plane.goal = "taking off"
+                                                to_deliver_list[delivery_btn[1] + 1] = 'SENDING'
 
 
                                 else:
@@ -930,7 +958,7 @@ while playing and __name__ == "__main__":
 
                         draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Saving world...")
 
-                        save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes)
+                        save_world(selected_world,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes,to_deliver_list)
 
                         draw_loading_screen_create_world(screen, clock, loading_surf, 80, 10, "Saving player data...")
 
@@ -1092,9 +1120,28 @@ while playing and __name__ == "__main__":
         for index in list(sorted(pop_index))[::-1]:
             items_list.pop(index)
 
+        #plane/delivery things
+        for i, delivery in enumerate(to_deliver_list):
+            if delivery is not None and delivery != []:
+                if delivery[0] == delivery[2] and packing_perf_list[i] == -1:
+                    packing_perf_list[i] = t.perf_counter() + 3
+                    update_edit_menu = True
+
+        for i, pack_perf in enumerate(packing_perf_list):
+            if pack_perf < t.perf_counter() and pack_perf != -1:
+                packing_perf_list[i] = -1
+                to_deliver_list[i] = "READY"
+                update_edit_menu = True
+
+        if "SENDING" in to_deliver_list:
+            for i, plane in enumerate(flying_planes):
+                if plane == False and to_deliver_list[i] == "SENDING": # not flying
+                    to_deliver_list[i] = []
+                    update_edit_menu = True
+
         plane_particles = update_and_draw_plane_particles(screen, plane_particles, deltaTime, scale, scrollx, scrolly)
         for plane in plane_list:
-            plane_particles = plane.update(deltaTime, grid.shape[1], plane_particles)
+            plane_particles, flying_planes = plane.update(deltaTime, grid.shape[1], plane_particles, flying_planes)
             plane.draw(screen, scrollx, scrolly, scale, scaled_pictures)
 
         t_teken_menu = t.perf_counter()
@@ -1105,7 +1152,7 @@ while playing and __name__ == "__main__":
                 tile_info_mode, up_button, down_button = draw_tile_menu(screen,data_display,data_arrow,item_names,tile_names,tile_des,rect_info,grid,selected_x,selected_y,grid_data,craft_data)
             elif tile_mode == "edit":
                 if update_edit_menu:
-                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2 = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly[tile_menu_type], item_names,creater_unlocked_recipes, creater_type, delivery_backg, to_deliver_list, delivery_upgrade_cost, storage, hover_recipe=hover_recipe)
+                    edit_menu_surf, crafter_btn_collidepoints, line_1, line_2, delivery_btn_collidepoints = draw_edit_menu(tile_menu_type, unlocked_recipes, craft_scrolly[tile_menu_type], item_names,creater_unlocked_recipes, creater_type, delivery_backg, to_deliver_list, delivery_upgrade_cost, storage, hover_recipe=hover_recipe)
                     update_edit_menu = False
                     rect_edit_menu, crafter_btn_collidepoints, line_1, line_2 = blit_tile_edit_menu(screen, tile_menu_type, edit_menu_surf, crafter_btn_collidepoints, line_1, line_2)
                 else:

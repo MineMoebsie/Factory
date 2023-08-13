@@ -8,14 +8,16 @@ from Files.factory_functions import *
 
 def generate_plane_list(grid, delivery_level):
     plane_list = []
+    convert_delivery_lvl = {1: 2, 2: 3, 3: 1, 4: 4, 5: 0}
     delivery_locations = np.where(grid==38) # only one delivery thing
     for i in range(delivery_level):
-        plane_list.append(Plane(delivery_locations[1][0], delivery_locations[0][0], i))
+        plane_list.append(Plane(delivery_locations[1][0], delivery_locations[0][0], convert_delivery_lvl[i+1]))
     return plane_list
 
 def spawn_plane(grid, delivery_level, plane_list):
     delivery_locations = np.where(grid==38) # only one delivery thing
-    plane_list.append(Plane(delivery_locations[1][0], delivery_locations[0][0], delivery_level-1))
+    convert_delivery_lvl = {1: 2, 2: 3, 3: 1, 4: 4, 5: 0}
+    plane_list.append(Plane(delivery_locations[1][0], delivery_locations[0][0], convert_delivery_lvl[delivery_level]))
     return plane_list
 
 class Plane:
@@ -23,7 +25,7 @@ class Plane:
         self.rx = rx # grid location of where the delivery thing is
         self.ry = ry
         self.landing_strip_height = 80
-        self.plane_num = plane_num # which plane (1-5) top to bottom
+        self.plane_num = plane_num # which plane (0-4) top to bottom
         self.x = self.rx * grid_size + 85
         self.y = self.ry * grid_size + self.landing_strip_height * self.plane_num - 10
         self.pic = "plane_1"
@@ -74,7 +76,8 @@ class Plane:
         screen.blit(self.shadow, (self.x * scale + scrollx, (self.y + self.shadow_dist) * scale + scrolly))
         screen.blit(scaled_pictures[self.pic][1], (self.x * scale + scrollx, self.y * scale + scrolly))
 
-    def update(self, dT, grid_wh, plane_particles):
+    def update(self, dT, grid_wh, plane_particles, flying_planes):
+        flying_planes[self.plane_num] = True
         if self.in_flight:
             if self.taking_off:
                 self.flight_time = t.perf_counter() - self.start_flight_time
@@ -162,7 +165,9 @@ class Plane:
             else:
                 self.x = self.rx * grid_size + 85 + self.x_flight
 
-        return plane_particles
+            flying_planes[self.plane_num] = False
+
+        return plane_particles, flying_planes
 
 def update_and_draw_plane_particles(screen, plane_particles, dT, scale, scrollx, scrolly):
     for i, particle in sorted(enumerate(plane_particles), reverse=True):
@@ -190,6 +195,25 @@ def update_and_draw_plane_particles(screen, plane_particles, dT, scale, scrollx,
 
     return plane_particles
 
+def determine_which_plane(delivery_lvl, runway_num): # determines which plane should take off: planes are numbered from 0-4 while delivery lvl may not be 5 yet so then determine which plane should be used
+    match delivery_lvl:
+        case 1:
+            return 2
+        case 2:
+            if runway_num == 1:
+                return 2
+            else:
+                return 3 
+        case 3:
+            return runway_num
+        case 4:
+            return runway_num
+        case 5:
+            return runway_num-1
 
+
+
+
+                
 
 
