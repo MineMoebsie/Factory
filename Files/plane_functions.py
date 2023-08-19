@@ -211,9 +211,88 @@ def determine_which_plane(delivery_lvl, runway_num): # determines which plane sh
         case 5:
             return runway_num-1
 
+def extend_orders_list(orders_list, orders_names_list, unlocked_recipes, creater_unlocked_recipes):
+    '''
+    5 types of orders (for delivery thing/airport/plane thing):
 
+    1. "BULK": An item easy to produce,                       high quantity,           medium reward.
+    2. "NEW": An item that is not unlocked yet,               low quantity,            very very high reward.
+    3. "MINOR": An item that is unlocked but hard to produce, low quantity,            high reward.
+    4. "BIG BULK": An item easy to produce,                   very very high quantity, high reward.
+    5. "NORMAL": An item easy to produce,                     normal quantity,         low reward.
 
+    6. "BEGIN": An item produced by a creater,                normal quantity,         medium reward.
 
-                
+    "NEW" can not appear in the beginning of the game.
+    "BEGIN" can only appear in the beginning of the game.
+    '''
 
+    if orders_names_list == []: # beginning of the game
+        for order in range(10):
+            orders_names_list.append("BEGIN")
 
+        orders_options = ["BULK", "NORMAL", "BEGIN"]
+        for order in range(20):
+            orders_names_list.append(r.choice(orders_options))
+
+    else: # further in the game
+        orders_options = ["BULK", "BIG BULK", "NORMAL", "NEW", "MINOR"]
+        for order in range(10):
+            orders_names_list.append(r.choice(orders_options))
+
+    for order in orders_names_list:
+        match order:
+            case "BULK":
+                qty = r.randint(1, 3) * 100 # between 100 - 300
+            case "NEW":
+                qty = r.randint(20, 60)
+            case "MINOR":
+                qty = r.randint(20, 60)
+            case "BIG BULK":
+                qty = r.randint(5, 9) * 100 # between 500 - 900
+            case "NORMAL":
+                qty = r.randint(60, 100)
+            case "BEGIN":
+                qty = r.randint(10, 30)
+
+        iid = pick_item_id(order, unlocked_recipes, creater_unlocked_recipes)
+        orders_list.append([qty, iid, 0]) # 0 is for items fulfilled/delivered, so is 0.
+
+    return orders_list, orders_names_list
+
+def pick_item_id(order_type, unlocked_recipes, creater_unlocked_recipes):
+    use_creater_recipe = False
+    chance_for_orders = {"BULK": 30, "NEW": 0, "MINOR": 0, "BIG BULK": 20, "NORMAL": 30, "BEGIN": 100} # very small chance for new/minor to be creater recipes (intended)
+    if r.randint(0, 100) <= chance_for_orders[order_type]:
+        use_creater_recipe = True
+    
+    return_item_id = 0
+
+    #TODO: add actual new item for NEW
+
+    creater_unlocked_recipes = dict(sorted(creater_unlocked_recipes.items()))
+ 
+    if use_creater_recipe:
+        if len(creater_unlocked_recipes.keys()) > 3:
+            print(creater_unlocked_recipes)
+            if r.randint(0, 100) <= 40:
+                return_item_id = r.choice(creater_unlocked_recipes[list(creater_unlocked_recipes.keys())[-1]])
+            elif r.randint(0, 100) <= 40:
+                return_item_id = r.choice(creater_unlocked_recipes[list(creater_unlocked_recipes.keys())[-2]])
+            else:
+                return_item_id = r.choice(creater_unlocked_recipes[list(creater_unlocked_recipes.keys())[-3]])
+        else:
+            return_item_id = r.choice(creater_unlocked_recipes[list(creater_unlocked_recipes.keys())[0]])
+            
+
+    else: # use crafter recipe
+        i = -1
+        while return_item_id == 0:
+            if r.randint(0, 100) <= 20:
+                return_item_id = unlocked_recipes[i]
+            elif abs(i) == len(unlocked_recipes):
+                return_item_id = unlocked_recipes[0]
+            else:
+                i -= 1
+
+    return return_item_id

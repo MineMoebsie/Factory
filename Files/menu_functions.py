@@ -504,10 +504,28 @@ def read_world(world_folder, spawn_items):
                     delivery_level += 1
     else:
         to_deliver_list, delivery_level = [None,None,[],None,None], 1    
+    
+    orders_unexistant = False
+    fpath = os.path.join("Data/Saves", world_folder, "orders_list.txt")
+    orders_list = []    
+    if os.path.isfile(fpath):
+        with open(fpath, "r") as f:
+            orders_list = eval(f.read())
+    else:
+        orders_unexistant = True
+    
+    fpath = os.path.join("Data/Saves", world_folder, "orders_names_list.txt")
+    orders_names_list = []    
+    if os.path.isfile(fpath):
+        with open(fpath, "r") as f:
+            orders_names_list = eval(f.read())
+    else:
+        orders_unexistant = True
+    
+    if orders_unexistant:
+        orders_list, orders_names_list = [], []
 
-    print(to_deliver_list, delivery_level)
-
-    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation, unlocked_recipes, creater_unlocked_recipes,to_deliver_list,delivery_level
+    return grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation, unlocked_recipes, creater_unlocked_recipes,to_deliver_list,delivery_level,orders_list,orders_names_list
 
 def save_world(world_folder,grid,grid_rotation,grid_data,grid_cables,research_progress,storage,keybinds,research_grid,unlocked_recipes,creater_unlocked_recipes,to_deliver_list):
     f = open('Data/Saves/'+world_folder+'/grid.txt','w')

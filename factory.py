@@ -262,6 +262,9 @@ delivery_upgrade_cost = [[[1, 1], [2, 2], [3, 3]], [[1, 1], [2, 2], [3, 3]], [[1
 
 flying_planes = [False, False, False, False, False] # which planes are in air
 
+orders_list = [] # which orders are next for the delivery thing once order is completed
+orders_names_list = [] # order names for history of orders: see "plane_functions.py" for explanation (line +-220)
+
 #recipes
 unlocked_recipes = []
 creater_unlocked_recipes = {} 
@@ -334,7 +337,7 @@ ignore_click = False
 world_menu_top, world_menu_bottom = update_pictures(screen)
 world_select_scrolly = -world_menu_top.get_height() + 45
 
-grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level = read_world('~menu_world', spawn_items) # load background for title screen
+grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level,orders_list,orders_names_list = read_world('~menu_world', spawn_items) # load background for title screen
 
 percent_vals = loading_screen(screen,percent_vals,100,load_font,"Starting game loop")
 
@@ -349,12 +352,14 @@ autoload_world = "new testing world"
 if autoload: # temporary for quicker testing
     selected_world = autoload_world
     scroll_keys_hold = [False, False, False, False]
-    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level = read_world(autoload_world, spawn_items)
+    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level,orders_list,orders_names_list = read_world(autoload_world, spawn_items)
     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
 
     plane_list = generate_plane_list(grid, delivery_level)
-    
+    orders_list, orders_names_list = extend_orders_list(orders_list, orders_names_list, unlocked_recipes, creater_unlocked_recipes)
+    print(orders_list, orders_names_list)
+
     in_menu = False
     start_play_perf = t.perf_counter() + 1
     ignore_click = True
@@ -472,7 +477,7 @@ while playing and __name__ == "__main__":
                     draw_loading_screen_create_world(screen, clock, loading_surf, 10, 0, "Reading world...")
 
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level,orders_list, orders_names_list = read_world(selected_world, spawn_items)
 
                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
                     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
@@ -526,7 +531,7 @@ while playing and __name__ == "__main__":
 
                     selected_world = world_name
                     scroll_keys_hold = [False, False, False, False]
-                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level = read_world(selected_world, spawn_items)
+                    grid,grid_rotation,grid_cables,grid_data,unlocked_blocks,conveyor_speed,move_speed,storage,keybinds,research_progress,research_grid, grid_generation, grid_features_generation,unlocked_recipes,creater_unlocked_recipes,to_deliver_list,delivery_level,orders_list,orders_names_list = read_world(selected_world, spawn_items)
                     
                     locations, crafting_locations, cargo_locations, cargo_spawn_locations = update_locations(grid, spawn_items)
                     append_per_spawn = generate_append_per_spawn(grid, grid_data, spawn_time, spawn_items, locations, blocks_index,creater_unlocked_recipes)
@@ -1125,6 +1130,14 @@ while playing and __name__ == "__main__":
             if delivery is not None and delivery != []:
                 if delivery[0] == delivery[2] and packing_perf_list[i] == -1:
                     packing_perf_list[i] = t.perf_counter() + 3
+                    update_edit_menu = True
+            elif delivery == []:
+                if r.randint(0, 100) < 1:
+                    to_deliver_list[i] = orders_list[0]
+                    r_points_earned = int(round((len(orders_names_list) - len(orders_list)) ** 1.2 + 4))
+                    print(r_points_earned)
+                    storage[0] += r_points_earned
+                    orders_list.pop(0)
                     update_edit_menu = True
 
         for i, pack_perf in enumerate(packing_perf_list):
