@@ -274,7 +274,6 @@ def pick_item_id(order_type, unlocked_recipes, creater_unlocked_recipes):
  
     if use_creater_recipe:
         if len(creater_unlocked_recipes.keys()) > 3:
-            print(creater_unlocked_recipes)
             if r.randint(0, 100) <= 40:
                 return_item_id = r.choice(creater_unlocked_recipes[list(creater_unlocked_recipes.keys())[-1]])
             elif r.randint(0, 100) <= 40:

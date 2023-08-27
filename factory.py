@@ -1,3 +1,22 @@
+'''
+Todo list (before alpha v.1.0):
+- delivery upgrade btn actually upgrades
+- delivery upgrade animation on upgrade
+- 'NEW' catergory new items or not
+* storage UI
+- storage art redo?
+* storage upgradeable (increase capacity)
+- storage display settings?
+- R points animation when delivery finished
+- fix plane particles zoom out (also no item drawing, alternate textures/draw pixels?)
+'''
+
+
+
+
+
+
+
 ##############################################
 #Import pygame and sys to draw loading screen#
 ##############################################
@@ -358,7 +377,6 @@ if autoload: # temporary for quicker testing
 
     plane_list = generate_plane_list(grid, delivery_level)
     orders_list, orders_names_list = extend_orders_list(orders_list, orders_names_list, unlocked_recipes, creater_unlocked_recipes)
-    print(orders_list, orders_names_list)
 
     in_menu = False
     start_play_perf = t.perf_counter() + 1
@@ -1134,8 +1152,8 @@ while playing and __name__ == "__main__":
             elif delivery == []:
                 if r.randint(0, 100) < 1:
                     to_deliver_list[i] = orders_list[0]
-                    r_points_earned = int(round((len(orders_names_list) - len(orders_list)) ** 1.2 + 4))
-                    print(r_points_earned)
+                    r_points_earned = int(round((len(orders_names_list) - len(orders_list)) ** 1.2 + 4) * 10)
+                    print("R POINTS EARNED", r_points_earned)
                     storage[0] += r_points_earned
                     orders_list.pop(0)
                     update_edit_menu = True
