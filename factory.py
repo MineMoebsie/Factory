@@ -8,14 +8,9 @@ Todo list (before alpha v.1.0):
 * storage upgradeable (increase capacity)
 - storage display settings?
 - R points animation when delivery finished
+- manufacturers (also in research tree(s))
 - fix plane particles zoom out (also no item drawing, alternate textures/draw pixels?)
 '''
-
-
-
-
-
-
 
 ##############################################
 #Import pygame and sys to draw loading screen#
@@ -49,7 +44,6 @@ percent_vals = loading_screen(screen,percent_vals,10,load_font,"Importing module
 screen_info = pg.display.Info()
 screen_size = pg.display.get_surface().get_size()
 
-
 ################
 #Import modules#
 ################
@@ -73,6 +67,7 @@ from Files.loading_functions import *
 from Files.item_spawn import *
 from Files.save_world import *
 from Files.plane_functions import *
+from Files.storage_menu_functions import *
 
 percent_vals = loading_screen(screen,percent_vals,70,load_font,"Reading save files")
 
@@ -303,6 +298,9 @@ locations = [[],[]] #list of locations (x,y) of spawnable blocks
 crafting_locations = [[],[]]
 cargo_locations = [[],[]]
 cargo_spawn_locations = [[],[]]
+
+#storage menu
+storage_menu = storageMenu(storage=storage)
 
 # player data
 start_play_perf = -1
@@ -1230,6 +1228,7 @@ while playing and __name__ == "__main__":
         if not research_menu and not keybind_menu:
             tile_mode_btns, edit_tile_menu_rect = draw_tile_mode_menu(screen, tile_mode)
 
+        storage_menu.draw_storage_menu(screen)
 
         if t.perf_counter() > autosave_perf + autosave_interval and autosave_active == False:
             autosave_active = True
@@ -1244,10 +1243,6 @@ while playing and __name__ == "__main__":
                 autosave_perf = t.perf_counter()
                 print("finished autosave")
         
-        # for btn in crafter_btn_collidepoints:
-        #     btn = btn[0]
-        #     pg.draw.rect(screen, (255, 0, 0), btn)
-
         fps = clock.get_fps()
         screen.blit(i_title_font.render(str(int(fps)), True, (0,0,0)),(10,10))
         pg.display.flip()

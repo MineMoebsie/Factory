@@ -189,9 +189,9 @@ def update_and_draw_plane_particles(screen, plane_particles, dT, scale, scrollx,
         particle[4] = particle_size * 0.97
 
         particle_surf = pg.Surface((particle_size, particle_size), pg.SRCALPHA)
-        pg.draw.circle(particle_surf, (100, 100, 100), (particle_size / 2, particle_size / 2), particle_size / 2)
+        pg.draw.circle(particle_surf, (60, 50, 50), (particle_size / 2, particle_size / 2), particle_size / 2)
         particle_surf.set_alpha(200)
-        screen.blit(particle_surf, (particle_x * scale + scrollx, particle_y * scale + scrolly))
+        screen.blit(particle_surf, (particle_x * scale + scrollx, particle_y * scale + scrolly), special_flags=pg.BLEND_RGBA_ADD)
 
     return plane_particles
 
