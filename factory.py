@@ -1228,6 +1228,7 @@ while playing and __name__ == "__main__":
         if not research_menu and not keybind_menu:
             tile_mode_btns, edit_tile_menu_rect = draw_tile_mode_menu(screen, tile_mode)
 
+        storage_menu.update_storage(storage)
         storage_menu.draw_storage_menu(screen)
 
         if t.perf_counter() > autosave_perf + autosave_interval and autosave_active == False:
