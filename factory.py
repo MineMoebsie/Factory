@@ -256,7 +256,8 @@ items_list = []
 
 placeable = False
 
-storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
+storage = {}
+# storage = [100000,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]#item0, item1, etc.
 
 #plane things & delivery for r_points
 plane_list = []
@@ -618,10 +619,13 @@ while playing and __name__ == "__main__":
                     stop_mouse_placement = False
                     if e.button == 1:#left mouse button
                         if not research_menu and not keybind_menu:#normal menu
-                            if my < screen_size[1] - bar_height:#dont draw tiles under the menu
-                                mouse_down = True
-                            else:
+                            if my > screen_size[1] - bar_height: #dont draw tiles under the menu
                                 stop_mouse_placement = True
+                            elif my <= storage_menu.load_imgs[0][2] + 15 and mx < storage_menu.load_imgs[0][1] + 15:
+                                stop_mouse_placement = True
+                                storage_menu.mouse_interaction(mx, my, True)
+                            else:
+                                mouse_down = True
                             open_menu = False
                             for icon in range(len(icon_click_list)):
                                 if mx > icon_click_list[icon][0] and my > icon_click_list[icon][1]:
