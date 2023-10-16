@@ -9,6 +9,8 @@ import os
 import copy
 
 storage_font = pg.font.Font('Fonts/Roboto.ttf', 20)
+storage_categories_font = pg.font.Font('Fonts/Lato.ttf', 24)
+
 
 class storageMenu:
     def __init__(self, storage):
@@ -26,7 +28,8 @@ class storageMenu:
                      ["UI/storage_select_most.png", 45, 45, "storage_select_most"],
                      ["UI/storage_select_least.png", 45, 45, "storage_select_least"],
                      ["UI/storage_select_fast.png", 45, 45, "storage_select_fast"],
-                     ["UI/storage_select_slow.png", 45, 45, "storage_select_slow"]]
+                     ["UI/storage_select_slow.png", 45, 45, "storage_select_slow"],
+                     ["UI/storage_menu.png", 900, 600, "storage_menu"]]
 
         for load_img in self.load_imgs:
             self.pics[load_img[3]] = pg.transform.scale(pg.image.load(f"Assets/{load_img[0]}"), (load_img[1], load_img[2])).convert_alpha()
@@ -57,6 +60,14 @@ class storageMenu:
         "slow" - least to most in produced parts per min: only the things that are produced per min show up
         '''
 
+        self.menu_open = True # bugger menu open or not
+
+        self.unlocked_items = []
+
+        with open("Data/storage_menu_layout.json") as f:
+            self.storage_layout = json.load(f) # all items theoretically displayed
+        self.menu_display_items = {} # all items displayed (only unlocked items)
+
     def draw_storage_menu(self, screen):
         screen.blit(self.pics["storage_display"], self.topleft_margin)
         blit_x = 20
@@ -85,6 +96,15 @@ class storageMenu:
         screen.blit(self.pics[f"storage_select_{self.display_order}"], (self.storage_bar_display_size[0] - 50, self.topleft_margin[1] + 9))
         self.sort_btn_rect.x = self.storage_bar_display_size[0] - 50
         self.sort_btn_rect.y = self.topleft_margin[1] + 9
+        
+        if self.menu_open:
+            screen.blit(self.pics["storage_menu"], (self.topleft_margin[0], self.topleft_margin[1] + self.storage_bar_display_size[1] + 5))
+            categories_blit_y = self.topleft_margin[1] + self.storage_bar_display_size[1] + 20
+            for category in self.menu_display_items:
+                category_text = storage_categories_font.render(str(category), True, (0, 0, 0))
+                screen.blit(category_text, (25, categories_blit_y))
+                categories_blit_y += 30
+
 
     def compact_number(self, num):
         num = float('{:.3g}'.format(num))
@@ -94,7 +114,7 @@ class storageMenu:
             num /= 1000.0
         return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'k', 'M', 'B', 'T', 'Qa.', 'Qu.', 'Se.', 'Sep.', 'Oct.'][magnitude])
 
-    def update_display_items(self):
+    def update_display_items(self, unlocked_recipes, creater_unlocked_recipes):
         self.display_items = []
         if self.display_order == "most":
             storage_sorted = {k: v for k, v in sorted(self.storage.items(), reverse=True, key=lambda item: item[1])}
@@ -122,8 +142,23 @@ class storageMenu:
         for del_ind in reversed(delete_indexes):
             self.display_items.pop(del_ind)
 
+        self.unlocked_items = copy.copy(unlocked_recipes)
+        for creater_recipe in creater_unlocked_recipes:
+            for item in creater_unlocked_recipes[creater_recipe]:
+                self.unlocked_items.append(item)
 
-    def update_storage(self, storage):
+        self.unlocked_items = list(dict.fromkeys(self.unlocked_items))
+
+        self.menu_display_items = {}
+        for category in self.storage_layout:
+            self.menu_display_items[category] = []
+            for item in self.storage_layout[category]:
+                if item in self.unlocked_items:
+                    self.menu_display_items[category].append(item)
+            if self.menu_display_items[category] == []:
+                del self.menu_display_items[category]
+        
+    def update_storage(self, storage, unlocked_recipes, creater_unlocked_recipes):
         self.storage = storage
         if self.update_prev_storage_perf + 10 <= t.perf_counter():
             for item in self.prev_storage.keys():
@@ -132,8 +167,12 @@ class storageMenu:
             self.prev_storage = copy.copy(storage)
             self.update_prev_storage_perf = t.perf_counter()
 
-        self.update_display_items()
+        self.update_display_items(unlocked_recipes, creater_unlocked_recipes)
+
+        return self.unlocked_items
 
     def mouse_interaction(self, mx, my, mouse_down):
         if self.sort_btn_rect.collidepoint(mx, my) and mouse_down:
             self.display_order = self.display_orders[(self.display_orders.index(self.display_order) + 1) % len(self.display_orders)]
+        elif pg.Rect((self.storage_bar_display_size[0] - 50, self.topleft_margin[1] + 9), self.storage_bar_display_size) and mouse_down:
+            self.menu_open = not self.menu_open

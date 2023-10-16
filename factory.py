@@ -285,6 +285,8 @@ unlocked_recipes = []
 creater_unlocked_recipes = {} 
 #example of creater_unlocked_recipes:
 # {13: [1, 2, 3], 14: [4, 5], 15: []}
+unlocked_items = [] # unlocked_recipes and creater_unlocked_recipes combined, updated by storage_menu
+
 creater_menu_collidepoints = [] # creater menu collidepoints go in here
 
 # spawning
@@ -1232,7 +1234,7 @@ while playing and __name__ == "__main__":
         if not research_menu and not keybind_menu:
             tile_mode_btns, edit_tile_menu_rect = draw_tile_mode_menu(screen, tile_mode)
 
-        storage_menu.update_storage(storage)
+        unlocked_items = storage_menu.update_storage(storage, unlocked_recipes, creater_unlocked_recipes)
         storage_menu.draw_storage_menu(screen)
 
         if t.perf_counter() > autosave_perf + autosave_interval and autosave_active == False:
