@@ -626,6 +626,9 @@ while playing and __name__ == "__main__":
                             elif my <= storage_menu.load_imgs[0][2] + 15 and mx < storage_menu.load_imgs[0][1] + 15:
                                 stop_mouse_placement = True
                                 storage_menu.mouse_interaction(mx, my, True)
+                            elif storage_menu.menu_open == True and my <= storage_menu.load_imgs[5][2] + storage_menu.load_imgs[0][2] + 15 and mx < storage_menu.load_imgs[5][1] + 15: # only when storage menu is openened
+                                stop_mouse_placement = True
+                                storage_menu.mouse_interaction(mx, my, True)
                             else:
                                 mouse_down = True
                             open_menu = False
@@ -845,72 +848,78 @@ while playing and __name__ == "__main__":
                         if brush in draggable_brushes and e.button == 1 and not stop_mouse_placement:
                             mouse_drag_brush = True #mouse held down for brushes
 
-                    mousebutton_pressed = True
+                        mousebutton_pressed = True
 
             if e.type == pg.MOUSEBUTTONUP:
                 if e.button == 1:
                     mousebutton_pressed = False
                     mouse_drag_brush = False
 
-                if keybind_menu:
-                    if e.button == 4:#scroll up
-                        if k_scrolly < rect_keybinds.get_height()-screen_size[1]:
-                            k_scrolly += 25
-                    if e.button == 5:#scroll down
-                        if k_scrolly >= 25:
-                            k_scrolly -= 25
+                if e.button in [4, 5]:
+                    if my <= storage_menu.load_imgs[0][2] + 15 and mx < storage_menu.load_imgs[0][1] + 15:
+                        storage_menu.scroll_in_bar(e.button, unlocked_recipes, creater_unlocked_recipes)
+                    elif storage_menu.menu_open == True and my <= storage_menu.load_imgs[5][2] + storage_menu.load_imgs[0][2] + 15 and mx < storage_menu.load_imgs[5][1] + 15: # only when storage menu is opened
+                        stop_mouse_placement = True
+                        storage_menu.mouse_interaction(mx, my, True)
+                    elif keybind_menu:
+                        if e.button == 4:#scroll up
+                            if k_scrolly < rect_keybinds.get_height()-screen_size[1]:
+                                k_scrolly += 25
+                        if e.button == 5:#scroll down
+                            if k_scrolly >= 25:
+                                k_scrolly -= 25
 
-                elif edit_tile_menu_open and tile_mode == "edit":
-                    if e.button == 4:#scroll up
-                        craft_scrolly[tile_menu_type] -= 5 * deltaTime
-                        if tile_menu_type == "crafter":
-                            craft_scrolly[tile_menu_type] = max(-len(unlocked_recipes) * 130 + 200, craft_scrolly[tile_menu_type])
-                        elif tile_menu_type == "creater":
-                            craft_scrolly[tile_menu_type] = max(-len(creater_unlocked_recipes[creater_type]) * 130 + 200, craft_scrolly[tile_menu_type])
+                    elif edit_tile_menu_open and tile_mode == "edit":
+                        if e.button == 4:#scroll up
+                            craft_scrolly[tile_menu_type] -= 5 * deltaTime
+                            if tile_menu_type == "crafter":
+                                craft_scrolly[tile_menu_type] = max(-len(unlocked_recipes) * 130 + 200, craft_scrolly[tile_menu_type])
+                            elif tile_menu_type == "creater":
+                                craft_scrolly[tile_menu_type] = max(-len(creater_unlocked_recipes[creater_type]) * 130 + 200, craft_scrolly[tile_menu_type])
 
-                    if e.button == 5:#scroll down
-                        craft_scrolly[tile_menu_type] += 5 * deltaTime
-                        craft_scrolly[tile_menu_type] = min(15, craft_scrolly[tile_menu_type])
-                    update_edit_menu = True
+                        if e.button == 5:#scroll down
+                            craft_scrolly[tile_menu_type] += 5 * deltaTime
+                            craft_scrolly[tile_menu_type] = min(15, craft_scrolly[tile_menu_type])
+                        update_edit_menu = True
 
-                else: # scrolling in level -> zooming
-                    mouse_down = False
-                    if e.button == 4 and not research_menu:#scroll up
-                        old_scale = scale
-                        scale += 0.11
-                        scale = int(scale*10)/10
-                        if scale > max_scale:
-                            scale = max_scale
-                        scrollx = int(round(scrollx*scale/old_scale - mx*(1-old_scale/scale),0))
-                        if scrollx > 0:
-                            scrollx = 0
-                        if scrollx < -round((grid.shape[1])*50*scale-screen_size[0], 3):
-                            scrollx = int(round((grid.shape[1])*50*scale-screen_size[0], 3))
-                        scrolly = int(round(scrolly*scale/old_scale - my*(1-old_scale/scale),0))
-                        if scrolly > 0:
-                            scrolly = 0
-                        if scrolly < -round((grid.shape[0])*50*scale-screen_size[1], 3):
-                            scrolly = int(round((grid.shape[0])*50*scale-screen_size[1], 3))
-                        scaled_pictures = scale_pictures(scale)
-                        render_distance = int(1/scale+1)
-                    if e.button == 5 and not research_menu:#scroll down
-                        old_scale = scale
-                        scale -= 0.1
-                        scale = int(scale*10)/10
-                        if scale <= min_scale:
-                            scale = min_scale
-                        scrollx = int(round(scrollx*scale/old_scale - mx*(1-old_scale/scale),0))
-                        if scrollx > 0:
-                            scrollx = 0
-                        if scrollx < -round((grid.shape[1])*50*scale-screen_size[0], 3):
-                            scrollx = int(round((grid.shape[1])*50*scale-screen_size[0], 3))
-                        scrolly = int(round(scrolly*scale/old_scale - my*(1-old_scale/scale),0))
-                        if scrolly > 0:
-                            scrolly = 0
-                        if scrolly < -round((grid.shape[0])*50*scale-screen_size[1], 3):
-                            scrolly = int(round((grid.shape[0])*50*scale-screen_size[1], 3))
-                        scaled_pictures = scale_pictures(scale)
-                        render_distance = int(1/scale+1)
+                    else: # scrolling in level -> zooming
+                        mouse_down = False
+                        if e.button == 4 and not research_menu:#scroll up
+                            old_scale = scale
+                            scale += 0.11
+                            scale = int(scale*10)/10
+                            if scale > max_scale:
+                                scale = max_scale
+                            scrollx = int(round(scrollx*scale/old_scale - mx*(1-old_scale/scale),0))
+                            if scrollx > 0:
+                                scrollx = 0
+                            if scrollx < -round((grid.shape[1])*50*scale-screen_size[0], 3):
+                                scrollx = int(round((grid.shape[1])*50*scale-screen_size[0], 3))
+                            scrolly = int(round(scrolly*scale/old_scale - my*(1-old_scale/scale),0))
+                            if scrolly > 0:
+                                scrolly = 0
+                            if scrolly < -round((grid.shape[0])*50*scale-screen_size[1], 3):
+                                scrolly = int(round((grid.shape[0])*50*scale-screen_size[1], 3))
+                            scaled_pictures = scale_pictures(scale)
+                            render_distance = int(1/scale+1)
+                        if e.button == 5 and not research_menu:#scroll down
+                            old_scale = scale
+                            scale -= 0.1
+                            scale = int(scale*10)/10
+                            if scale <= min_scale:
+                                scale = min_scale
+                            scrollx = int(round(scrollx*scale/old_scale - mx*(1-old_scale/scale),0))
+                            if scrollx > 0:
+                                scrollx = 0
+                            if scrollx < -round((grid.shape[1])*50*scale-screen_size[0], 3):
+                                scrollx = int(round((grid.shape[1])*50*scale-screen_size[0], 3))
+                            scrolly = int(round(scrolly*scale/old_scale - my*(1-old_scale/scale),0))
+                            if scrolly > 0:
+                                scrolly = 0
+                            if scrolly < -round((grid.shape[0])*50*scale-screen_size[1], 3):
+                                scrolly = int(round((grid.shape[0])*50*scale-screen_size[1], 3))
+                            scaled_pictures = scale_pictures(scale)
+                            render_distance = int(1/scale+1)
 
             if e.type == pg.QUIT:
                 playing = False
