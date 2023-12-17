@@ -859,8 +859,7 @@ while playing and __name__ == "__main__":
                     if my <= storage_menu.load_imgs[0][2] + 15 and mx < storage_menu.load_imgs[0][1] + 15:
                         storage_menu.scroll_in_bar(e.button, unlocked_recipes, creater_unlocked_recipes)
                     elif storage_menu.menu_open == True and my <= storage_menu.load_imgs[5][2] + storage_menu.load_imgs[0][2] + 15 and mx < storage_menu.load_imgs[5][1] + 15: # only when storage menu is opened
-                        stop_mouse_placement = True
-                        storage_menu.mouse_interaction(mx, my, True)
+                        storage_menu.scroll_in_menu(e.button, mx, my, unlocked_recipes, creater_unlocked_recipes)
                     elif keybind_menu:
                         if e.button == 4:#scroll up
                             if k_scrolly < rect_keybinds.get_height()-screen_size[1]:

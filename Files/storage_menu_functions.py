@@ -10,7 +10,8 @@ import copy
 
 storage_font = pg.font.Font('Fonts/Roboto.ttf', 20)
 storage_categories_font = pg.font.Font('Fonts/Lato.ttf', 24)
-
+storage_categories_title_font = pg.font.Font('Fonts/Lato.ttf', 28)
+storage_categories_count_font = pg.font.Font('Fonts/Lato.ttf', 23)
 
 class storageMenu:
     def __init__(self, storage):
@@ -69,13 +70,40 @@ class storageMenu:
         with open("Data/storage_menu_layout.json") as f:
             self.storage_layout = json.load(f) # all items theoretically displayed
         self.menu_display_items = {} # all items displayed (only unlocked items)
+        self.all_menu_display_items = {} # self.menu_display_items but not cut for categories
 
         self.categories_rect = []
         self.selected_category_index = -1
+        self.selected_category = ""
 
-        self.start_line_x = 150 # where the line approx. is with margin incl.
+        self.start_line_x = 185 # where the line approx. is with margin excluded!
+        self.category_scroll = 0 # how much the categories list is scrolled. 0 is default, 1 means that you can't see the top element anymore
+
+        self.max_categories_displayed = 18 # how many categories can be displayed max
+        self.max_lines_displayed = 12 # how many lines in main storage menu can be displayed max
+        self.len_menu_display_items = 1 # length of self.menu_display_items before it is cut by self.category_scroll
+
+        self.columns_in_menu = 5 # amount of columns in main menu of storage 
+        #example of main storage layout
+        '''
+        self.main_storage_layout = [
+            ["foods"],
+            [1, 2, 3],
+            ["minerals"],
+            [4, 5, 6],
+            ["accessories"],
+            [7, 8, 9, 10, 11],
+            [12, 13, 14],
+            ["foods1"],
+            [1, 2, 3]
+        ]
+        '''
+        self.main_storage_layout = []
+        self.main_storage_scrolly = 0
+
 
     def draw_storage_menu(self, screen):
+        # draw storage bar (topleft)
         screen.blit(self.pics["storage_display"], self.topleft_margin)
         blit_x = 20
         blit_x_max = 550
@@ -100,22 +128,59 @@ class storageMenu:
             else:
                 break
 
+        # draw storage btn located in storage bar
         screen.blit(self.pics[f"storage_select_{self.display_order}"], (self.storage_bar_display_size[0] - 50, self.topleft_margin[1] + 9))
         self.sort_btn_rect.x = self.storage_bar_display_size[0] - 50
         self.sort_btn_rect.y = self.topleft_margin[1] + 9
         
+        # draw main menu of storage if opened
         self.categories_rect = []
         if self.menu_open:
             screen.blit(self.pics["storage_menu"], (self.topleft_margin[0], self.topleft_margin[1] + self.storage_bar_display_size[1] + 5))
             categories_blit_y = self.topleft_margin[1] + self.storage_bar_display_size[1] + 20
-            for i, category in enumerate(self.menu_display_items):
-                if self.selected_category_index == i:
-                    category_text = storage_categories_font.render(str(category), True, (180, 180, 180))
-                else:
-                    category_text = storage_categories_font.render(str(category), True, (255, 255, 255))
-                screen.blit(category_text, (25, categories_blit_y))
-                self.categories_rect.append(pg.Rect((25, categories_blit_y), category_text.get_size()))
-                categories_blit_y += 30
+            j = 0 # i but only when category in menu_display_items
+            for i, category in enumerate(self.all_menu_display_items):
+                if category in self.menu_display_items:
+                    if j > self.max_categories_displayed:
+                        break
+
+                    if self.selected_category_index == i:
+                        category_text = storage_categories_font.render(str(category), True, (180, 180, 180))
+                    else:
+                        category_text = storage_categories_font.render(str(category), True, (255, 255, 255))
+                    screen.blit(category_text, (25, categories_blit_y))
+                    self.categories_rect.append([pg.Rect((25, categories_blit_y), category_text.get_size()), i])
+                    categories_blit_y += 30
+                    j += 1
+        
+            blit_scrolly = self.main_storage_scrolly
+            j = 0 # how many lines blit so far
+            for i, line in enumerate(self.main_storage_layout):
+                if blit_scrolly >= 0:
+                    if j <= self.max_lines_displayed:
+                        j += 1
+                        if type(line) is str:
+                            if str(line) == self.selected_category:            
+                                category_title = storage_categories_title_font.render(str(line).capitalize(), True, (180, 180, 180))
+                            else:
+                                category_title = storage_categories_title_font.render(str(line).capitalize(), True, (255, 255, 255))
+
+                            screen.blit(category_title, (210, blit_scrolly + self.topleft_margin[1] + self.storage_bar_display_size[1] + 18))
+                        else:
+                            blit_x = 0
+                            for item in line:
+                                item_id = item
+                                screen.blit(self.item_pics[item_id if item_id != 0 else 'r'], (210 + blit_x, blit_scrolly + self.topleft_margin[1] + self.storage_bar_display_size[1] + 18))
+                                blit_x += 45
+                                num = self.storage[item]
+                                if self.storage[item] > 9999:
+                                    num = self.compact_number(qty)
+                                count_text = storage_categories_count_font.render(str(num), True, (255, 255, 255))
+                                screen.blit(count_text, (210 + blit_x, blit_scrolly + self.topleft_margin[1] + self.storage_bar_display_size[1] + 18))
+                                blit_x += 88
+                    else:
+                        break # no reason to continue looping
+                blit_scrolly += 45
 
     def compact_number(self, num):
         num = float('{:.3g}'.format(num))
@@ -123,7 +188,9 @@ class storageMenu:
         while abs(num) >= 1000:
             magnitude += 1
             num /= 1000.0
-        return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'k', 'M', 'B', 'T', 'Qa.', 'Qu.', 'Se.', 'Sep.', 'Oct.'][magnitude])
+        if magnitude > 9:
+            return '999 Oct.+'
+        return '{} {}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'k', 'M', 'B', 'T', 'Qa.', 'Qu.', 'Se.', 'Sep.', 'Oct.'][magnitude])
 
     def update_display_items(self, unlocked_recipes, creater_unlocked_recipes):
         self.display_items = []
@@ -145,7 +212,6 @@ class storageMenu:
             for avg_item in avg_sorted:
                 if avg_sorted[avg_item] != 0.0:
                     self.display_items.append(avg_item)
-
 
         delete_indexes = []
         for i, item in enumerate(self.display_items):
@@ -175,6 +241,25 @@ class storageMenu:
             if self.menu_display_items[category] == []:
                 del self.menu_display_items[category]
         
+        self.len_menu_display_items = len(list(self.menu_display_items.keys()))
+        self.all_menu_display_items = copy.copy(self.menu_display_items)
+
+        keys = list(self.menu_display_items.keys())
+        for i in range(self.category_scroll):
+            del self.menu_display_items[keys[i]]
+
+        self.main_storage_layout = []
+        for disp_i in self.all_menu_display_items:
+            self.main_storage_layout.append(str(disp_i))
+            item_batch = [] # adding items in batches of 5 to main_storage_layout (5 = self.columns_in_menu)
+            for item in self.all_menu_display_items[disp_i]: 
+                item_batch.append(item)
+                if len(item_batch) >= self.columns_in_menu:
+                    self.main_storage_layout.append(item_batch)
+                    item_batch = []
+            if len(item_batch) > 0:
+                self.main_storage_layout.append(item_batch)
+
     def update_storage(self, storage, unlocked_recipes, creater_unlocked_recipes):
         self.storage = storage
         if self.update_prev_storage_perf + 10 <= t.perf_counter():
@@ -196,12 +281,16 @@ class storageMenu:
             elif pg.Rect(self.topleft_margin, self.storage_bar_display_size).collidepoint(mx, my):
                 self.menu_open = not self.menu_open
             elif self.menu_open:
-                for i, rect in enumerate(self.categories_rect):
+                for rect, i in self.categories_rect:
                     if rect.collidepoint(mx, my):
                         if self.selected_category_index == i:
                             self.selected_category_index = -1
+                            self.selected_category = ""
                         else:    
                             self.selected_category_index = i
+                            self.selected_category = list(self.all_menu_display_items.keys())[i]
+                            if self.selected_category in self.main_storage_layout:
+                                self.main_storage_scrolly = -self.main_storage_layout.index(self.selected_category) * 45
 
     def scroll_in_bar(self, scroll, unlocked_recipes, creater_unlocked_recipes):
         scroll_dir = "up" if scroll == 4 else "down" 
@@ -215,3 +304,19 @@ class storageMenu:
             self.start_view_items = max(0, self.start_view_items-1)
 
         self.update_display_items(unlocked_recipes, creater_unlocked_recipes)
+
+    def scroll_in_menu(self, scroll, mx, my, unlocked_recipes, creater_unlocked_recipes):
+        scroll_dir = "up" if scroll == 4 else "down" 
+        if mx > self.start_line_x: # scrolling in the main part of storage menu
+            if scroll_dir == "up":
+                self.main_storage_scrolly = min(self.main_storage_scrolly + 45, 0)
+            else:
+                self.main_storage_scrolly = max(self.main_storage_scrolly - 45, -(len(self.main_storage_layout)-7) * 45)
+
+        else: # in side bar
+            if scroll_dir == "up":
+                self.category_scroll = min(max(self.len_menu_display_items - 10, 0), self.category_scroll - 1)
+            else:
+                self.category_scroll = max(0, self.category_scroll+1)
+
+            self.update_display_items(unlocked_recipes, creater_unlocked_recipes)
